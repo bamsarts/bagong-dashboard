@@ -1,0 +1,17 @@
+@import '../../../styles/sass/variables';
+
+.label{
+    padding: .5rem 1rem;
+    border: 1px solid $error-color;
+    border-radius: 10px;
+    color: $error-color;
+    font-weight: bold;
+    background-color: $error-soft-color;
+    width: fit-content;
+
+    &.green{
+        border: 1px solid #39b666;
+        color: #39b666;
+        background-color: $success-soft-color;
+    }
+}

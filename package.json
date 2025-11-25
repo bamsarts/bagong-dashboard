@@ -1,0 +1,36 @@
+{
+  "name": "bagong-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:live": "sed -i 's/API_ENDPOINT.development/API_ENDPOINT.production/g' ./src/api/utils.js && next build && sed -i 's/API_ENDPOINT.production/API_ENDPOINT.development/g' ./src/api/utils.js",
+    "start": "next start -p 1016",
+    "start:dev": "next start -p 1018",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "chart.js": "^3.9.1",
+    "draft-js": "^0.11.7",
+    "draftjs-to-html": "^0.9.1",
+    "form-data": "^4.0.3",
+    "html-to-draftjs": "^1.5.0",
+    "next": "13.4.12",
+    "react": "18.2.0",
+    "react-chartjs-2": "^4.3.1",
+    "react-datepicker": "^4.25.0",
+    "react-dom": "18.2.0",
+    "react-draft-wysiwyg": "^1.15.0",
+    "react-icons": "^4.12.0",
+    "react-qrcode-logo": "^2.10.0",
+    "serverless-mysql": "^1.5.5",
+    "xlsx": "^0.18.5",
+    "@aws-sdk/client-s3": "3.872.0"
+  },
+  "devDependencies": {
+    "eslint": "8.18.0",
+    "eslint-config-next": "12.1.6",
+    "sass": "^1.89.2"
+  }
+}

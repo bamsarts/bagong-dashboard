@@ -1,0 +1,122 @@
+@import '../../styles/sass/variables';
+@import '../../styles/sass/mixins';
+
+.modal_wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+    pointer-events: none;
+    
+    &.visible {
+        background-color: #{$dark-color + $opacity_75};
+        pointer-events: all;
+    }
+}
+
+.modal_container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    max-width: 500px;
+    background-color: $light-color;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    pointer-events: all;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    
+    &.visible {
+        transform: translateX(0);
+    }
+
+    @include respond-sm {
+        max-width: 400px;
+    }
+}
+
+.buttonContainer {
+    @include flex-row('center', 'center');
+    margin-top: 2rem;
+}
+
+.perKarcisSection {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+    
+    h4 {
+        margin-bottom: 1rem;
+        color: $dark-color;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+}
+
+.amountControl {
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: $dark-color;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+}
+
+.incrementContainer {
+    @include flex-row('center', 'stretch');
+    gap: 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    
+    .incrementBtn {
+        min-width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 0;
+        background-color: #f8f9fa;
+        color: $primary-color;
+        font-weight: bold;
+        font-size: 1.2rem;
+        
+        &:hover {
+            background-color: #e9ecef;
+        }
+        
+        &:active {
+            background-color: #dee2e6;
+        }
+    }
+    
+    .amountInput {
+        flex: 1;
+        text-align: center;
+        border: none;
+        border-left: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        border-radius: 0;
+        height: 40px;
+        
+        input {
+            text-align: center;
+            border: none;
+            height: 100%;
+        }
+    }
+}

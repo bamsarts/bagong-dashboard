@@ -1,0 +1,234 @@
+@import '../../styles/sass/mixins';
+@import '../../styles/sass/variables';
+
+.sidebar {
+    @include flex-column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 100;
+    width: $sidebar-width;
+    background-color: $light-color;
+    color: darken($color: $medium-dark-color, $amount: 15);
+    overflow-y: scroll;
+    box-shadow: $box-shadow-soft;
+    transform: translateX(-100%);
+    transition: transform .7s;
+
+    &.visble {
+        transform: translateX(0);
+    }
+}
+
+.header {
+    @include flex-row('space-between', 'center');
+    padding: 1rem;
+    height: 78px;
+
+    .main_logo {
+        width: 70%;
+        img {
+            width: 75%;
+            object-fit: contain;
+        }
+    }
+
+    .menu_button {
+        @include flex-column('center', 'center');
+        cursor: pointer;
+        height: 46px;
+        width: 46px;
+        font-size: 2rem;
+    }
+}
+
+.menu {
+    padding: .5rem .25rem;
+    transition: .7s all;
+    
+    h4 {
+        font-weight: 400;
+        margin: 0;
+        width: 100%;
+    }
+    
+    &.active {
+        color: $dark-color;
+        font-weight: 500;
+        background-color: $light-color;
+    }
+}
+
+.main_menu_container {
+    flex: 1;
+    overflow: scroll;
+    padding-right: .1rem;
+
+    &::-webkit-scrollbar {
+        width: .25rem;
+        background-color: $medium-light-color;
+        display: block;
+    }
+
+    &::-webkit-scrollbar-track {
+        border-radius: 10px;
+        background-color: $light-color;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background-color: $medium-dark-color;
+        height: 1px;
+    }
+}
+
+.main_menu {
+    @include flex-row('flex-start', 'center');
+    font-size: .85rem;
+    padding: .75rem;
+
+    &:hover {
+        cursor: pointer;
+        background-color: $medium-light-color;
+        color: $dark-color;
+        border-radius: .5rem;
+    }
+}
+
+.menu_icon {
+    @include flex-row('flex-start', 'center');
+    margin-right: 1rem;
+    font-size: 1rem;
+}
+
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all .7s;
+
+    &::-webkit-scrollbar {
+        width: .25rem;
+        background-color: $medium-light-color;
+        display: block;
+    }
+
+    &::-webkit-scrollbar-track {
+        border-radius: 10px;
+        background-color: $light-color;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background-color: $medium-dark-color;
+    }
+
+    &::-webkit-scrollbar-button {
+        height: 10px;
+    }
+
+    &.active {
+        max-height: 17rem;
+        overflow-y: scroll;
+        opacity: 1;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        padding-left: 1rem;
+        margin: .125rem;
+
+        li {
+            @include flex-row('flex-start', 'center');
+            width: 100%;
+            font-size: .75rem;
+            padding-left: 2rem;
+
+            @include respond-lg {
+                &:hover {
+                    font-weight: 500;
+                }
+            }
+
+            &.submenu_active {
+                font-weight: 500;
+                opacity: 1;
+                color: $dark-color
+            }
+
+            &::before {
+                content: "•";
+                margin-right: .5rem;
+            }
+
+            > a, > div {
+                padding: .75rem .125rem;
+                width: 100%;
+            }
+
+            > div {
+                cursor: pointer
+            }
+        }
+    }
+}
+
+.sub_submenus {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all .7s;
+
+    &.active {
+        max-height: 15rem;
+        overflow: scroll;
+        opacity: 1;
+    }
+
+    a {
+        padding: .5rem!important;
+    }
+}
+
+.sub_submenus_menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-right: .75rem;
+
+    h4 {
+        width: 100%;
+        margin: 0;
+    }
+}
+
+.submenu_status {
+    @include flex-row('flex-end', 'center');
+    // width: 100%;
+
+    .submenu_non_active {
+        transform: rotate(0deg);
+        transition: all .7s;
+    }
+
+    .submenu_active {
+        transform: rotate(90deg);
+    }
+}
+
+.footer {
+    @include flex-row('center', 'center');
+    padding: 1rem;
+    
+    div {
+        @include flex-column('center', 'center');
+        width: 40%;
+        padding: .5rem;
+
+        img {
+            width: 75%;
+        }
+    }
+}

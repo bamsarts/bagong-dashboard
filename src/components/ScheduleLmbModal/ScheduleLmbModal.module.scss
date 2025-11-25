@@ -1,0 +1,19 @@
+@import '../../styles/sass/variables';
+
+.label{
+    width: fit-content;
+    height: fit-content;
+    padding: .5rem 1rem;
+    border-radius: 10%;
+    font-weight: bold;
+}
+
+.primary{
+    color: $label-primary-color;
+    background-color: $label-light-primary-color;
+}
+
+.warning{
+    color: $secondary-color;
+    background-color: $label-light-warning-color;
+}

@@ -1,0 +1,19 @@
+.container{
+
+    div{
+        margin: .5rem;
+        display: flex;
+
+        strong{
+            width: 30%;
+        }
+
+        aside{
+            display: grid;
+        }
+
+        a{
+            color: blue;
+        }
+    }
+}

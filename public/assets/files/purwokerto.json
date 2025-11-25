@@ -1,0 +1,101 @@
+[
+  {
+    "no": 1,
+    "rute": "TERMINAL WONOSOBO - POOL KEMAYORAN",
+    "titik_keberangkatan": "TERMINAL WONOSOBO",
+    "rute_yang_dilewati": "WONOSOBO - SAWANGAN - BANJARNEGARA - PUCANG - BUKATEJA",
+    "jam": "17.00 WIB",
+    "ekonomi": null,
+    "bisnis": null,
+    "executive": null,
+    "royal": null
+  },
+  {
+    "no": 2,
+    "rute": "TERMINAL BANJARNEGARA - POOL KEMAYORAN",
+    "titik_keberangkatan": "TERMINAL BANJARNEGARA",
+    "rute_yang_dilewati": "BANJARNEGARA - PUCANG - BUKATEJA",
+    "jam": "17.00 WIB",
+    "ekonomi": null,
+    "bisnis": null,
+    "executive": null,
+    "royal": null
+  },
+  {
+    "no": 3,
+    "rute": "BUMIAYU - BOGOR",
+    "titik_keberangkatan": "AGEN BUMIAYU",
+    "rute_yang_dilewati": "POOL CIPAKU - BOTANI SQUARE MALL - GUNUNG PUTRI",
+    "jam": "08.00 WIB",
+    "ekonomi": null,
+    "bisnis": null,
+    "executive": null,
+    "royal": null
+  },
+  {
+    "no": 4,
+    "rute": "TERMINAL PEKALONGAN - POOL BANDUNG",
+    "titik_keberangkatan": "KAJEN",
+    "rute_yang_dilewati": "KAJEN - PEKALONGAN - TEGAL",
+    "jam": "08.00 WIB",
+    "ekonomi": null,
+    "bisnis": null,
+    "executive": null,
+    "royal": null
+  },
+  {
+    "no": 5,
+    "rute": "BUMIAYU - POOL BANDUNG",
+    "titik_keberangkatan": "AGEN BUMIAYU",
+    "rute_yang_dilewati": "BUMIAYU - SLAWI - TEGAL - BANDUNG",
+    "jam": "07.00 WIB",
+    "ekonomi": null,
+    "bisnis": null,
+    "executive": null,
+    "royal": null
+  },
+  {
+    "no": 6,
+    "rute": "TERMINAL AJIBARANG - POOL KEMAYORAN",
+    "titik_keberangkatan": "POOL DAMRI PURWOKERTO",
+    "rute_yang_dilewati": "AJIBARANG - BUMIAYU - LARANGAN - SONGGOM",
+    "jam": "19.00 WIB",
+    "ekonomi": null,
+    "bisnis": null,
+    "executive": null,
+    "royal": null
+  },
+  {
+    "no": 7,
+    "rute": "TERMINAL BOBOTSARI - POOL KEMAYORAN",
+    "titik_keberangkatan": "POOL DAMRI PURWOKERTO",
+    "rute_yang_dilewati": "BOBOTSARI - WALIK - BANCAR - PURBALINGGA - TERMINAL PURWOKERTO - POOL PURWOKERTO - KARANGLEWAS - CILONGOK",
+    "jam": "17.00 WIB",
+    "ekonomi": null,
+    "bisnis": null,
+    "executive": null,
+    "royal": null
+  },
+  {
+    "no": 8,
+    "rute": "TERMINAL PURBALINGGA - TERMINAL KALIDERES",
+    "titik_keberangkatan": "POOL DAMRI PURWOKERTO",
+    "rute_yang_dilewati": "BANCAR - PURBALINGGA - TERMINAL PURWOKERTO - POOL PURWOKERTO - KARANGLEWAS - CILONGOK",
+    "jam": "17.00 WIB",
+    "ekonomi": null,
+    "bisnis": null,
+    "executive": null,
+    "royal": null
+  },
+  {
+    "no": 9,
+    "rute": "TERMINAL MANDIRAJA - TERMINAL PORIS",
+    "titik_keberangkatan": "POOL DAMRI PURWOKERTO",
+    "rute_yang_dilewati": "MANDIRAJA - KLAMPOK - PERJA - BANYUMAS - NOTOG - POOL PURWOKERTO - KARANGLEWAS - CILONGOK",
+    "jam": "17.00 WIB",
+    "ekonomi": null,
+    "bisnis": null,
+    "executive": null,
+    "royal": null
+  }
+]

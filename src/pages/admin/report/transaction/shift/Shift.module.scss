@@ -1,0 +1,10 @@
+@import '../../../../../styles/sass/_variables.scss';
+
+.total_trx{
+    display: grid;
+    color: $dark-color;
+
+    strong{
+        font-size: 1.9rem;
+    }
+}

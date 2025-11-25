@@ -1,0 +1,29 @@
+@import '../../styles/sass/variables';
+
+.tooltip{
+    position: relative;
+    display: inline-block;
+    
+    .tooltip_text{
+        visibility: hidden;
+        min-width: 70px;
+        background-color: $medium-dark-color;
+        color: $light-color;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px;
+        font-size: .8rem;
+
+        /* Position the tooltip */
+        position: absolute;
+        z-index: 1;
+        top: -95%;
+        right: -58%;
+    }
+
+    &:hover {
+        .tooltip_text{
+            visibility: visible;
+        }
+    }
+}

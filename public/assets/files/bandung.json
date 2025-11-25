@@ -1,0 +1,145 @@
+[
+  {
+    "no": 1.0,
+    "rute": "BANDUNG - KUNINGAN",
+    "titik_keberangkatan": "GEDEBAGE, CICAHEUM",
+    "rute_yang_dilewati": "GEDEBAGE- CICAHEUM - TOL CISUMDAWU - TOL PAMULIHAN - CIPERNA - TERMINAL ANCARAN",
+    "jam": "05.00, 06.00, 08. 00, 10.00, 12.00, 14.00, 16.00",
+    "ekonomi": null,
+    "bisnis": "Rp120.000",
+    "executive": null,
+    "royal ": null
+  },
+  {
+    "no": 2.0,
+    "rute": "BANDUNG-INDRAMAYU",
+    "titik_keberangkatan": "GEDEBAGE, CICAHEUM",
+    "rute_yang_dilewati": "GEDEBAGE- CICAHEUM - TOL CISUMDAWU - TOL PAMULIHAN - TERMINAL INDRAMAYU",
+    "jam": "05.00, 10.00, 15.00",
+    "ekonomi": null,
+    "bisnis": "Rp110.000",
+    "executive": null,
+    "royal ": null
+  },
+  {
+    "no": 3.0,
+    "rute": "BANDUNG - CILEDUG",
+    "titik_keberangkatan": "GEDEBAGE, CICAHEUM",
+    "rute_yang_dilewati": "GEDEBAGE- CICAHEUM - TOL CISUMDAWU - TOL PAMULIHAN - CIPERNA - TERMINAL CILEDUG",
+    "jam": "06.00, 07.00, 13.00",
+    "ekonomi": null,
+    "bisnis": "Rp100.000",
+    "executive": null,
+    "royal ": null
+  },
+  {
+    "no": 4.0,
+    "rute": "BANDUNG - SUBANG",
+    "titik_keberangkatan": "GEDEBAGE, CICAHEUM, KEBON KAWUNG",
+    "rute_yang_dilewati": "GEDEBAGE- CICAHEUM - TOL CISUMDAWU - TOL PAMULIHAN - CIPALI - TERMINAL SUBANG",
+    "jam": "05.30, 09.00, 15.00",
+    "ekonomi": null,
+    "bisnis": "Rp60.000",
+    "executive": null,
+    "royal ": null
+  },
+  {
+    "no": 3.0,
+    "rute": "BANDUNG - YOGYAKARTA",
+    "titik_keberangkatan": "GEDEBAGE, CICAHEUM, KEBON KAWUNG",
+    "rute_yang_dilewati": "GEDEBAGE - KEBONKAWUNG - TOLCISUMDAWU - CIREBON -SEMARANG - BAWEN - MAGELANG - YOGYA",
+    "jam": "16.00, 18.30",
+    "ekonomi": null,
+    "bisnis": "Rp210.000",
+    "executive": null,
+    "royal ": null
+  },
+  {
+    "no": 4.0,
+    "rute": "BANDUNG - PONOROGO",
+    "titik_keberangkatan": "GEDEBAGE, CICAHEUM, KEBON KAWUNG",
+    "rute_yang_dilewati": "GEDEBAGE - KEBONKAWUNG - TOLCISUMDAWU - CIPERNA - SEMARANG - BOYOLALI - JOGYA - PONOROGO",
+    "jam": "14.00, 15.00",
+    "ekonomi": null,
+    "bisnis": "Rp250.000",
+    "executive": null,
+    "royal ": null
+  },
+  {
+    "no": 5.0,
+    "rute": "BANDUNG - PEKALONGAN",
+    "titik_keberangkatan": "GEDEBAGE, CICAHEUM, KEBON KAWUNG",
+    "rute_yang_dilewati": "GEDEBAGE - KEBONKAWUNG - TOLCISUMDAWU - CIPERNA - PEMALANG - PEKALONGAN",
+    "jam": "07.00, 08.00",
+    "ekonomi": null,
+    "bisnis": "Rp130.000",
+    "executive": null,
+    "royal ": null
+  },
+  {
+    "no": 6.0,
+    "rute": "BANDUNG - CEPU",
+    "titik_keberangkatan": "GEDEBAGE, CICAHEUM, KEBON KAWUNG",
+    "rute_yang_dilewati": "BANDUNG - TOL CISUMDAWU - CIPERNA -SEMARANG - GUBUG - GODONG - PURWODADI - BLORA - CEPU",
+    "jam": "13.00, 14.00",
+    "ekonomi": null,
+    "bisnis": "Rp220.000",
+    "executive": null,
+    "royal ": null
+  },
+  {
+    "no": 7.0,
+    "rute": "BANDUNG - BUMIAYU",
+    "titik_keberangkatan": "GEDEBAGE, CICAHEUM, KEBON KAWUNG",
+    "rute_yang_dilewati": "GEDEBAGE - KEBONKAWUNG - TOLPASTEUR - TOL CISUMDAWU- CIPERNA - EXIT TOL BREBES TIMUR - TEGAL - SLAWI - BUMI AYU ",
+    "jam": "09.00, 13.00",
+    "ekonomi": null,
+    "bisnis": "Rp130.000",
+    "executive": null,
+    "royal ": null
+  },
+  {
+    "no": 8.0,
+    "rute": "BANDUNG - TANJUNG KARANG",
+    "titik_keberangkatan": "KEBON KAWUNG",
+    "rute_yang_dilewati": "KEBON KAWUNG - TOL PASTEUR - MERAK - BAKAUHENI - TOL LAMPUNG - RAJABASA",
+    "jam": "07.00, 19.00",
+    "ekonomi": null,
+    "bisnis": "Rp300.000",
+    "executive": "Rp355.000",
+    "royal ": "Rp435.000"
+  },
+  {
+    "no": 9.0,
+    "rute": "BANDUNG - METRO",
+    "titik_keberangkatan": "KEBON KAWUNG",
+    "rute_yang_dilewati": "KEBON KAWUNG - TOL PASTEUR - MERAK - BAKAUHENI - TOL LAMPUNG - RAJABASA - METRO",
+    "jam": "07.00, 19.00",
+    "ekonomi": null,
+    "bisnis": null,
+    "executive": "Rp380.000",
+    "royal ": "Rp450.000"
+  },
+  {
+    "no": 10.0,
+    "rute": "BANDUNG - TALANG PADANG",
+    "titik_keberangkatan": "KEBON KAWUNG",
+    "rute_yang_dilewati": "KEBON KAWUNG - TOL PASTEUR - MERAK - BAKAUHENI - TOL LAMPUNG - RAJABASA - TALANG PADANG",
+    "jam": "19:00",
+    "ekonomi": null,
+    "bisnis": null,
+    "executive": null,
+    "royal ": "Rp470.000"
+  },
+  {
+    "no": 11.0,
+    "rute": "BANDUNG - PRINGSEWU",
+    "titik_keberangkatan": "KEBON KAWUNG",
+    "rute_yang_dilewati": "KEBON KAWUNG - TOL PASTEUR - MERAK - BAKAUHENI - TOL LAMPUNG - RAJABASA - PRINGSEWU",
+    "jam": "19:00",
+    "ekonomi": null,
+    "bisnis": null,
+    "executive": null,
+    "royal ": "Rp460.000"
+  }
+]

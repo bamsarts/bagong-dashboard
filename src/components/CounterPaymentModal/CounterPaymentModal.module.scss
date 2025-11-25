@@ -1,0 +1,13 @@
+.container{
+    margin: 1rem 0 0 .5rem;
+}
+
+.container_payment{
+    display: flex;
+    flex-wrap: wrap;
+
+    .item{
+        max-width: 200px;
+        min-width: 160px;
+    }
+}

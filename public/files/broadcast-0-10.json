@@ -1,0 +1,42 @@
+{
+    "status": "OK",
+    "message": "Success",
+    "data": [
+      {
+        "id": "c0a8a002-8afb-16f2-818b-0491bf800988",
+        "idUser": 258867,
+        "name": "Bambang Production",
+        "email": "bambang_supriadi@programmer.net",
+        "phone_number": 6289606929263,
+        "token": "cSn81OQ0xUeerxeW2w5IlC:APA91bHjHgREvDTHboIKusekpoYPYw7GmVowkQX03XnaU4xC0wO1ZG7jwQZVj_zTsviebDNSnjust1yKHxIUOFXshNybwB_n2frko5rszsB6pfLwqfS5WOw",
+        "isChecked": 1
+      },
+      {
+        "id": "c0a8a002-8afb-16f2-818b-0491bf800988",
+        "idUser": 258867,
+        "name": "Bambang Production",
+        "email": "bambanksupriadi@gmail.com",
+        "phone_number": 6289606929263,
+        "token": "fEPzPFT9S3yZkwtLOMWB39:APA91bEeQ3naIUgQtQixcAnb9o2BHSVDMOVCMPPQCshRt5K0Kh9saqx8ygEQRI5muTXizs25DLjtN2vxPzW4KUw-bLmnhhdr_teOtgNjj7GEh08CJpPcPR0",
+        "isChecked": 1
+      },
+      {
+        "id": "c0a8a002-8afb-16f2-818b-0491bf800988",
+        "idUser": 258867,
+        "name": "Bambang Production",
+        "email": "supardiarts@gmail.com",
+        "phone_number": 6289606929263,
+        "token": "fJqEB-MgSRK4_ItgpSh0YW:APA91bEOt6Ck-lvmf7FzgC4KDIceLwhzUZr6TyJouiFb41o4W8IvNc-U-UbnjAK2ffsjoIbGSCqEvCqOg0T1ZXT__xeW3TCJxN6fPFUEaM4GIyf0Y1PVDF0",
+        "isChecked": 1
+      },
+      {
+        "id": "c0a83002-865a-1453-8186-64c89b5207bb",
+        "idUser": 95341,
+        "name": "Safrudin",
+        "email": "dr46on82@gmail.com",
+        "phone_number": 6285279937937,
+        "token": "eCTCZ1z4Lkf9o9VTmen5bm:APA91bFg8t45kxzA0YWHZbNm4mSLRk6l1UfKQbuxwGYj9ahnz6jxf0mgXjwPUiUGeo3PNYuN3cdC0O9-Ul8O5-Jwy_Au1-Vz1BYpQwlasn5eSaRc-IHsNXc",
+        "isChecked": 1
+      }
+    ]
+}

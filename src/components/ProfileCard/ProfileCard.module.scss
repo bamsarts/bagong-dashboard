@@ -1,0 +1,89 @@
+@import '../../styles/sass/variables';
+@import '../../styles/sass/mixins';
+
+.container {
+    padding: .75rem;
+
+    @include respond-sm {
+        padding: .5rem;
+    }
+    
+    &.fluid_height {
+        height: 100%;
+
+        .card {
+            height: 100%;
+        }
+    }
+    
+    .card {
+        @include flex-column;
+        flex: 1 1 auto;
+        border-radius: .5rem;
+        background-color: $light-color;
+        box-shadow: $box-shadow-soft;
+        
+        @include respond-sm {
+            padding: .5rem;
+        }
+        
+        &.inverted {
+            background-color: $primary-color;
+            color: $medium-light-color;
+
+            .card_title {
+                h3 {
+                    border-bottom-color: #{$medium-light-color + $opacity_25};
+                }
+            }
+        }
+
+        &.clickable {
+            cursor: pointer;
+        } 
+        
+        .card_title {
+            @include flex-row;
+
+            h3 {
+                font-size: 1.125rem;
+                font-weight: 600;
+                margin-bottom: 1rem;
+                padding: 1rem;
+                padding-bottom: .5rem;
+            }
+        }
+
+        .card_content {
+            height: 100%;
+
+            div{
+                border-top: 1px solid grey;
+                padding: 1rem;
+                display: flex;
+
+                strong{
+                    width: 20%;
+                }
+
+                span{
+                    width: 80%;
+                }
+            }
+        }
+    }
+}
+
+.no_padding {
+    padding: 0!important;
+}
+
+.success{
+    background-color: $success-soft-color;
+    color: $success-color;
+}
+
+.error{
+    background-color: $error-soft-color;
+    color: $error-color;
+}

@@ -1,0 +1,24 @@
+[
+    {
+      "no": 1,
+      "rute": "TERMINAL GAMBUT BARAKAT - SAMARINDA",
+      "titik_keberangkatan": "TERMINAL GAMBUT BARAKAT",
+      "rute_yang_dilewati": "PELAIHARI - BATULICIN - SENGAYAM - TANAH GROGOT - BALIKPAPAN - SAMARINDA",
+      "jam": "10.00 WITA",
+      "ekonomi": null,
+      "bisnis": "Rp330.000",
+      "executive": null,
+      "royal": null
+    },
+    {
+      "no": 2,
+      "rute": "TERMINAL GAMBUT BARAKAT - SAMARINDA",
+      "titik_keberangkatan": "TERMINAL GAMBUT BARAKAT",
+      "rute_yang_dilewati": "PELAIHARI - BATULICIN - MAGALAU - SENGAYAM",
+      "jam": "17.00 WITA",
+      "ekonomi": null,
+      "bisnis": "Rp175.000",
+      "executive": null,
+      "royal": null
+    }
+  ]

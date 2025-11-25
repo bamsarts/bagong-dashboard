@@ -1,0 +1,16 @@
+.detail_modal{
+    display: flex;
+
+    div{
+        display: grid;
+        
+        strong{
+            margin-top: .5rem;
+        }
+    }
+
+    .ml_1{
+        margin-left: 1rem;
+    }
+    
+}

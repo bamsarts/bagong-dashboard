@@ -1,0 +1,92 @@
+@import '../../styles/sass/_variables.scss';
+
+.modal_container {
+    width: 100%;
+    max-width: none;
+    overflow: visible;
+}
+
+.table_container {
+    width: 100%;
+    overflow: visible;
+    
+    /* Chrome-specific fixes for horizontal scroll */
+    :global(.table_wrapper) {
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        
+        &::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        &::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        &::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+            
+            &:hover {
+                background: #a8a8a8;
+            }
+        }
+    }
+    
+    /* Ensure table doesn't get constrained */
+    :global(.table) {
+        min-width: max-content;
+        table-layout: auto;
+    }
+}
+
+.detail_modal{
+
+    div{
+        display: grid;
+
+        span{
+            margin-bottom: .5rem;
+        }
+    }
+}
+
+.button_action{
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: #F0F0FA;
+    display: grid;
+    border-radius: 50%;
+
+    &:hover{
+        background-color: $primary-color;
+        svg{
+            color: #fff;
+        }
+    }
+
+    svg{
+        margin: auto;
+        font-size: 0.9rem;
+    }
+
+    &.text_warning{
+        color: $warning-color;
+    }
+}
+
+.count_circle{
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: $primary-color;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+}

@@ -1,0 +1,170 @@
+@import '../../styles/sass/mixins';
+
+.row {
+    @include flex-row;
+    flex-wrap: wrap;
+
+    &.margin_bottom {
+        margin-bottom: 1.5rem;
+    }
+
+    &.with_padding {
+        padding: 1rem
+    }
+    
+}
+
+.column {
+    @include flex-column;
+    flex: 1;
+
+    &.margin_bottom {
+        margin-bottom: 1rem;
+    }
+}
+
+.center_content {
+    justify-content: center;
+}
+
+.vertical_center {
+    align-items: center;
+}
+
+.vertical_end {
+    align-items: flex-end;
+}
+
+.space_between {
+    justify-content: space-between;
+}
+
+.space_around {
+    justify-content: space-around;
+}
+
+.space_evenly {
+    justify-content: space-evenly;
+}
+
+.flex_end {
+    justify-content: flex-end;
+}
+
+.full_width {
+    @media screen {
+        @include respond-sm {
+            flex: 0 0 100%!important;
+            max-width: 100%!important;
+        }
+    }
+
+}
+
+.col_6, .col_5, .col_4, .col_3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+.col_5.ignore_screen_size {
+    flex: 0 0 calc(100% / (6/5));
+    max-width: calc(100% / (6/5));
+}
+
+.col_4.ignore_screen_size {
+    flex: 0 0 calc(100% / (6/4));
+    max-width: calc(100% / (6/4));
+}
+
+.col_3.ignore_screen_size {
+    flex: 0 0 calc(100% / (6/3));
+    max-width: calc(100% / (6/3));
+}
+
+.col_2 {
+    flex: 0 0 50%;
+    max-width: 50%;
+
+    &.ignore_screen_size {
+        flex: 0 0 calc(100% / (6/2));
+        max-width: calc(100% / (6/2));
+    };
+}
+
+.col_1 {
+    flex: 0 0 calc(100% / 3);
+    max-width: calc(100% / 3);
+
+    &.ignore_screen_size {
+        flex: 0 0 calc(100% / (6/1));
+        max-width: calc(100% / (6/1));
+    };
+}
+
+@mixin respond-lg-content {
+    .col_6 {
+        flex: 0 0 calc(100%);
+        max-width: calc(100%);
+    }
+    
+    .col_5 {
+        flex: 0 0 calc(100% / (6/5));
+        max-width: calc(100% / (6/5));
+    }
+    
+    .col_4 {
+        flex: 0 0 calc(100% / (6/4));
+        max-width: calc(100% / (6/4));
+    }
+    
+    .col_3 {
+        flex: 0 0 calc(100% / (6/3));
+        max-width: calc(100% / (6/3));
+    }
+    
+    .col_2 {
+        flex: 0 0 calc(100% / (6/2));
+        max-width: calc(100% / (6/2));
+    }
+    
+    .col_1 {
+        flex: 0 0 calc(100% / (6/1));
+        max-width: calc(100% / (6/1));
+    }
+}
+
+@include respond-lg {
+    @include respond-lg-content()
+}
+
+.with_padding {
+    padding: .25rem;
+}
+
+.justify_end{
+    display: flex;
+    justify-content: end;
+}
+
+.align_end {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+}
+
+.align_center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.justify_center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.justify_start {
+    display: flex;
+    justify-content: start;
+}

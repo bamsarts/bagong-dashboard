@@ -1,0 +1,6 @@
+/* Dynamic theme variables - updated by JavaScript based on subdomain */
+:root {
+  --primary-color: #0166fe;
+  --secondary-color: #FDA604;
+  --bgcolor: #1C4075;
+}

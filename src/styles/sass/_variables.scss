@@ -1,0 +1,42 @@
+// Dynamic colors - can be overridden by CSS variables
+$primary-color : var(--primary-color, #0166fe);
+$secondary-color : var(--secondary-color, #FDA604);
+
+$success-color : #39b666;
+$success-soft-color : #c8e4d2;
+$warning-color : #ff5500;
+$error-color : #f32b5e;
+$error-soft-color : #eeb6c4;
+
+$info-color : #1f4be8;
+
+$dark-color : #191b25;
+$medium-dark-color : #b5b6c8;
+$light-color : #ffffff;
+$medium-light-color : #f9f9ff;
+
+$label-primary-color: #154A94;
+$label-border-color: #D1C9D6;
+$label-disabled-color: #B9AAC2;
+$label-light-warning-color: #FFF1D8;
+$label-light-primary-color : #E8EFFF;
+
+
+$blue-soft: #1A83F9;
+$grey-soft: #F4F4F6;
+
+$opacity_25 : '40';
+$opacity_35 : '66';
+$opacity_50 : '80';
+$opacity_75 : bf;
+$opacity_90 : e6;
+
+$screen-sm-min : 576px;
+$screen-md-min : 821px;
+$screen-lg-min : 992px;
+$screen-xl-min : 1200px;
+
+$navbar-height : 60px;
+$sidebar-width : 280px;
+$box-shadow-soft : 0 4px 8px 0 rgba(0, 0, 0, 0.05), 0 6px 20px 0 rgba(0, 0, 0, 0.05);
+$box-shadow-hard : 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);

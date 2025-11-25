@@ -1,0 +1,57 @@
+[
+    {
+      "no": 1,
+      "rute": "POOL DAMRI MAKASSAR - TERMINAL TIPO PALU",
+      "titik_keberangkatan": "Pool DAMRI MAKASSAR, Terminal Tipo Palu",
+      "rute_yang_dilewati": "Pool Damri Makassar daya - Kab . Maros -Kab. Pangkep - Kab.Barru -Kota Pare Pare - Kab. Mamuju - Pasangkayu - Terminal Tipo Palu",
+      "jam": "16:00 Sore, 10:00 Pagi",
+      "ekonomi": null,
+      "bisnis": "Rp300.000",
+      "executive": null,
+      "royal": null
+    },
+    {
+      "no": 1,
+      "rute": "MAKASSAR - PINRANG",
+      "titik_keberangkatan": "PERWAKILAN TODDOPULI, POOL DAMRI MAKASSAR, TERMINAL PALETEANG PINRANG",
+      "rute_yang_dilewati": "Toddopuli - Pool DAMRI Makassar - Kab.Maros-Kab Pangkep - Kota Pare Pare - Terminal Paleteang Pinrang",
+      "jam": "08:00 Pagi & 16:00 Sore, 08:30 Pagi & 16:30 Sore",
+      "ekonomi": null,
+      "bisnis": null,
+      "executive": "Rp90.000",
+      "royal": null
+    },
+    {
+      "no": 1,
+      "rute": "MAKASSAR - PARE PARE",
+      "titik_keberangkatan": "PERWAKILAN TODDOPULI, POOL DAMRI MAKASSAR, AGEN PARE PARE SAMPING RS SUMANTRI",
+      "rute_yang_dilewati": "Toddopuli - Pool DAMRI Makassar - Kab.Maros-Kab Pangkep - Kota Pare Pare",
+      "jam": "08:00 Pagi , 11:00 Siang , 16:00 Sore, 08:30 Pagi,11:30 Siang ,16,30 Sore, 08:00 , 11:00, 16:00",
+      "ekonomi": null,
+      "bisnis": null,
+      "executive": "Rp70.000",
+      "royal": null
+    },
+    {
+      "no": 1,
+      "rute": "MAKASSAR - SINJAI",
+      "titik_keberangkatan": "Pool DAMRI MAKASSAR, TERMINAL SINJAI",
+      "rute_yang_dilewati": "Pool DAMRI Makassar - Kab. Maros - Jln Bantimurung - Jln Camba - Terminal Sinjai",
+      "jam": "8:00, 14:00",
+      "ekonomi": null,
+      "bisnis": null,
+      "executive": "Rp75.000",
+      "royal": null
+    },
+    {
+      "no": 10,
+      "rute": "MAKASSAR - TONDONG VIA MALINO",
+      "titik_keberangkatan": "POOL DAMRI MAKASSAR, TERMINAL SINJAI",
+      "rute_yang_dilewati": "Pool DAMRI Makassar - Jln Perintis kemerdekaan - Jln urip Sumoharjo - Jln Ap.Pettarani - Jln Alauddin - Jln Malino - Wisata Malino hutan pinus - Tondong Sinjai - Terminal Sinjai",
+      "jam": "08:00 pagi",
+      "ekonomi": null,
+      "bisnis": null,
+      "executive": null,
+      "royal": null
+    }
+  ]

@@ -1,0 +1,20 @@
+.slide_item_container{
+    overflow: auto; 
+    width: 100%;
+    display: block;
+    width: 100%;
+    height: 5vw;
+    white-space: nowrap;
+
+    div{
+        overflow-y: hidden;
+        display: block;
+        width: 100%;
+        height: 100%;
+
+        div{
+            display: inline;
+            width: 20%;
+        }
+    }
+}

@@ -1,0 +1,37 @@
+@import '../../../../../../styles/sass/_variables.scss';
+
+.header_content{
+    color: #fff;
+    margin-left: .5rem;
+
+    div{
+        display: flex;
+        align-items: center;
+
+        a{
+            margin-right: .5rem;
+            display: grid;
+        }
+    }
+}
+
+.mb_1{
+    margin-bottom: .5rem;
+}
+
+.tab_area{
+    margin: 0rem 1rem;
+
+    div{
+        background-color: $medium-dark-color;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+
+        &.active{
+            background-color: #fff;
+        }
+    }
+
+
+}

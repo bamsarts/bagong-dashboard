@@ -1,0 +1,99 @@
+@import '../../styles/sass/variables';
+@import '../../styles/sass/mixins';
+
+.alert_container {
+    position: fixed;
+    z-index: -1;
+    width: 100%;
+    opacity: 0;
+    transition: all .57s;
+
+    &.top {
+        transform: translateY(0);
+    }
+
+    &.bottom {
+        transform: translateY(-100%);
+    }
+
+    &.left {
+        transform: translateX(-125%);
+    }
+
+    &.right {
+        transform: translateX(125%);
+    }
+}
+
+.alert_show {
+    opacity: 1;
+    z-index: 111;
+    
+    &.top {
+        transform: translateY(-125%);
+    }
+
+    &.bottom {
+        transform: translateY(100%);
+    }
+
+    &.left {
+        transform: translateX(0);
+    }
+
+    &.right {
+        transform: translateX(0);
+    }
+}
+
+.container {
+    @include flex-row('flex-start', 'center');
+    width: 99%;
+    max-width: $screen-sm-min;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: $box-shadow-hard;
+}
+
+.background_success {
+    background-color: $success-color;
+    color: white;
+}
+
+.background_error {
+    background-color: $error-color;
+    color: white;
+}
+
+.background_info {
+    background-color: $info-color;
+    color: white;    
+}
+
+.background_warning {
+    background-color: $warning-color;
+    color: white;    
+}
+
+.icon {
+    @include flex-column('center', 'center');
+    padding: .5rem;
+
+    img {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.action {
+    @include flex-column('center', 'center');
+    padding: .5rem 1.5rem;
+    border-left: 1px solid lightgrey;
+    cursor: pointer;
+}
+
+.message {
+    flex: 1;
+    padding: 1rem .5rem;
+    white-space: pre-line;
+}

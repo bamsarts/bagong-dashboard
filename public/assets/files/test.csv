@@ -1,0 +1,17 @@
+--2024-12-05 14:11:47--  https://docs.google.com/spreadsheets/d/e/2PACX-1vQwNkxGfBj2PWX8fyn4gpte8iNebDz1LI2I7GlQnBdyOW6e39Thkzrb4DVv6GeNeQ/pub?gid=1935800650&single=true&output=csv
+Resolving docs.google.com (docs.google.com)... 2404:6800:4003:c1c::64, 2404:6800:4003:c1c::8b, 2404:6800:4003:c1c::71, ...
+Connecting to docs.google.com (docs.google.com)|2404:6800:4003:c1c::64|:443... connected.
+HTTP request sent, awaiting response... 307 Temporary Redirect
+Location: https://doc-0o-14-sheets.googleusercontent.com/pub/54bogvaave6cua4cdnls17ksc4/0u56465g4pginot8fjke621tmk/1733382705000/111546205936407143170/*/e@2PACX-1vQwNkxGfBj2PWX8fyn4gpte8iNebDz1LI2I7GlQnBdyOW6e39Thkzrb4DVv6GeNeQ?gid=1935800650&single=true&output=csv [following]
+Warning: wildcards not supported in HTTP.
+--2024-12-05 14:11:47--  https://doc-0o-14-sheets.googleusercontent.com/pub/54bogvaave6cua4cdnls17ksc4/0u56465g4pginot8fjke621tmk/1733382705000/111546205936407143170/*/e@2PACX-1vQwNkxGfBj2PWX8fyn4gpte8iNebDz1LI2I7GlQnBdyOW6e39Thkzrb4DVv6GeNeQ?gid=1935800650&single=true&output=csv
+Resolving doc-0o-14-sheets.googleusercontent.com (doc-0o-14-sheets.googleusercontent.com)... 2404:6800:4003:c05::84, 74.125.200.132
+Connecting to doc-0o-14-sheets.googleusercontent.com (doc-0o-14-sheets.googleusercontent.com)|2404:6800:4003:c05::84|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/csv]
+Saving to: ‘pub?gid=1935800650&single=true&output=csv’
+
+     0K ..........                                             2,35M=0,004s
+
+2024-12-05 14:11:48 (2,35 MB/s) - ‘pub?gid=1935800650&single=true&output=csv’ saved [10763]
+

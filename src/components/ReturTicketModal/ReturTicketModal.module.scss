@@ -1,0 +1,39 @@
+@import '../../styles/sass/variables';
+
+.container{
+    margin: 0rem 0 0.5rem 0.5rem;
+
+    .activate_container{
+        display: grid;
+        margin-bottom: 1rem;
+    }
+
+    span{
+        margin-right: 1rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .title{
+        margin-bottom: .5rem;
+        color: $dark-color;
+        font-weight: 500;
+    }
+
+    .evidence{
+        height: 80px;
+        display: grid;
+        background-color: rgb(223, 223, 223);
+        margin-bottom: .5rem;
+
+        img{
+            margin: auto;
+        }
+    }
+}
+
+.mb_s{
+    margin-bottom: .5rem;
+    color: $dark-color;
+}
+

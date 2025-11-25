@@ -1,0 +1,34 @@
+@import '../../../../../styles/sass/_variables.scss';
+
+.total_trx{
+    display: grid;
+    color: $dark-color;
+
+    strong{
+        font-size: 1.9rem;
+    }
+}
+
+.button_action{
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: #F0F0FA;
+    display: grid;
+    border-radius: 50%;
+
+    &:hover{
+        background-color: $primary-color;
+        svg{
+            color: #fff;
+        }
+    }
+
+    svg{
+        margin: auto;
+        font-size: 0.9rem;
+    }
+
+    &.text_warning{
+        color: $warning-color;
+    }
+}

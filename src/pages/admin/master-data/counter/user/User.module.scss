@@ -1,0 +1,45 @@
+@import '../../../../../styles/sass/variables';
+
+.button_action{
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: #F0F0FA;
+    display: grid;
+    border-radius: 50%;
+
+    &:hover{
+        background-color: $primary-color;
+        svg{
+            color: #fff;
+        }
+    }
+
+    svg{
+        margin: auto;
+        font-size: 0.9rem;
+
+        // &:hover{
+        //     color: #ffff;
+        // }
+    }
+
+    &.text_red{
+        color: $error-color;
+    }
+}
+
+
+.header_content{
+    color: #fff;
+    margin-left: .5rem;
+
+    div{
+        display: flex;
+        align-items: center;
+
+        a{
+            margin-right: .5rem;
+            display: grid;
+        }
+    }
+}

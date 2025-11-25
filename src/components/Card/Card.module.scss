@@ -1,0 +1,80 @@
+@import '../../styles/sass/variables';
+@import '../../styles/sass/mixins';
+
+.container {
+    padding: .75rem;
+
+    @include respond-sm {
+        padding: .5rem;
+    }
+    
+    &.fluid_height {
+        height: 100%;
+
+        .card {
+            height: 100%;
+        }
+    }
+    
+    .card {
+        @include flex-column;
+        flex: 1 1 auto;
+        padding: 1rem;
+        border-radius: .5rem;
+        background-color: $light-color;
+        box-shadow: $box-shadow-soft;
+        
+        @include respond-sm {
+            padding: .5rem;
+        }
+
+        @include respond-lg {
+            padding: 1.5rem;
+        }
+        
+        &.inverted {
+            background-color: $primary-color;
+            color: $medium-light-color;
+
+            .card_title {
+                h3 {
+                    border-bottom-color: #{$medium-light-color + $opacity_25};
+                }
+            }
+        }
+
+        &.clickable {
+            cursor: pointer;
+        } 
+        
+        .card_title {
+            @include flex-row;
+
+            h3 {
+                font-size: 1.125rem;
+                font-weight: 600;
+                margin-bottom: 1rem;
+                padding: 0 .5rem;
+                padding-bottom: .5rem;
+                border-bottom: 2px solid $primary-color;
+            }
+        }
+
+        .card_content {
+            padding: .25rem;
+            height: 100%;
+        }
+
+        .card_header {
+            // padding: 1rem;
+        }
+    }
+}
+
+.no_padding {
+    padding: 0!important;
+}
+
+.hide_overflow {
+    overflow: hidden;
+}

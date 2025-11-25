@@ -1,0 +1,228 @@
+@import '../../styles/sass/variables';
+@import '../../styles/sass/mixins';
+
+.container {
+    flex-direction: row!important;
+    margin: 0;
+    position: relative;
+    color: $dark-color;
+    max-width: $screen-sm-min;
+}
+
+.input_flex {
+    flex: 1;
+}
+
+.title_container {
+    margin-bottom: .5rem;
+}
+
+.title {
+    font-size: .9rem;
+    font-weight: 500;
+    margin-bottom: .5rem;
+
+    @include respond-lg {
+        margin-bottom: 0;
+    }
+
+    .note {
+        display: block;
+        font-size: .65rem;
+        color: $error-color;
+        font-weight: normal;
+        margin-left: .5rem;
+    }
+}
+
+.input_wrapper {
+    @include flex-row;
+    background-color: $medium-light-color;
+    border: .25px solid $medium-dark-color;
+    border-radius: .25rem;
+    padding: .5rem .75rem;
+    position: relative;
+
+    &:focus-within, &.focus_within {
+        border-color: $primary-color;
+        box-shadow: $box-shadow-soft;
+    }
+    
+    &.is_empty {
+        animation: border-pulsate 3s infinite;
+        box-shadow: $box-shadow-soft;
+        border-width: 1px;
+
+        .textinput {
+            &::placeholder {
+                color: $error-color;
+                opacity: .5;
+            }
+        }
+    }
+}
+
+.input_disabled {
+    background-color: whitesmoke!important;
+}
+
+.on_click_wrapper {
+    flex-direction: row!important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.textinput {
+    background-color: transparent;
+    width: 100%;
+    border: none;
+    font-size: .85rem;
+    
+    
+    &:-internal-autofill-selected {
+        background-color: transparent!important;
+    }
+
+    &::placeholder {
+        color: $medium-dark-color;
+    }
+    &:focus {
+        outline: none;
+    }
+    &:disabled {
+        cursor: pointer;
+        color: $dark-color;
+    }
+}
+
+.options {
+    @include flex-row;
+    flex-wrap: wrap;
+
+    .option {
+        @include flex-row('center', 'center');
+        padding: .5rem 1rem;
+        margin-right: 1.25rem;
+        margin-bottom: 1rem;
+        background-color: $medium-light-color;
+        border: .75px solid $medium-dark-color;
+        font-size: .75rem;
+        cursor: pointer;
+
+        @include respond-lg {
+            &:hover {
+                background-color: $light-color;
+            }
+        }
+
+        &.selected {
+            background-color: $primary-color;
+            color: $light-color;
+        }
+
+        &.option_large {
+            font-size: 1rem;
+            padding: .5rem 1.5rem;
+        }
+    }
+}
+
+.transparent {
+    background-color: transparent;
+}
+
+.disabled {
+    cursor: default!important;
+}
+
+.rounded {
+    border-radius: 2rem;
+}
+
+.with_margin {
+    margin: .5rem;
+
+    @include respond-sm {
+        margin: .5rem 0;
+    }
+}
+
+.input_suggestions_wrapper {
+    position: absolute;
+    width: 100%;
+    padding: .5rem 0;
+    z-index: 999;
+}
+
+.input_suggestions {
+    max-height: 280px;
+    overflow: scroll;
+    background-color: $medium-light-color;
+    border-radius: .25rem;
+    border: .25px solid $medium-dark-color;
+    box-shadow: $box-shadow-soft;
+}
+
+.input_suggestion {
+    padding: .75rem;
+    cursor: pointer;
+    font-size: .75rem;
+
+    &:hover {
+        background-color: $medium-dark-color;
+        color: $light-color;
+    }
+
+    &:last-child {
+        border-bottom-color: transparent;
+    }
+}
+
+.icon {
+    @include flex-column('center', 'center');
+    cursor: pointer;
+}
+
+@keyframes border-pulsate {
+    0%   { border-color: $error-color; }
+    50% { border-color: $medium-dark-color}
+    100%   { border-color: $error-color; }
+}
+
+.input_suggestions_search_wrapper {
+    position: sticky;
+    top: 0;
+    padding: .5rem;
+}
+
+.input_suggestions_search {
+    width: 100%;
+    background-color: white;
+    border: 1px solid $medium-dark-color;
+    border-radius: .25rem;
+    font-size: .85rem;
+    padding: 1rem;
+
+    &:-internal-autofill-selected {
+        background-color: transparent!important;
+    }
+
+    &::placeholder {
+        color: $medium-dark-color;
+    }
+    &:focus {
+        outline: none;
+    }
+}
+
+.text_danger{
+    color: $error-color;
+}
+
+.margin_bottom{
+    margin-bottom: 1rem;
+}

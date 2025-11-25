@@ -1,0 +1,17 @@
+@import '../../styles/sass/variables';
+@import '../../styles/sass/mixins';
+
+.main {
+    transition: margin-left .7s;
+    min-height: calc(100vh - #{$navbar-height});
+    
+    &.admin_page {
+        margin-left: 0;
+    }
+
+    &.sidebar_open {
+        @include respond-lg {
+            margin-left: $sidebar-width;
+        }
+    }
+}

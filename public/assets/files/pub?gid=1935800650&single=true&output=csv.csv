@@ -1,0 +1,70 @@
+NO ,RUTE / TRAYEK ,RUTE YANG DILEWATI (TITIK KEBERANGKATAN - PERJALANAN - TITIK DROP),TARIF BARU ,MENUJU BANDARA (WIB),DARI BANDARA (WIB) ,INTERVAL WAKTU (MENIT)
+1,POOL DAMRI CIPUTAT,"Berangkakt : Pool Damri Ciputat - Jl. RE Martadinata - Tol Serpong Cinere - Tol Kunciran Serpong - Tol Batuceper - Tol Cengkareng
+Pulang : Bandara Soetta Tol Cengkareng - Tol Batuceper - Tol Kunciran Serpong - Tol Serpong Cinere - Jl. RE Martadinata - Pool Damri Ciputat",90.000,05.00 - 19.00,07.00 - 21.00 ,60
+2,STASIUN KCIC HALIM,"Berangkat : St.KCIC Halim - Tol Kebon Nanas - Tol Sediatmo - Tol Cengkareng - Basoetta
+Pulang : Basoetta - Tol Cengkareng- Tol Sediatmo- Tol Kebon Nanas - St. KCIC Halim",80.000,17.30 - 21.30,07.00 - 19.30,60
+3,STASIUN GAMBIR,"Bearangkat : St. Gambir - PRJ - Tol Kemayoran - Tol Soediatmo - Tol Cengkareng - Bandara Soekarno- Hatta
+Pulang : Bandara Soekarno-Hatta - Tol Soediatmo -  Tol Dalam Kota -  Slipi Jaya -  Jatibaru -  St. Gambir",80.000,13.00 - 20.00,06.00 - 23.00,30
+4,POOL DAMRI KEMAYORAN ,"Berangkat : Pool Damri Kemayoran - PRJ - Tol Ancol - Tol Soediyatmo - Tol Cengkareng - Bandara Soekarno-Hatta
+Pulang : Bandara Soekarno Hatta -  Tol Soediyatmo -  Kemayoran -  PRJ - Jl Angkasa - PooL Damri Kemayoran",80.000,05.00 - 18.00,07.00 - 20.00,60
+5,TERM. BLOK M,"Berangkat : Terminal Blok M - Jl Jend. Sudirman - Semanggi - Tol Dalam Kota (senayan) - Tol Soediyatmo - Tol Cengkareng - Bandara Soekarno-Hatta
+Pulang : Bandara Soekarno Hatta - Tol Soediyatmo - Tol Dalam Kota - Slipi Jaya - Semanggi - Terminal Blok M",80.000,04.00 - 18.00,06.00 - 23.00,60
+6,TERM. LEBAK BULUS ,"Berangkat : Terminal Lb Bulus - Pd Pinang - Tol Jorr - Tol Soediatmo - Tol Cengkareng - Basoetta
+Pulang : Basoetta - Tol Soediatmo -  Tol Kamal 3 - Tol Jorr -  Pd Pinang -  Terminal Lb Bulus",90.000,03.00 - 18.00,06.00 - 23.00,60
+7,TERM. PASAR MINGGU ,"Berangkat : Terminal Ps Minggu - Jl Raya Ps Minggu - Kalibata - Pancoran - Tol Dalam Kota - Tol Sodiatmo - Tol Cengkareng - Basoetta
+Pulang : Basoetta - Tol Soediatmo - Tol Dalam Kota - Pancoran -  Kalibata -  Jl Raya Ps. Minggu -  Terminal Ps Minggu",95.000,04.00 - 18.00,06.00 - 23.00,60
+8,TERM. RAWAMANGUN ,"Berangkat : Terminal Rw Mangun - Arion - Jl Pemuda - Tol Wiyoto Wiyono - Tol Soediatmo - Tol Cengkareng - Bandara Soekarno-Hatta
+Pulang : Bandara Soekarno-Hatta - Tol Soediatmo -  Tol Pelabuhan Tj Priok - Rawasari - Jl Pemuda -  Arion -  Teminal Rw.Mangun",80.000,04.00 - 19.00,06.00 - 23.00,60
+9,TERM. KAMPUNG RAMBUTAN ,"Berangkat : Terminal Kp Rambutan - Tol Jorr - Tol Soediatmo - Tol Cengkareng - Bandara Soekarno Hatta
+Pulang : Bandara Soetta -  Tol Soediatmo - Tol Dalam Kota -  Tol Jagorawi -  TMII (Garuda) - Ps. Rebo -  Terminal Kp Rambutan
+",95.000,03.00 - 19.00,06.00 - 23.00,60
+10,TERM. TANJUNG PRIOK,"Berangkat : Terminal Tj Priok - Tol Kemayoran - Tol Soediatmo - Tol Cengkareng - Basoetta
+Pulang : Basoetta -  Tol Soediatmo -  Tol Tj Priok - Plumpang - Semper - Terminal Tj Priok",80.000,05.00 - 18.00,06.00 - 23.00,60
+11,POOL DAMRI MERAK ,"Berangkat : Pool Damri Merak - Terminal Seruni Cilegon - Terminal Pakupatan Serang-Tol Merak- Tol Kembangan- Tol Sediatmo - Tol Cengkareng - Basoetta
+Pulang : Basoetta - Tol Cengkareng- Tol Sediatmo- Tol Kembangan - Tol Merak - Terminal Pakupatan Serang- Terminal Seruni Cilegon - Pool DAMRI Merak",140.000,00.00 - 18.00 ,06.00 - 23.00,60
+12,BOTANI SQUARE BOGOR ,"Berangkat : Botani Square - Tol Jagorawi - Tol Dalam Kota/Tol Jorr - Tol Soediatmo - Tol Cengkareng - Bandara Soetta
+Pulang : Basoetta - Tol Soediatmo - Tol Dalam Kota -  Tol Jagorawi -  Botani Square",130.000,02.00 - 20.00,06.00 - 23.00,30
+13,CIBINONG CITY MALL (CCM),"Berangkat : Cibinong City Mall - Pasar Cibinong - Tol Citereup - Tol Jagorawi - Tol Dalam Kota/Tol Jorr - Tol Soediatmo - Tol Cengkareng - Basoetta
+Pulang : Basoetta -  Tol Soediatmo - Tol Dalam Kota / Tol Jorr - Tol Jagorawi - Citeureup - Ps Cibinong -  Jl Raya Bogor - Cibinong City Mall",120.000,03.00 - 17.00 ,07.00 - 22.00 ,60
+14,MALL KELAPA GADING,"Berangkat : Mall Kelapa Gading - Jl. Yos Sudarso - Tol Pelabuhan - Tol Prof. Dr. Sedyatmo - Tol Airport Sedyatmo - Bandara Soetta
+Pulang : Bandara Soetta - Tol Airport Sedyatmo - Tol Prof. Dr. Sedyatmo - Tol Pelabuhan - Jl. Boulevard - Mall Kelapa Gading",80.000,05.00 - 18.00,06.00 - 21.00,60
+15,INTERMARK BSD,"Berangkat : Intermark BSD Serpong - Tol Serpong Cinere - Tol Kunciran  Serpong - Tol Kunciran Batuceper Cengkareng - Tol Airport - Bandara Soetta
+Pulang : Bandara Soetta - Tol Airport - Tol Kunciran Batuceper Cengkareng - Tol Kunciran  Serpong -  Tol Serpong Cinere - Intermark BSD Serpong",85.000,05.00 - 19.00,06.00 - 21.00,60
+16,HOLLYWOOD JUNCTION CIKARANG,"Berangkat : Cikarang (Hollywood Junction) - Ps Pecenongan - Tegal Gede (Jl Cibarusah) - Tol Cikarang Barat - Tol Jkt Cikampek - Tol Dalam Kota - Tol Soediatmo - Tol Cengkareng - Basoetta
+Pulang : Basoetta -  Tol Soediatmo -  Tol Dalam Kota -  Tol Cikampek - Gand Wisata - Tol Cikarang Barat -  Tegal Gede (Jl Cibarusah) - Ps Pecenongan - Cikarang (Hollywood Junction)",120.000,04.00 - 18.00,06.00 - 23.00,60
+17,GRAND TARUMA KARAWANG,"Berangkat : Grand Taruma - Jl Inter Karawang Barat - Tol Karawang Barat - Tol Cikampek -Tol Dalam Kota - Tol Soediatmo - Tol Cengkareng - Basoetta
+Pulang : Basoetta - Tol Soediatmo - Tol Dalam Kota - Tol Cikampek - Tol Karawang Barat - Jl Inter Karawang Barat - Garand Taruma",160.000,02.00 - 16.00,07.00 - 21.00,120
+18,TERM. KAYURINGIN BEKASI BARAT,"Berangkat : Terminal Kayu Ringin - Tol Bekasi Barat - Tol Cikampek - Tol Dalam Kota - Tol Soediatmo - Tol cengkareng - Bandara Soekarno-Hatta
+Pulang : Bandara Soekarno-Hatta -  Tol Soediatmo -  Tol Dalam Kota - Jati Bening -  Tol Bekasi Barat - Terminal Kayu ringin",100.000,02.00 - 20.00,06.00 - 23.00,30
+19,HARAPAN INDAH BEKASI (TRANSERA),"Berangkat : Halte Trans Sera Harapan Indah - Jl Raya Bekasi - Pulogadung - Tol Lingkar Luar Jkt Rorotan - Tol Pelabuhan - Tol Soediatmo - Tol Cengkareng - Basoetta
+Pulang : Bandara Soekarno-Hatta - Tol Soediatmo - Tol Pelabuhan Tj Priok -  Cempaka Putih -  Jl Perintis Kemerdekaan -  Jl Raya Bekasi -  Halte Trans Sera Harapan Indah",100.000,04.00 - 18.00,07.00 - 21.00,60
+20,PANTAI TANJUNG LESUNG,,55.000,04.00 ,10.00,-
+21,POOL DAMRI PURWAKARTA,"Berangkat : Pool Pwk jl Veteran - Sadang - Cikopo Cikampek - Tol Cikampek - Tol Dalam Kota - Tol Soediatmo - Tol Cengkareng - Basoetta
+Pulang : Basoetta -  Tol Soediatmo -  Tol Dalam Kota - Tol Cikampek -  Cikampek Cikopo - Sadang - Pool Pwk jl Veteran",170.000,00.00 - 18.00,06.00 - 22.00,60
+22,POOL DAMRI SUKABUMI,"Berangkat : Jl raya Cipelang (depan puskesmas) - Jl Lingkar Selatan - Jl Raya Sukabumi - Tol Ciawi - Tol Jagorawi - Tol Dalam Kota - Tol Soediatmo - Tol cengkareng - Bandara Soetta
+Pulang : Bandara Soekarno-Hatta -  Tol Soediatmo -  Tol Dalam Kota  -  Tol Jagorawi - Tol Ciawi - Jl Raya Sukabumi - Jl Lingkar Selatan - Jl Raya Cipelang (depan puskesmas)",200.000,"00.00, 02,00, 04.00, 06.00, 08.00, 10.00, 12.00","10.00, 12.00, 14.00, 16.00, 18.00, 20.00",-
+23,Terminal Depok Sawangan,Terminal Depok Sawangan - KHALIFAH STATION Tol Depok Antasari - Tol Serpong CInere - Tol Kunciran Serpong - Batuceper - Cengkareng,"50,000 (Promo) 95,000 (Normal)",05.00 - 19.00,07.00 - 21.00,60
+24,KHALIFAH STATION,KHALIFAH STATION - Tol Depok Antasari - Tol Serpong CInere - Tol Kunciran Serpong - Batuceper - Cengkareng ,"50,000 (Promo) 95,000 (Normal)",05.00 - 19.00,07.00 - 21.00,60
+25,TERMINAL PURABAYA , Terminal Purabaya - Waru-  Aloha - Jl. Raya Juanda - T1 Bandara Juanda,35000,02.00 - 19.00,05.00 - 21.30,20
+,TERMINAL GRESIK,Terminal Gresik ( bunder ) - tol bunder gresik - raya juanda - T1 bandara juanda,70000,05.00 - 16.00,07.00 - 20.00,60
+,TERMINAL MOJOKERTO,Terminal Kertajaya - Tol Mojokerto - raya juanda - t1 bandara juanda,75000,06.00 - 15.00,07.00 - 18.00,60
+24,TERMINAL AMPLAS ,TERMINAL AMPLAS  - SM RAJA - BATANG KUIS - BANDARA KUALANAMU,40.000,05.30 - 19.30,08.00 - Pendaratan Terakhir,60
+25,CARREFOUR ,CARREFOUR - ISKANDAR MUDA - GAJAH MADA - S PARMAN - JUANDA - SM RAJA - BATANG KUIS - BANDARA KUALANAMU,40.000,05.00 - 19.00 ,08.00 - Pendaratan Terakhir,60
+26,PANTAI CAROCOK ,BANDARA INTERNASIONAL MINANGKABAU - IMAM BONJOL - BUNGUS - SIGUNTUA -BARUNG2 BALANTAI - TARUSAN - CAROCOK,,05.00,09.00,
+27,PAGRUYUNG ,BIM - Simp. Tabing - Simp. Lubuk Begalung - Simp. Alahan Panjang - Kantor Bupati Solok - Sumani - Singkarak - Ombilin - Terminal Dobok - Pagaruyung,,,,
+28,Pool DAMRI - LIA,Terminal Mandalika - Pool DAMRI - Bengkel - Dasan Cermen - Rumak - Gerung - Bypass - Batu Jai - Bandara,35.000,04.00,20.00,33 KM
+29,Epicentrum - LIA,Jalan Sriwijaya (LEM)- Jalan Brawijaya -Terminal Mandalika - Pool DAMRI - Bengkel - Dasan Cermen - Rumak - Gerung - Bypass - Batu Jai - Bandara,40.000,04.00,20.00,39 KM
+30,Senggigi - LIA,Senggigi - Ampenan(Pasar Kebon Roek) - Selaparang(Bandara Lama) - Jalan Udayana (Islamic Center ) - Jalan Sriwijaya (LEM)- Jalan Brawijaya -Terminal Mandalika - Pool DAMRI - Bengkel - Dasan Cermen - Rumak - Gerung - Bypass - Batu Jai - Bandara,50.000,04.00,20.00,63 KM
+31,Selong - LIA,Terminal Pancor - Masbagik - Mantang - Kopang - Praya - Batu Jai - Bandara,40.000,04.00,20.00,51 KM
+32,Mataram - Lantung,Mataram - Kopang - Mantang - Masbagik - Aikmel - Pelabuhan Kayangan - Pelabuhan Poto tano - Alas - Utan ree - Sumbawa besar - Lape - Langam - Lantung,Rp155.000,05.30 WITA,,267 KM
+33,Mataram -Talonang,Mataram - Praya - Kopang - Mantang - Masbagik - Aikmel - Pelabuhan Kayangan - Pelabuhan Poto tano - Seteluk - Taliwang - Maluk - Sekongkang - Tongo - Talonang,Rp155.000,06.00 WITA,,210 KM
+34,Mataram - Moyo,Mataram - Kopang - Mantang - Masbagik - Aikmel - Pelabuhan Kayangan - Pelabuhan Poto tano - Alas - Utan ree - Sumbawa besar - Moyo hilir - Labuan Ijuk,Rp135.000,07.00 WITA,,240 KM
+35,Mataram - Leweng,Mataram - Kopang - Mantang - Masbagik - Aikmel - Pelabuhan Kayangan - Pelabuhan Poto tano - Alas - Utan ree - Sumbawa besar - Lape - Langam - Leweng,Rp120.000,06.30 WITA,,200 KM
+36,Mataram - Mata,Mataram - Kopang - Mantang - Masbagik - Aikmel - Pelabuhan Kayangan - Pelabuhan Poto tano - Alas - Utan ree - Sumbawa besar - Lape - Langam - Plampang - Empang - Kwangko - Tolo'oi - Mata,Rp180.000,06.30 WITA,,360 KM
+37,,,,06.00 WITA,,
+38,Terminal Mandalika - Sumbawa - Matta,,,06.15 WITA,,
+39,,Berangkat : Bandara sultan Hasanuddin - Jl.Perintis - Urip Sumaharjo - Jln Bawakaraeng - Jln Kartini - Jln Botolempangan - Jln Arifrate - Jln Hj Bau - Halte Pualam ( Pantai losari),,05.45 WITA,06.30-17.00,1 Jam
+40,Terminal Mandalika - Praya - Taliwang - Talonang,,,06.00 WITA,,
+41,,Pulang : Halte Pualam ( Pantai Losari ) - Jln Nusantara - Tol Insinyur Utami - Bandara Sultan Hasanuddin,,,,
+42,,,,,,
+43,,,,,,

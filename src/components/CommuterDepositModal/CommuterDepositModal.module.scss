@@ -1,0 +1,33 @@
+@import '../../styles/sass/variables';
+
+.container {
+    min-height: 85vh;
+    padding-bottom: 6rem;
+}
+
+.table_column_left_align {
+    div {
+        align-items: flex-start!important;
+    }
+}
+
+.button_action{
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: #F0F0FA;
+    display: grid;
+    border-radius: 50%;
+    margin: 0px 1px;
+
+    &:hover{
+        background-color: $primary-color;
+        svg{
+            color: #fff;
+        }
+    }
+
+    svg{
+        margin: auto;
+        font-size: 0.9rem;
+    }
+}

@@ -1,0 +1,133 @@
+@import '../../styles/sass/variables';
+@import '../../styles/sass/mixins';
+
+.container {
+    @include flex-column;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    transition: transform .3s ease-out, background-color .5s;
+    transform: translateY(100%);
+    background-color: transparent;
+}
+
+.transition_delay {
+    transition-delay: 5s;
+}
+
+.modal_visible {
+    transform: translateY(0%);
+    background-color: #{$dark-color + $opacity_75};
+}
+
+.backdrop {
+    flex: 1;
+}
+
+.center {
+    @include flex-row;
+}
+
+.transparent {
+    background-color: transparent;
+}
+
+.modal_content_container {
+    padding: .5rem;
+}
+
+.modal_content_wrapper {
+    background-color: $light-color;
+    padding: 1.5rem;
+    border-radius: 1rem
+}
+
+.modal_content {
+    max-height: 85vh;
+    overflow: scroll;
+}
+
+.header {
+    @include flex-row('space-between');
+    padding: .5rem .5rem;
+
+    h3 {
+        width: 80%;
+        color: $dark-color;
+    }
+}
+
+.modal_actions {
+    @include flex-row('center', 'center');
+    padding-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.modal_action {
+    margin-right: .5rem;
+    margin-bottom: .5rem;
+}
+
+.close_button {
+    @include flex-column('center', 'center');
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid lightgrey;
+    cursor: pointer;
+}
+
+.close_button_icon {
+    width: 8px;
+    height: 8px;
+    object-fit: contain;
+}
+
+.children {
+    width: 100%;
+    max-width: $screen-sm-min;
+    margin-left: auto;
+    margin-right: auto;
+    // padding: .5rem;
+
+    &.large {
+        max-width: $screen-lg-min * .75;
+    }
+    &.extra_large {
+        max-width: $screen-xl-min * 1.2;
+    }
+}
+
+
+
+.close_button_container {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+
+    .close_button {
+        width: 50%;
+
+        @include respond-lg {
+            width: 25%;
+        }
+    }
+}
+
+@media print {
+    .container {
+        position: relative;
+    }
+
+    .modal_content {
+        overflow: visible;
+    }
+}

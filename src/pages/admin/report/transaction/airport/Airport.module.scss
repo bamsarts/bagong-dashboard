@@ -1,0 +1,71 @@
+@import '../../../../../styles/sass/_variables.scss';
+
+.item_container{
+    display: flex;
+    flex-wrap: wrap;
+
+    .column{
+        flex: 20%;
+        margin: .6rem;
+        min-width: 200px;
+        max-width: 235px;
+        padding: .5rem;
+        border-radius: 0.5rem;
+        background-color: #ffffff;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05), 0 6px 20px 0 rgba(0, 0, 0, 0.05);
+
+        .title{
+            border: 1px solid $blue-soft;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: .5rem 0rem 1rem 0rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            color: $blue-soft;
+            font-size: .9rem;
+
+            div{
+                display: flex;
+            }
+        }
+
+        small{
+            color: $dark-color;
+            font-size: .75rem;
+            margin-bottom: .5rem;
+        }
+
+        span{
+            font-weight: bold;
+        }
+    }
+
+    strong{
+        color: $blue-soft;
+    }
+}
+
+.total_trx{
+    display: grid;
+    color: $dark-color;
+    min-width: 200px;
+
+    strong{
+        font-size: 1.7rem;
+        margin-top: .5rem;
+    }
+}
+
+@media screen and (max-width: 992px){
+    .column{
+        flex: 50%;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .item-container {
+      flex-direction: column;
+    }
+}

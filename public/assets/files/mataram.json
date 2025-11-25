@@ -1,0 +1,306 @@
+[
+  {
+    "no": 1,
+    "rute": "Mataram - Maluk",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Seteluk - Taliwang - Jereweh - Maluk",
+    "jam": "08.30 WITA , 20.30 WITA",
+    "tarif_baru": 120000
+  },
+  {
+    "no": 2,
+    "rute": "Maluk - Mataram",
+    "titik_keberangkatan": "Sumbawa Barat",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Seteluk - Taliwang - Jereweh - Maluk",
+    "jam": "20.00 WITA , 08.00 WITA",
+    "tarif_baru": 120000
+  },
+  {
+    "no": 3,
+    "rute": "Mataram - Empang",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Plampang- Empang",
+    "jam": "08.00 WITA , 21.00 WITA",
+    "tarif_baru": 150000
+  },
+  {
+    "no": 4,
+    "rute": "Empang - Mataram",
+    "titik_keberangkatan": "Sumbawa Besar",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Plampang- Empang",
+    "jam": "07.00 WITA , 19.30 WITA",
+    "tarif_baru": 150000
+  },
+  {
+    "no": 3,
+    "rute": "Mataram - Empang",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Plampang- Empang",
+    "jam": "21.00 WITA",
+    "tarif_baru": 170000
+  },
+  {
+    "no": 4,
+    "rute": "Empang - Mataram",
+    "titik_keberangkatan": "Sumbawa Besar",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Plampang- Empang",
+    "jam": "19.30 WITA",
+    "tarif_baru": 170000
+  },
+  {
+    "no": 5,
+    "rute": "Mataram - Empang",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Plampang- Empang",
+    "jam": "08.00 WITA",
+    "tarif_baru": 160000
+  },
+  {
+    "no": 6,
+    "rute": "Empang - Mataram",
+    "titik_keberangkatan": "Sumbawa Besar",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Plampang- Empang",
+    "jam": "07.00 WITA",
+    "tarif_baru": 160000
+  },
+  {
+    "no": 7,
+    "rute": "Mataram - Labangka",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Lape - Plampang - Labangka",
+    "jam": "08.30 WITA",
+    "tarif_baru": 150000
+  },
+  {
+    "no": 8,
+    "rute": "Mataram - Labangka",
+    "titik_keberangkatan": "Sumbawa Besar",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Lape - Plampang - Labangka",
+    "jam": "06.00 WITA",
+    "tarif_baru": 130000
+  },
+  {
+    "no": 9,
+    "rute": "Labangka -Mataram",
+    "titik_keberangkatan": "Sumbawa Besar",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Lape - Plampang - Labangka",
+    "jam": "06.30 WITA",
+    "tarif_baru": 150000
+  },
+  {
+    "no": 10,
+    "rute": "Labangka -Mataram",
+    "titik_keberangkatan": "Sumbawa Besar",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Lape - Plampang - Labangka",
+    "jam": "18.00 WITA",
+    "tarif_baru": 130000
+  },
+  {
+    "no": 11,
+    "rute": "Mataram - Lunyuk",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Lenangguar - Lunyuk",
+    "jam": "06.00 WITA",
+    "tarif_baru": 135000
+  },
+  {
+    "no": 12,
+    "rute": "Lunyuk - Mataram",
+    "titik_keberangkatan": "Sumbawa Besar",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Lenangguar - Lunyuk",
+    "jam": "06.00 WITA",
+    "tarif_baru": 135000
+  },
+  {
+    "no": 13,
+    "rute": "Mataram - Lantung",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Terminal Mandalika - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Langam - Pungkit - Lantung",
+    "jam": "06.30 WITA",
+    "tarif_baru": 155000
+  },
+  {
+    "no": "",
+    "rute": "Mataram -Talonang",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Terminal Mandalika - Pelabuhan Kayangan - Pelabuhan Tano - Seteluk - Taliwang - Jereweh - Maluk - Sekongkang - Talonang",
+    "jam": "06.00 WITA",
+    "tarif_baru": 150000
+  },
+  {
+    "no": "",
+    "rute": "Mataram - Moyo",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Terminal Mandalika - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Moyo",
+    "jam": "07.00 WITA",
+    "tarif_baru": 135000
+  },
+  {
+    "no": 1,
+    "rute": "Mataram - Leweng",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Terminal Mandalika - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Leweng",
+    "jam": "05.30 WITA",
+    "tarif_baru": 120000
+  },
+  {
+    "no": 2,
+    "rute": "Mataram - Matta",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Terminal Mandalika - Pelabuhan Kayangan - Pelabuhan Tano - Alas - Utan - Sumbawa - Plampang- Empang - Kwangko - Matta",
+    "jam": "06.15 WITA",
+    "tarif_baru": 175000
+  },
+  {
+    "no": 3,
+    "rute": "Pantai Senggigi - Bandara Internasional Lombok",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pantai Senggigi - Epicentrum - Pool DAMRI Mataram - Bandara Internasional Lombok",
+    "jam": "09.00 WITA - 15.00 WITA",
+    "tarif_baru": 50000
+  },
+  {
+    "no": 4,
+    "rute": "Bandara Internasional Lombok  - Pantai Senggigi",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pantai Senggigi - Epicentrum - Pool DAMRI Mataram - Bandara Internasional Lombok",
+    "jam": "08.00 WITA - 20.00 WITA",
+    "tarif_baru": 50000
+  },
+  {
+    "no": 5,
+    "rute": "Epicentrum - Bandara Internasional Lombok",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Epicentrum - Pool DAMRI Mataram - Bandara Internasional Lombok",
+    "jam": "09.30 WITA - 15.00 WITA",
+    "tarif_baru": 40000
+  },
+  {
+    "no": 6,
+    "rute": "Bandara Internasional Lombok - Epicentrum",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Epicentrum - Pool DAMRI Mataram - Bandara Internasional Lombok",
+    "jam": "08.00 WITA - 20.00 WITA",
+    "tarif_baru": 40000
+  },
+  {
+    "no": 7,
+    "rute": "Pool Damri - Bandara Internasional Lombok",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Bandara Internasional Lombok",
+    "jam": "04.00 WITA - 15.00 WITA\nSetiap 1 Jam",
+    "tarif_baru": 35000
+  },
+  {
+    "no": 8,
+    "rute": "Bandara Internasional Lombok  - Pool Damri",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pool DAMRI Mataram - Bandara Internasional Lombok",
+    "jam": "08.00 WITA - 20.00 WITA",
+    "tarif_baru": 35000
+  },
+  {
+    "no": 9,
+    "rute": "Selong - Bandara Internasional Lombok",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Selong - Masbagik - Pasar Kopang - Julanggaler - Bandara Internasional Lombok",
+    "jam": "06.00 WITA, 07.30 WITA",
+    "tarif_baru": 40000
+  },
+  {
+    "no": "",
+    "rute": "Bandara Internasional Lombok  - Selong",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Selong - Masbagik - Pasar Kopang - Julanggaler - Bandara Internasional Lombok",
+    "jam": "08.00 WITA - 16.00 WITA",
+    "tarif_baru": 40000
+  },
+  {
+    "no": "",
+    "rute": "Terminal Bangsal - Bandara Internasional Lombok",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Terminal Bangsal-Pantai Senggigi - Epicentrum - Pool DAMRI Mataram - Bandara Internasional Lombok",
+    "jam": "07.00 , 08.00 ,13.15, 14.15 WITA",
+    "tarif_baru": 30000
+  },
+  {
+    "no": 1,
+    "rute": "Bandara Internasional Lombok - Terminal Bangsal",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Terminal Bangsal-Pantai Senggigi - Epicentrum - Pool DAMRI Mataram - Bandara Internasional Lombok",
+    "jam": "11.00 , 12.00 WITA",
+    "tarif_baru": 30000
+  },
+  {
+    "no": 2,
+    "rute": "Terminal Mandalika - Pantai BangkoBangko",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Terminal Mandalika - Pelabuhan Lembar - Pantai Bangkobangko",
+    "jam": "07.00, 08.00, 13.30 WITA",
+    "tarif_baru": 25000
+  },
+  {
+    "no": 3,
+    "rute": "Pantai BangkoBangko - Terminal Mandalika",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pantai Bangkobangko - Pelabuhan Lembar - Terminal Mandalika",
+    "jam": "12.00 , 09.30 , 15.00 WITA",
+    "tarif_baru": 25000
+  },
+  {
+    "no": 4,
+    "rute": "Terminal Pancor - Geopark Rinjani Sembalun",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Terminal Pancor - Masbagik - Aikmel - Swela - Pesugulan - Geopark Rinjani",
+    "jam": "08.00, 09.00, 11.30 WITA",
+    "tarif_baru": 50000
+  },
+  {
+    "no": 5,
+    "rute": "Geopark Rinjani Sembalun - Terminal Pancor",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Geopark Rinjani - Pesugulan - Swela - Aikmel - Masbagik - Terminal Pancor",
+    "jam": "09.30 , 10.30 , 13.00 WITA",
+    "tarif_baru": 50000
+  },
+  {
+    "no": 6,
+    "rute": "Terminal Mandalika - Pantai Selong Belanak Via Mangkung Batujai",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Terminal Mandalika - Batujai - Mangkung - Pantai Selong Belanak",
+    "jam": "07.00 , 08.00 , 13.30 WITA",
+    "tarif_baru": 25000
+  },
+  {
+    "no": 7,
+    "rute": "Pantai Selong Belanak - Terminal Mandalika Via Mangkung Batujai",
+    "titik_keberangkatan": "Mataram",
+    "rute_yang_dilewati": "Pantai Selong Belanak - Mangkung - Batujai - Terminal Mandalika",
+    "jam": "09.30 , 12.00 ,15.00 WITA",
+    "tarif_baru": 25000
+  },
+  {
+    "no": 8,
+    "rute": "",
+    "titik_keberangkatan": "",
+    "rute_yang_dilewati": "",
+    "jam": "",
+    "tarif_baru": ""
+  },
+  {
+    "no": 9,
+    "rute": "",
+    "titik_keberangkatan": "",
+    "rute_yang_dilewati": "",
+    "jam": "",
+    "tarif_baru": ""
+  },
+  {
+    "no": 10,
+    "rute": "",
+    "titik_keberangkatan": "",
+    "rute_yang_dilewati": "",
+    "jam": "",
+    "tarif_baru": ""
+  }
+]

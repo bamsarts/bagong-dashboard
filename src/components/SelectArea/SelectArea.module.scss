@@ -1,0 +1,35 @@
+@import '../../styles/sass/mixins';
+@import '../../styles/sass/variables';
+
+.container{
+    margin: 0.5rem;
+
+    label{
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .container_select{
+        @include flex-row;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+        
+        div{
+            padding: .25rem 1rem;
+            border: 1px solid $medium-dark-color;
+            margin-right: 0.6rem;
+            color: $dark-color;
+            border-radius: 2rem;
+            font-size: .75rem;
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+
+            span{
+                margin-right: 0.5rem;
+            }
+        }
+    }
+   
+}

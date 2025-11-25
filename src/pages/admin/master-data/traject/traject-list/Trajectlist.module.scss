@@ -1,0 +1,55 @@
+@import '../../../../../styles/sass/_variables.scss';
+
+.dropdown_action{
+    position: absolute;
+    box-shadow: 0px 10px 15px -3px rgba(0,0,0,0.1);
+    min-width: 10px;
+    right: 2%;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #faf8f8;
+    z-index: 1;
+}
+
+.dropdown{
+    background-color: #e6e3e3;
+    border-radius: 50%;
+    padding: 5px;
+    width: 20px;
+    height: 20px;
+    display: grid;
+    // margin: 1rem;
+
+    svg{
+        margin: auto;
+        fill: black;
+    }
+}
+
+.button_action{
+    display: grid;
+    margin: 5px;
+    align-items: center;
+    background-color: #e6e3e3;
+    padding: .2rem;
+    border-radius: 10px;
+
+    svg{
+        margin-right: 5px;
+        margin: auto;
+    }
+
+    &:hover span{
+        display: block;
+        min-width: 80px;
+        margin-left: .5rem;
+    }
+
+    span{
+        display: none
+    }
+
+    &:hover{
+        display: flex;
+    }
+}

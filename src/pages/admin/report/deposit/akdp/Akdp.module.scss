@@ -1,0 +1,69 @@
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 5mm;
+    }
+
+    // body {
+    //     print-color-adjust: exact;
+    //     -webkit-print-color-adjust: exact;
+    // }
+
+    .print-container {
+        width: 100%;
+        max-width: 190mm;
+        transform: scale(0.95);
+        transform-origin: top left;
+    }
+
+    // h3 {
+    //     font-size: 12px;
+    //     margin: 5px 0;
+    // }
+
+    .row {
+        margin-bottom: 8px !important;
+    }
+
+    // table{
+    //     font-size: 9px !important;
+    // }
+}
+
+.print-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    overflow-x: auto;
+}
+
+.row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.column>div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.column span {
+    min-width: 80px;
+    font-weight: 500;
+}
+
+.form-underline {
+    flex: 1;
+    border-bottom: 1px solid #333;
+    padding-bottom: 2px;
+    min-height: 20px;
+}

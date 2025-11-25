@@ -1,0 +1,65 @@
+@import 'variables';
+
+@mixin flex-column ($justify-content : 'normal', $align-items : 'stretch') {
+    display: flex;
+    flex-direction: column;
+    justify-content: #{$justify-content};
+    align-items: #{$align-items};
+}
+
+@mixin flex-row ($justify-content : 'normal', $align-items : 'stretch') {
+    display: flex;
+    flex-direction: row;
+    justify-content: #{$justify-content};
+    align-items: #{$align-items};
+}
+
+@mixin flex-column-space-between {
+    @include flex-column;
+    justify-content: space-between;
+}
+
+@mixin flex-column-space-around {
+    @include flex-column;
+    justify-content: space-around;
+}
+
+@mixin flex-row-space-between {
+    @include flex-row;
+    justify-content: space-between;
+}
+
+@mixin row-space-around {
+    @include row;
+    justify-content: space-around;
+}
+
+@mixin respond-sm {
+    @media (max-width: #{$screen-sm-min}) {
+        @content;
+    }
+}
+
+@mixin respond-md {
+    @media (max-width: #{$screen-md-min}) {
+        @content;
+    }
+}
+
+@mixin respond-lg {
+    @media (min-width: #{$screen-lg-min}) {
+        @content;
+    }
+}
+
+@mixin respond-xl {
+    @media (min-width: #{$screen-xl-min}) {
+        @content;
+    }
+}
+
+@mixin respond-to-min-width($screen){
+    @media (min-width: #{$screen + 'px'}) {
+        @content;
+    }
+}

@@ -1,0 +1,32 @@
+@import '../../styles/sass/mixins';
+@import '../../styles/sass/variables';
+
+.container {
+    @include flex-column('center', 'center');
+    height: 100vh;
+}
+
+.wrapper {
+    padding: 1rem;
+    max-width: 400px;
+    width: 100%;
+}
+
+.logo_container {
+    @include flex-column('center', 'center');
+    width: 100%;
+    margin-bottom: 2rem;
+
+    .logo {
+        width: 50%;
+    }
+}
+
+.auth_form_wrapper {
+    padding: 1.5rem 0rem;
+
+    h3 {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+}

@@ -1,0 +1,26 @@
+@import '../../styles/sass/variables';
+
+.reject_container{
+    border: 1px solid $label-border-color;
+    padding: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+
+    span{
+        border: 1px solid $medium-dark-color;
+        color: $medium-dark-color;
+        padding: .5rem 1rem;
+        margin: .5rem;
+        display: inline-block;
+        width: fit-content;
+        border-radius: 10px;
+        cursor: pointer;
+
+        &.active{
+            border: 1px solid $primary-color;
+            color: $primary-color;
+        }
+    }
+
+
+}

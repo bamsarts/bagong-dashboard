@@ -1,0 +1,66 @@
+@import '../../styles/sass/variables';
+
+.container{
+    margin: 2rem 0 0.5rem 0.5rem;
+
+    .activate_container{
+        display: grid;
+        margin-bottom: 1rem;
+    }
+}
+
+.pass_container{
+    border-top: 1px solid rgb(209, 206, 206);
+    padding-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.button_container{
+    margin: 1rem 0;
+    display: flex;
+}
+
+.d_flex{
+    display: flex;
+
+    &.align_items_between{
+        justify-content: space-between;
+    }
+}
+
+.mb_1{
+    margin-bottom: 1rem;
+}
+
+.mt_1{
+    margin-top: 2rem;
+}
+
+.label_status{
+    border-radius: 24px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    margin-right: 1rem;
+
+    &.primary{
+        color: $label-primary-color;
+        background-color: #E8EFFF;
+    }
+
+    &.danger{
+        color: $error-color;
+        background-color: #E8EFFF;
+    }
+
+    &.warning{
+        color: $secondary-color;
+        background-color: $label-light-warning-color;
+    }
+
+    &.disabled{
+        background-color: #fff;
+        border: 1px solid $label-border-color;
+        color: $label-disabled-color;
+    }
+
+}

@@ -1,0 +1,77 @@
+{
+    "data":[
+        {
+            "id": "c0a8a002-8afb-16f2-818b-0491bf800988",
+            "idUser": 258867,
+            "name": "Bambang Production",
+            "email": "bambang_supriadi@programmer.net",
+            "phone_number": 6289606929263,
+            "token": "f6Tzd5RejUJKoryoNyIkJM:APA91bFYK_U6f5dJwxzMzIF0Xb8bL9Uu3ezrdkHUMun4KbGAAjEg3_Wbx7zZ412NvFft8dWx5YboFJLJJpGzw6IKOoz0Dr7Qtc0D9mBtLWECuHyDtWgyh1k",
+            "isChecked": 1
+          },
+          {
+            "id": "ac1c0002-9300-1743-8193-00c42e260000",
+            "idUser": 752395,
+            "name": "Anna Fatimatun",
+            "email": "annaftmtn@gmail.com",
+            "phone_number": 6281212651633,
+            "token": "fotGcmOYR5KlVvCikumrI5:APA91bHRfSUxGpGgxXO2kf5BFMPeGfpZhnTXWixO7crrFyhX7PpDqvFbwFuMMhUzjToW3rFO4Vgb3TnSzv9TTkRfAYhntQ9bZRPq8iFXFgomFGAa44TNE9A",
+            "isChecked": 0
+          },
+          {
+            "id": "ac1c0002-9300-1743-8193-00c42e260000",
+            "idUser": 752395,
+            "name": "Anna Fatimatun",
+            "email": "annaftmtn@gmail.com",
+            "phone_number": 6281212651633,
+            "token": "d0XVnOBRTmibHVClC34MYF:APA91bETgRIoZ-p0W9dN2VZrsLB1qgwIUNjJGhwrkYSskRGOWlJaydAgtWNUh1IlFREtcVBtRSUx8mQ3ZKeb3eltJWci8T7TyeEu6LJUDTdw8-CjUdDS0vU",
+            "isChecked": 0
+          },
+          {
+            "id": "c0a8a002-8afb-16f2-818b-0491bf800988",
+            "idUser": 258867,
+            "name": "Bambang Production",
+            "email": "bambang_supriadi@programmer.net",
+            "phone_number": 6289606929263,
+            "token": "fQOr51FH0Uxto2G3F1o1lT:APA91bG9TU2wRcW156A9_GtWQ1zJKHOzby145nAm88puquTCtF8nvcKp2mgtkOdlGhqj48500Y76lc2Yb-B2nd4YgZWka7HG-KiMBBxMXLS94lLIU3Zyqgg",
+            "isChecked": 1
+          },
+          {
+            "id": "c0a8a002-8afb-16f2-818b-0491bf800988",
+            "idUser": 258867,
+            "name": "Bambang Production",
+            "email": "bambang_supriadi@programmer.net",
+            "phone_number": 6289606929263,
+            "token": "eghCxfrAQHiiEmVOzgfbcv:APA91bGEDa0ZZsVdQQykmSuSkw3AfjstAY2a7BWx1Bu5sxirzxA4SbfYWk4LnVoAvGVLqGr7KbCsbLewHazaHL0TMOn4r_OYSItY5i7kgT1D1_jbK38afH8",
+            "isChecked": 1
+          },
+          {
+            "id": "c0a8a002-8afb-16f2-818b-0491bf800988",
+            "idUser": 258867,
+            "name": "Bambang Production",
+            "email": "bambang_supriadi@programmer.net",
+            "phone_number": 6289606929263,
+            "token": "fJqEB-MgSRK4_ItgpSh0YW:APA91bEOt6Ck-lvmf7FzgC4KDIceLwhzUZr6TyJouiFb41o4W8IvNc-U-UbnjAK2ffsjoIbGSCqEvCqOg0T1ZXT__xeW3TCJxN6fPFUEaM4GIyf0Y1PVDF0",
+            "isChecked": 1
+          },
+          {
+            "id": "ac1c0002-9848-13d9-8198-54bca0cc09a1",
+            "idUser": 1086635,
+            "name": "Bambang S",
+            "email": "bambank_supriadi@yahoo.co.id",
+            "phone_number": 628218662359,
+            "token": "cfblcAFDSimXHWjZaQdI2e:APA91bGqcBP8CCgyu-1n623n9BagYxSYmFv2R_FpyOPd1GT_AwXQiICoHk9CP6RMh2hHEJmxR6v4thEt1s5xCMrbUdhD6lbDwXPs7lDWLJ8FsRQqONJM2so",
+            "isChecked": 0
+          },
+          {
+            "id": "ac1c0002-9837-16d1-8198-45de045c0784",
+            "idUser": 1084165,
+            "name": "Bambang Saputra ",
+            "email": "jhonndusun@gmail.com",
+            "phone_number": 6285380092455,
+            "token": "cZY09qizRQ6zbn2t6URdf9:APA91bHXYtR-r1MHacnPWz7GuhIfgfJ5vGaicUXV7yP3h4M56j-Fe59kbj41BpgAY-PczXWjNm5qnby5EFVhlFqXgoZA_eMQy911IqN5qe7AZEcFkT2o_1Y",
+            "isChecked": 0
+          }
+    ]
+}
+

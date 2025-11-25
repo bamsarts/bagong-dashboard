@@ -1,0 +1,233 @@
+[
+  {
+    "no": 1,
+    "rute": "Pontianak - Brunei Darussalam",
+    "titik_keberangkatan": "Terminal Antar Negara Ambawang",
+    "rute_yang_dilewati": "Pontianak - Simpang Ampar - Rest Area Sosok - Border Entikong - Serian - Sibu - Bintulu - Miri - Brunei",
+    "jam": "07:00:00",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "Rp1.100.000",
+    "royal": ""
+  },
+  {
+    "no": 2,
+    "rute": "Singkawang - Kuching",
+    "titik_keberangkatan": "Singkawang Grand Mall",
+    "rute_yang_dilewati": "Singkawang - Pemangkat - Tebas - Sambas - Border Aruk - Kuching",
+    "jam": "06:00:00",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "Rp300.000",
+    "royal": ""
+  },
+  {
+    "no": 3,
+    "rute": "Pontianak - Kuching",
+    "titik_keberangkatan": "Terminal Antar Negara Ambawang",
+    "rute_yang_dilewati": "Pontianak - Simpang Ampar - Rest Area Sosok - Border Entikong - Serian - Kuching Central",
+    "jam": "07:00:00",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "Rp270.000",
+    "royal": ""
+  },
+  {
+    "no": "",
+    "rute": "",
+    "titik_keberangkatan": "",
+    "rute_yang_dilewati": "",
+    "jam": "23:00:00",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "",
+    "royal": "Rp350.000"
+  },
+  {
+    "no": 1,
+    "rute": "Pontianak - Pangkalanbun",
+    "titik_keberangkatan": "Terminal Antar Negara Ambawang",
+    "rute_yang_dilewati": "Pontianak - Simpang Ampar - Tayan - Balai Bekuak - Nanga Tayap - Lamandau - Simpang Runtuh - Pangkalanbun",
+    "jam": "07:00:00",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "Rp500.000",
+    "royal": ""
+  },
+  {
+    "no": "",
+    "rute": "",
+    "titik_keberangkatan": "",
+    "rute_yang_dilewati": "",
+    "jam": "",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "",
+    "royal": ""
+  },
+  {
+    "no": 1,
+    "rute": "Pontianak - Putusibau",
+    "titik_keberangkatan": "Terminal Antar Negara Ambawang",
+    "rute_yang_dilewati": "Pontianak - Simpang Ampar - Rest Area Sosok - Sanggau - Sekadau - Sintang - Silat - Tepuai - Putussibau",
+    "jam": "14:00:00",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "",
+    "royal": "Rp340.000"
+  },
+  {
+    "no": 2,
+    "rute": "Pontianak - Sintang",
+    "titik_keberangkatan": "Terminal Antar Negara Ambawang",
+    "rute_yang_dilewati": "Pontianak - Simpang Ampar - Rest Area Sosok - Sanggau - Sekadau - Sintang",
+    "jam": "08:00:00",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "Rp180.000",
+    "royal": ""
+  },
+  {
+    "no": "",
+    "rute": "",
+    "titik_keberangkatan": "",
+    "rute_yang_dilewati": "",
+    "jam": "19:00:00",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "",
+    "royal": "Rp200.000"
+  },
+  {
+    "no": 3,
+    "rute": "Pontianak - Nanga Pinoh",
+    "titik_keberangkatan": "Terminal Antar Negara Ambawang",
+    "rute_yang_dilewati": "Pontianak - Simpang Ampar - Rest Area Sosok - Sanggau - Sekadau - Simpang Pinoh - Nanga Pinoh",
+    "jam": "08:00:00",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "Rp190.000",
+    "royal": ""
+  },
+  {
+    "no": "",
+    "rute": "",
+    "titik_keberangkatan": "",
+    "rute_yang_dilewati": "",
+    "jam": "19:00:00",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "",
+    "royal": "Rp210.000"
+  },
+  {
+    "no": 1,
+    "rute": "Pontianak - Sambas",
+    "titik_keberangkatan": "Kantor Pemasaran",
+    "rute_yang_dilewati": "Pontianak - Mempawah - Singkawang - Pemangkat - Sambas",
+    "jam": "08:00:00",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "Rp100.000",
+    "royal": ""
+  },
+  {
+    "no": "",
+    "rute": "",
+    "titik_keberangkatan": "",
+    "rute_yang_dilewati": "",
+    "jam": "",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "",
+    "royal": ""
+  },
+  {
+    "no": "",
+    "rute": "",
+    "titik_keberangkatan": "",
+    "rute_yang_dilewati": "",
+    "jam": "",
+    "ekonomi": "",
+    "bisnis": "",
+    "executive": "",
+    "royal": ""
+  },
+  {
+    "no": 1,
+    "rute": "Ketapang - Teluk Batang",
+    "titik_keberangkatan": "Terminal Pangeran Giri Kusuma",
+    "rute_yang_dilewati": "Ketapang - Simpang Sidu - Sukadana - Teluk Batang",
+    "jam": "08:00:00",
+    "ekonomi": "Rp60.000",
+    "bisnis": "",
+    "executive": "",
+    "royal": ""
+  },
+  {
+    "no": 2,
+    "rute": "Sambas - Aruk",
+    "titik_keberangkatan": "Terminal Sambas",
+    "rute_yang_dilewati": "Sambas - Temajuk - Aruk",
+    "jam": "08:30:00",
+    "ekonomi": "Rp50.000",
+    "bisnis": "",
+    "executive": "",
+    "royal": ""
+  },
+  {
+    "no": 3,
+    "rute": "Bengkayang - Jagoi Babang",
+    "titik_keberangkatan": "Terminal Bengkayang",
+    "rute_yang_dilewati": "Bengkayang - Ledo - Sanggau Ledo - Seluas - Jagoi Babang",
+    "jam": "09:00:00",
+    "ekonomi": "Rp50.000",
+    "bisnis": "",
+    "executive": "",
+    "royal": ""
+  },
+  {
+    "no": 4,
+    "rute": "Sintang - Tempunak",
+    "titik_keberangkatan": "Terminal Sungai Durian",
+    "rute_yang_dilewati": "Sintang - Tempunak",
+    "jam": "09:00:00",
+    "ekonomi": "Rp30.000",
+    "bisnis": "",
+    "executive": "",
+    "royal": ""
+  },
+  {
+    "no": 5,
+    "rute": "Sintang - Nanga Tebidah",
+    "titik_keberangkatan": "Terminal Sungai Durian",
+    "rute_yang_dilewati": "Sintang - Nanga Mau - Nanga Tebidah",
+    "jam": "09:00:00",
+    "ekonomi": "Rp90.000",
+    "bisnis": "",
+    "executive": "",
+    "royal": ""
+  },
+  {
+    "no": 6,
+    "rute": "Putusibau - Nanga Raun",
+    "titik_keberangkatan": "Terminal Kedamin",
+    "rute_yang_dilewati": "Putusibau - Lintas Timur - Nanga Raun",
+    "jam": "09:00:00",
+    "ekonomi": "Rp45.000",
+    "bisnis": "",
+    "executive": "",
+    "royal": ""
+  },
+  {
+    "no": 7,
+    "rute": "Putusibau - Selimbau",
+    "titik_keberangkatan": "Terminal Kedamin",
+    "rute_yang_dilewati": "Putusibau - Jongkong - Selimbau",
+    "jam": "08:00:00",
+    "ekonomi": "Rp90.000",
+    "bisnis": "",
+    "executive": "",
+    "royal": ""
+  }
+]

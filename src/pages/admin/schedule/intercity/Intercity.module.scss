@@ -1,0 +1,101 @@
+@import '../../../../styles/sass/variables';
+@import '../../../../styles/sass/mixins';
+
+.schedule {
+    padding: 1rem;
+    border-top: .5px solid $medium-dark-color;
+
+    &:hover {
+        box-shadow: $box-shadow-soft;
+        cursor: pointer;
+    }
+
+    .bus {
+        h3 {
+            color: $secondary-color;
+            margin: 0;
+        }
+
+        @include respond-sm {
+            margin-bottom: 1rem;
+        }
+    }
+
+    &.seat_sold_out {
+        filter: grayscale(75);
+        opacity: .25;
+        cursor: not-allowed;
+    }
+}
+
+.button_action{
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: #F0F0FA;
+    display: grid;
+    border-radius: 50%;
+
+    &:hover{
+        background-color: $primary-color;
+        svg{
+            color: #fff;
+        }
+    }
+
+    svg{
+        margin: auto;
+        font-size: 0.9rem;
+    }
+
+    &.text_red{
+        color: $error-color;
+    }
+}
+
+
+
+.button{
+    background-color: $secondary-color;
+    display: grid;
+    height: 100%;
+    cursor: pointer;
+    border-radius: 10px;
+    color: #fff;
+    min-height: 40px;
+
+    span{
+        margin: auto;
+    }
+}
+
+.label{
+    width: fit-content;
+    height: fit-content;
+    padding: .5rem 1rem;
+    border-radius: 10%;
+    font-weight: bold;
+}
+
+.primary{
+    color: $label-primary-color;
+    background-color: $label-light-primary-color;
+}
+
+.warning{
+    color: $secondary-color;
+    background-color: $label-light-warning-color;
+}
+
+.header_content{
+    color: #fff;
+    margin-left: .5rem;
+    display: flex;
+    align-items: center;
+
+
+    a{
+        margin-right: .5rem;
+        display: grid;
+    }
+    
+}
