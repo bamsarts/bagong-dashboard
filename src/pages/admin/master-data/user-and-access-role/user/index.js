@@ -14,7 +14,7 @@ import UserModal from '../../../../../components/UserModal'
 import Label from '../../../../../components/Label'
 import { dateFilter } from '../../../../../utils/filters'
 import styles from './User.module.scss'
-import { AiFillEye } from 'react-icons/ai'
+import { BsThreeDotsVertical, BsEyeFill, BsQrCode  } from 'react-icons/bs'
 import { FaChessBishop, FaVolleyballBall } from 'react-icons/fa'
 import ConfirmationModal from '../../../../../components/ConfirmationModal'
 import { getLocalStorage, setLocalStorage } from '../../../../../utils/local-storage'
@@ -85,15 +85,49 @@ export default function User(props) {
             field: "id",
             customCell: (value, row) => {
                 return (
-                    <div
-                        title={"Lihat"}
-                        className={styles.button_action}
+                    <div>
+                        <div
+                        title={"Aksi"}
+                        className={styles.dropdown}
                         onClick={() => {
-                            _setForm(row)
-                            _toggleModal(true)
+                            _setDropdown(row.id)
                         }}
-                    >
-                        <AiFillEye />
+                        >
+                            <BsThreeDotsVertical/>
+                        </div>
+
+                        <div
+                        style={{"display": "none"}}
+                        className={ generateClasses([
+                            styles.dropdown_action,
+                            "dropdown-item "+row.id
+                        ])}
+                        >
+                            <div
+                            className={styles.button_action}
+                            onClick={() => {
+                                _setForm(row)
+                                _toggleModal(true)
+                            }}
+                            >
+                                <BsEyeFill/>
+                                <span>Lihat User</span>
+                            </div>
+
+                            <div
+                            className={styles.button_action}
+                            onClick={() => {
+                                _setShowQRModal(true)
+                                _setUserData({
+                                    name: row.name,
+                                    id: row.id
+                                })
+                            }}
+                            >
+                                <BsQrCode/>
+                                <span>Lihat QRCODE</span>
+                            </div>
+                        </div>
                     </div>
                 )
             }
@@ -223,6 +257,7 @@ export default function User(props) {
 
     ])
     const [_showQRModal, _setShowQRModal] = useState(false)
+    const [_userData, _setUserData] = useState({})
 
     useEffect(() => {
         console.log(props)
@@ -258,6 +293,16 @@ export default function User(props) {
             }
         })
     }
+
+     function _setDropdown(id){
+        const parent = document.getElementsByClassName("dropdown-item "+id)
+        if(parent[0].style.display == "none"){
+            parent[0].style.display = "flex"
+        }else{
+            parent[0].style.display = "none"
+        }
+    }
+
 
     function _setPagination(pagination) {
         _setPage(oldData => {
@@ -514,10 +559,7 @@ export default function User(props) {
             <QRCodeModal
             visible={_showQRModal}
             closeModal={() => _setShowQRModal(false)}
-            userData={{
-                name: _form.name,
-                id: _form.id
-            }}
+            userData={_userData}
             />
 
             <UserModal

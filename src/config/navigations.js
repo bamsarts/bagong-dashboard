@@ -621,7 +621,7 @@ export const NAVIGATIONS = [
         subMenus : [
             {
                 title : 'Setoran',
-                href : ADMIN_BASE_URL + '/operasional/setoran',
+                href : ADMIN_BASE_URL + '/operation/deposit',
                 isHide: false,
             }
         ]
