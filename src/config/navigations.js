@@ -623,6 +623,11 @@ export const NAVIGATIONS = [
                 title : 'Setoran',
                 href : ADMIN_BASE_URL + '/operation/deposit',
                 isHide: false,
+            },
+            {
+                title : 'Penugasan',
+                href : ADMIN_BASE_URL + '/operation/assign-task',
+                isHide: false,
             }
         ]
     },

@@ -7,6 +7,7 @@ import Button from '../Button'
 import { postJSON, get } from '../../api/utils'
 import AppContext from '../../context/app'
 import { popAlert } from '../Main'
+import { currency } from '../../utils/filters'
 
 const defaultProps = {
     visible: false,
@@ -42,6 +43,11 @@ export default function SetoranModal(props = defaultProps) {
             desc: "",
             name: "PER KARCIS UNTUK KRU",
             amount: 1000,
+            is_default: true,
+            allow_update: true,
+            format_amount: "NOMINAL",
+            min: 1,
+            max: 1
         }
     ])
 
@@ -50,6 +56,11 @@ export default function SetoranModal(props = defaultProps) {
             desc: "",
             name: "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)",
             amount: 1000,
+            is_default: true,
+            allow_update: true,
+            format_amount: "NOMINAL",
+            min: 1,
+            max: 1
         }
     ])
 
@@ -57,12 +68,22 @@ export default function SetoranModal(props = defaultProps) {
         {
             desc: "(Pendapatan Rp2.100.000 s.d Rp2.400.000) selisihnya dikalikan",
             name: "Bonus Kru",
-            amount: 25
+            amount: 25,
+            is_default: true,
+            allow_update: true,
+            format_amount: "PERCENTAGE",
+            min: 2100000,
+            max: 2400000
         },
         {
             desc: "(Pendapatan Rp2.400.000 ke atas) selisihnya dikalikan",
             name: "Bonus Kru",
-            amount: 30
+            amount: 30,
+            is_default: true,
+            allow_update: true,
+            format_amount: "PERCENTAGE",
+            min: 2400000,
+            max: 1
         }
     ])
 
@@ -70,27 +91,52 @@ export default function SetoranModal(props = defaultProps) {
         {
             desc: "Gaji Sopir",
             name: "Catatan Saku",
-            amount: 70000
+            amount: 70000,
+            is_default: true,
+            allow_update: true,
+            format_amount: "NOMINAL",
+            min: 1,
+            max: 1
         },
         {
             desc: "Gaji Kondektur",
             name: "Catatan Saku",
-            amount: 100000
+            amount: 100000,
+            is_default: true,
+            allow_update: true,
+            format_amount: "NOMINAL",
+            min: 1,
+            max: 1
         },
         {
             desc: "Gaji Kernet",
             name: "Catatan Saku",
-            amount: 50000
+            amount: 50000,
+            is_default: true,
+            allow_update: true,
+            format_amount: "NOMINAL",
+            min: 1,
+            max: 1
         },
         {
             desc: "UM KRU (3 Orang)",
             name: "Catatan Saku",
-            amount: 75000
+            amount: 75000,
+            is_default: true,
+            allow_update: true,
+            format_amount: "NOMINAL",
+            min: 1,
+            max: 1
         },
         {
             desc: "Tol Waru Gunung - Kertosono 2 Rit",
             name: "Catatan Saku",
-            amount: 195000
+            amount: 195000,
+            is_default: true,
+            allow_update: true,
+            format_amount: "NOMINAL",
+            min: 1,
+            max: 1
         },
     ])
 
@@ -98,7 +144,12 @@ export default function SetoranModal(props = defaultProps) {
         {
             desc: "SOLAR",
             name: "SOLAR",
-            amount: 1
+            amount: 1,
+            is_default: true,
+            allow_update: true,
+            format_amount: "NOMINAL",
+            min: 1,
+            max: 1
         },
     ])
 
@@ -106,7 +157,12 @@ export default function SetoranModal(props = defaultProps) {
         {
             desc: "Lain-lain",
             name: "Lain-lain",
-            amount: 1
+            amount: 1,
+            is_default: true,
+            allow_update: true,
+            format_amount: "NOMINAL",
+            min: 1,
+            max: 1
         },
     ])
 
@@ -175,6 +231,28 @@ export default function SetoranModal(props = defaultProps) {
 
     function _clearForm() {
         _setForm(CONFIG_FORM)
+    }
+
+    function _describeReward(item) {
+        let min = parseInt(String(item.min || 0).replace(/\./g, ''))
+        let max = parseInt(String(item.max || 0).replace(/\./g, ''))
+        let desc = ""
+
+        if (min > 0 && max > 0) {
+            desc = "Pendapatan Rp" + currency(min) + " s.d Rp" + currency(max) + " selisihnya dikalikan"
+        } else if (min > 0 && max === 0) {
+            desc = "Pendapatan Rp" + currency(min) + " ke atas selisihnya dikalikan"
+        }else{
+            desc = item?.desc || ""
+        }
+
+        return desc
+    }
+
+    function _countPnp(){
+        let count = 0
+
+        
     }
 
     async function _submitData() {
@@ -295,8 +373,15 @@ export default function SetoranModal(props = defaultProps) {
                         desc: val.desc || "",
                         name: val.name || "",
                         amount: val.amount || 0,
+                        is_default: val.is_default || true,
+                        allow_update: val.allow_update || true,
+                        format_amount: val.format_amount || 'NOMINAL',
+                        min: val.min || 0,
+                        max: val.max || 0,
                         originalDesc: val.desc || "",
-                        originalAmount: val.amount || 0
+                        originalAmount: val.amount || 0,
+                        originalMin: val.min || 0,
+                        originalMax: val.max || 0
                     }
 
                     // Match by name and group accordingly
@@ -347,8 +432,15 @@ export default function SetoranModal(props = defaultProps) {
                     name: item.name || "PER KARCIS UNTUK KRU",
                     desc: item.desc || "",
                     amount: Number(item.amount) || 0,
+                    isDefault: item.is_default || true,
+                    allowUpdate: item.allow_update || true,
+                    formatAmount: item.format_amount || 'NOMINAL',
+                    min: String(item.min || 0).replace(/\./g, ''),
+                    max: String(item.max || 0).replace(/\./g, ''),
                     originalAmount: item.originalAmount,
-                    originalDesc: item.originalDesc
+                    originalDesc: item.originalDesc,
+                    originalMin: item.originalMin,
+                    originalMax: item.originalMax
                 })),
                 ..._brokerPoint.map(item => ({
                     ...(item.id && { id: item.id }),
@@ -356,8 +448,15 @@ export default function SetoranModal(props = defaultProps) {
                     name: item.name || "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)",
                     desc: item.desc || "",
                     amount: Number(item.amount) || 0,
+                    isDefault: item.is_default || true,
+                    allowUpdate: item.allow_update || true,
+                    formatAmount: item.format_amount || 'NOMINAL',
+                    min: String(item.min || 0).replace(/\./g, ''),
+                    max: String(item.max || 0).replace(/\./g, ''),
                     originalAmount: item.originalAmount,
-                    originalDesc: item.originalDesc
+                    originalDesc: item.originalDesc,
+                    originalMin: item.originalMin,
+                    originalMax: item.originalMax
                 })),
                 ..._others.map(item => ({
                     ...(item.id && { id: item.id }),
@@ -365,17 +464,31 @@ export default function SetoranModal(props = defaultProps) {
                     name: item.name || "Lain-lain",
                     desc: item.desc || "",
                     amount: Number(item.amount) || 0,
+                    isDefault: item.is_default || true,
+                    allowUpdate: item.allow_update || true,
+                    formatAmount: item.format_amount || 'NOMINAL',
+                    min: String(item.min || 0).replace(/\./g, ''),
+                    max: String(item.max || 0).replace(/\./g, ''),
                     originalAmount: item.originalAmount,
-                    originalDesc: item.originalDesc
+                    originalDesc: item.originalDesc,
+                    originalMin: item.originalMin,
+                    originalMax: item.originalMax
                 })),
                 ..._rewardCrew.map(item => ({
                     ...(item.id && { id: item.id }),
                     setoranDefaultId: setoranDefaultId,
                     name: item.name || "Bonus Kru",
-                    desc: item.desc || "",
+                    desc: _describeReward(item),
                     amount: Number(item.amount) || 0,
+                    isDefault: item.is_default || true,
+                    allowUpdate: item.allow_update || true,
+                    formatAmount: item.format_amount || 'PERCENTAGE',
+                    min: parseInt(String(item.min || 0).replace(/\./g, '')),
+                    max: parseInt(String(item.max || 0).replace(/\./g, '')),
                     originalAmount: item.originalAmount,
-                    originalDesc: item.originalDesc
+                    originalDesc: item.originalDesc,
+                    originalMin: parseInt(item.originalMin),
+                    originalMax: parseInt(item.originalMax)
                 })),
                 ..._depositNotes.map(item => ({
                     ...(item.id && { id: item.id }),
@@ -383,8 +496,15 @@ export default function SetoranModal(props = defaultProps) {
                     name: item.name || "Catatan Saku",
                     desc: item.desc || "",
                     amount: Number(item.amount) || 0,
+                    isDefault: item.is_default || true,
+                    allowUpdate: item.allow_update || true,
+                    formatAmount: item.format_amount || 'NOMINAL',
+                    min: String(item.min || 0).replace(/\./g, ''),
+                    max: String(item.max || 0).replace(/\./g, ''),
                     originalAmount: item.originalAmount,
-                    originalDesc: item.originalDesc
+                    originalDesc: item.originalDesc,
+                    originalMin: item.originalMin,
+                    originalMax: item.originalMax
                 })),
                 ..._gas.map(item => ({
                     ...(item.id && { id: item.id }),
@@ -392,8 +512,15 @@ export default function SetoranModal(props = defaultProps) {
                     name: item.name || "SOLAR",
                     desc: item.desc || "",
                     amount: Number(item.amount) || 0,
+                    isDefault: item.is_default || true,
+                    allowUpdate: item.allow_update || true,
+                    formatAmount: item.format_amount || 'NOMINAL',
+                    min: String(item.min || 0).replace(/\./g, ''),
+                    max: String(item.max || 0).replace(/\./g, ''),
                     originalAmount: item.originalAmount,
-                    originalDesc: item.originalDesc
+                    originalDesc: item.originalDesc,
+                    originalMin: item.originalMin,
+                    originalMax: item.originalMax
                 }))
             ]
 
@@ -402,11 +529,12 @@ export default function SetoranModal(props = defaultProps) {
             const itemsToUpdate = allDetails.filter(detail => {
                 if (!detail.id) return false
                 // Only update if there are changes
-                const hasChanges = detail.amount !== detail.originalAmount || detail.desc !== detail.originalDesc
+                const hasChanges = detail.amount !== detail.originalAmount || detail.desc !== detail.originalDesc || detail?.min !== detail?.originalMin || detail?.max !== detail?.originalMax
                 return hasChanges
             })
 
-            
+          
+
             // Add new items (without id)
             if (itemsToAdd.length > 0) {
                 const promisesAdd = itemsToAdd.map(detail => {
@@ -419,7 +547,7 @@ export default function SetoranModal(props = defaultProps) {
             // Update existing items (with id and changes)
             if (itemsToUpdate.length > 0) {
                 const promisesUpdate = itemsToUpdate.map(detail => {
-                    const { originalAmount, originalDesc, ...detailToUpdate } = detail
+                    const { originalAmount, originalDesc, originalMax, originalMin, ...detailToUpdate } = detail
                     return postJSON('/masterData/setoranDefaultDetail/update', detailToUpdate, appContext.authData.token)
                 })
                 await Promise.all(promisesUpdate)
@@ -508,7 +636,7 @@ export default function SetoranModal(props = defaultProps) {
                     {
                         props.data?.id && (
                             <>
-                                
+
 
                                 <div className={styles.perKarcisSection}>
                                     <h4>{_crewTraject[0].name}</h4>
@@ -621,19 +749,15 @@ export default function SetoranModal(props = defaultProps) {
                                                         withPadding
                                                         column={3}
                                                     >
+
                                                         <Input
                                                             title={key < 1 ? 'Point' : ""}
-                                                            placeholder={'Pilih point'}
-                                                            suggestions={_pointList}
-                                                            suggestionsField={"title"}
+                                                            placeholder={'Masukkan point'}
                                                             value={val.desc || ""}
-                                                            onSuggestionSelect={(value) => {
-
+                                                            onChange={(value) => {
                                                                 const updatedList = [..._brokerPoint];
-                                                                updatedList[key].desc = value.name
+                                                                updatedList[key].desc = value
                                                                 _setBrokerPoint(updatedList);
-
-
                                                             }}
                                                         />
                                                     </Col>
@@ -760,14 +884,33 @@ export default function SetoranModal(props = defaultProps) {
                                                 <Row key={key}>
                                                     <Col
                                                         withPadding
-                                                        column={3}
+                                                        column={1}
                                                     >
                                                         <Input
-                                                            placeholder={'Masukkan uraian'}
-                                                            value={val.desc || ""}
+                                                            type={"currency"}
+                                                            placeholder={'Min'}
+                                                            title={key < 1 ? 'Min' : ""}
+                                                            value={val.min || ""}
                                                             onChange={(value) => {
                                                                 const updatedList = [..._rewardCrew];
-                                                                updatedList[key].desc = value
+                                                                updatedList[key].min = value
+                                                                _setRewardCrew(updatedList);
+                                                            }}
+                                                        />
+                                                    </Col>
+
+                                                    <Col
+                                                        withPadding
+                                                        column={1}
+                                                    >
+                                                        <Input
+                                                            type={"currency"}
+                                                            placeholder={'Max'}
+                                                            title={key < 1 ? 'Max' : ""}
+                                                            value={val.max || ""}
+                                                            onChange={(value) => {
+                                                                const updatedList = [..._rewardCrew];
+                                                                updatedList[key].max = value
                                                                 _setRewardCrew(updatedList);
                                                             }}
                                                         />
@@ -781,6 +924,7 @@ export default function SetoranModal(props = defaultProps) {
                                                             icon={"%"}
                                                             type={"number"}
                                                             placeholder={'Masukkan persentase'}
+                                                            title={key < 1 ? 'Persentase' : ""}
                                                             value={val.amount || ""}
                                                             onChange={(value) => {
                                                                 const updatedList = [..._rewardCrew];
@@ -1002,7 +1146,7 @@ export default function SetoranModal(props = defaultProps) {
                             </>
                         )
                     }
-                    
+
 
                 </ModalContent>
             </div>
