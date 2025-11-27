@@ -166,7 +166,7 @@ export default function AssignTask(props) {
                                     title={'Tambah Penugasan'}
                                     styles={Button.secondary}
                                     onClick={() => {
-                                        // _setModalVisible(true)
+                                        _setModalVisible(true)
                                     }}
                                 />
                             </Col>

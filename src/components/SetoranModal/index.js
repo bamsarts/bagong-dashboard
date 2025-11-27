@@ -533,12 +533,10 @@ export default function SetoranModal(props = defaultProps) {
                 return hasChanges
             })
 
-          
-
             // Add new items (without id)
             if (itemsToAdd.length > 0) {
                 const promisesAdd = itemsToAdd.map(detail => {
-                    const { originalAmount, originalDesc, ...detailToAdd } = detail
+                    const { originalAmount, originalDesc, originalMax, originalMin, ...detailToAdd } = detail
                     return postJSON('/masterData/setoranDefaultDetail/add', detailToAdd, appContext.authData.token)
                 })
                 await Promise.all(promisesAdd)
@@ -792,9 +790,15 @@ export default function SetoranModal(props = defaultProps) {
                                                             title={"-"}
                                                             styles={Button.error}
                                                             disabled={_brokerPoint.length <= 1}
-                                                            onClick={() => {
+                                                            onClick={async () => {
                                                                 if (_brokerPoint.length > 1) {
                                                                     // Remove the last split
+
+                                                                    // If the item has an id, delete it from the API
+                                                                    if (val?.id) {
+                                                                        await _deleteFormat(val.id);
+                                                                    }
+
                                                                     const updatedList = _brokerPoint.slice(0, -1);
                                                                     _setBrokerPoint(updatedList);
                                                                 }
@@ -812,9 +816,11 @@ export default function SetoranModal(props = defaultProps) {
                                                                         const last = _brokerPoint[_brokerPoint.length - 1];
                                                                         const newSplit = {
                                                                             ...last,
-                                                                            name: "",
+                                                                            desc: "",
                                                                             amount: 1000,
                                                                         };
+
+                                                                        delete newSplit.id
 
                                                                         const updatedList = [..._brokerPoint, newSplit];
                                                                         _setBrokerPoint(updatedList);
@@ -866,6 +872,57 @@ export default function SetoranModal(props = defaultProps) {
                                                             }}
                                                         />
                                                     </Col>
+
+                                                     {/* <Col
+                                                        column={1}
+                                                        withPadding
+                                                        style={{
+                                                            flexDirection: "row"
+                                                        }}
+                                                        alignEnd
+                                                    >
+                                                        <Button
+                                                            title={"-"}
+                                                            styles={Button.error}
+                                                            disabled={_others.length <= 1}
+                                                            onClick={async () => {
+                                                                if (_others.length > 1) {
+                                                                    // Remove the last split
+
+                                                                    // If the item has an id, delete it from the API
+                                                                    if (val?.id) {
+                                                                        await _deleteFormat(val.id);
+                                                                    }
+
+                                                                    const updatedList = _others.slice(0, -1);
+                                                                    _setOthers(updatedList);
+                                                                }
+                                                            }}
+                                                            className={styles.incrementBtn}
+                                                        />
+                                                        {key === _others.length - 1 && (
+                                                            <Button
+                                                                title={"+"}
+                                                                styles={Button.primary}
+                                                                onClick={() => {
+                                                                    // Add a new split with default values
+                                                                    if (_others.length > 0) {
+                                                                        // Clone the last split as a template, but clear payment info and id
+                                                                        const last = _others[_others.length - 1];
+                                                                        const newSplit = {
+                                                                            ...last,
+                                                                            name: "",
+                                                                            amount: 1000,
+                                                                        };
+
+                                                                        const updatedList = [..._others, newSplit];
+                                                                        _setOthers(updatedList);
+                                                                    }
+                                                                }}
+                                                                className={styles.incrementBtn}
+                                                            />
+                                                        )}
+                                                    </Col> */}
 
                                                 </Row>
                                             )
@@ -1063,10 +1120,11 @@ export default function SetoranModal(props = defaultProps) {
                                                                         const last = _depositNotes[_depositNotes.length - 1];
                                                                         const newSplit = {
                                                                             ...last,
-                                                                            fromAmount: "",
-                                                                            toAmount: "",
+                                                                            desc: "",
                                                                             amount: 0,
                                                                         };
+
+                                                                        delete newSplit.id
 
                                                                         const updatedList = [..._depositNotes, newSplit];
                                                                         _setDepositNotes(updatedList);
@@ -1123,6 +1181,57 @@ export default function SetoranModal(props = defaultProps) {
                                                             }}
                                                         />
                                                     </Col>
+                                                    
+                                                     {/* <Col
+                                                        column={1}
+                                                        withPadding
+                                                        style={{
+                                                            flexDirection: "row"
+                                                        }}
+                                                        alignEnd
+                                                    >
+                                                        <Button
+                                                            title={"-"}
+                                                            styles={Button.error}
+                                                            disabled={_gas.length <= 1}
+                                                            onClick={async () => {
+                                                                if (_gas.length > 1) {
+                                                                    // Remove the last split
+
+                                                                    // If the item has an id, delete it from the API
+                                                                    if (val?.id) {
+                                                                        await _deleteFormat(val.id);
+                                                                    }
+
+                                                                    const updatedList = _gas.slice(0, -1);
+                                                                    _setGas(updatedList);
+                                                                }
+                                                            }}
+                                                            className={styles.incrementBtn}
+                                                        />
+                                                        {key === _gas.length - 1 && (
+                                                            <Button
+                                                                title={"+"}
+                                                                styles={Button.primary}
+                                                                onClick={() => {
+                                                                    // Add a new split with default values
+                                                                    if (_gas.length > 0) {
+                                                                        // Clone the last split as a template, but clear payment info and id
+                                                                        const last = _gas[_gas.length - 1];
+                                                                        const newSplit = {
+                                                                            ...last,
+                                                                            name: "",
+                                                                            amount: 1000,
+                                                                        };
+
+                                                                        const updatedList = [..._gas, newSplit];
+                                                                        _setGas(updatedList);
+                                                                    }
+                                                                }}
+                                                                className={styles.incrementBtn}
+                                                            />
+                                                        )}
+                                                    </Col> */}
 
                                                 </Row>
                                             )

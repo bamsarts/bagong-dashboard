@@ -15,6 +15,7 @@ export default function DepositDetail(props) {
     const [_setoranData, _setSetoranData] = useState(null)
     const [_isLoading, _setIsLoading] = useState(true)
     const [_pointTraject, _setPointTraject] = useState([])
+    const [depositData, setDepositData] = useState(null);
 
     const summaryRows = [
         { label: 'Jumlah' },
@@ -34,11 +35,21 @@ export default function DepositDetail(props) {
         }
     }, [id])
 
+
     useEffect(() => {
-        if(_setoranData?.data.setoran?.traject_id){
+        const storedData = localStorage.getItem('operasional_deposit');
+        if (storedData) {
+            setDepositData(JSON.parse(storedData));
+            // Optional: clear it after reading
+            // localStorage.removeItem('depositData');
+        }
+    }, []);
+
+    useEffect(() => {
+        if(_setoranData?.data.setoran?.traject_id || depositData?.traject_id){
             _getTrackTraject()
         }
-    }, [_setoranData?.data?.setoran?.traject_id])
+    }, [_setoranData?.data?.setoran?.traject_id, depositData])
 
     async function _fetchSetoranDetail() {
         _setIsLoading(true)
@@ -56,7 +67,7 @@ export default function DepositDetail(props) {
 
     async function _getTrackTraject() {
         try {
-            const trajectId = _setoranData?.data?.setoran?.traject_id
+            const trajectId = _setoranData?.data?.setoran?.traject_id || depositData?.traject_id
             if (!trajectId) {
                 throw new Error('Trajectory ID not found')
             }
@@ -121,7 +132,7 @@ export default function DepositDetail(props) {
                                         </div>
                                         <div>
                                             <span>Nopol</span>
-                                            <span> : N 1442 ADS</span>
+                                            <span> : </span>
                                         </div>
                                         <div>
                                             <span>Ritase</span>
@@ -133,15 +144,15 @@ export default function DepositDetail(props) {
                                     >
                                         <div>
                                             <span>Driver</span>
-                                            <span> : Saeful</span>
+                                            <span> : </span>
                                         </div>
                                         <div>
                                             <span>Kondektur</span>
-                                            <span> : N 1442 ADS</span>
+                                            <span> : </span>
                                         </div>
                                         <div>
                                             <span>Kenek</span>
-                                            <span> : {_setoranData.data.ritase.length}</span>
+                                            <span> : </span>
                                         </div>
                                     </Col>
                                     <Col
@@ -149,11 +160,11 @@ export default function DepositDetail(props) {
                                     >
                                         <div>
                                             <span>Tanggal Setoran</span>
-                                            <span> : Saeful</span>
+                                            <span> : </span>
                                         </div>
                                         <div>
                                             <span>Waktu Setoran</span>
-                                            <span> : N 1442 ADS</span>
+                                            <span> : </span>
                                         </div>
 
                                     </Col>
@@ -162,15 +173,15 @@ export default function DepositDetail(props) {
                                     >
                                         <div>
                                             <span>KM Awal</span>
-                                            <span> : Saeful</span>
+                                            <span> : </span>
                                         </div>
                                         <div>
                                             <span>KM Akhir</span>
-                                            <span> : N 1442 ADS</span>
+                                            <span> : </span>
                                         </div>
                                         <div>
                                             <span>KM</span>
-                                            <span> : N 1442 ADS</span>
+                                            <span> : </span>
                                         </div>
                                     </Col>
                                 </Row>
@@ -212,11 +223,11 @@ export default function DepositDetail(props) {
                                                                     <tr key={index}>
                                                                         {Array.from({ length: (location.pointOrder - 1) }).map((_, i) => (
                                                                             <td key={`empty-${i}`} style={{ ...cellStyle, backgroundColor: 'transparent' }}>
-                                                                                {i + " " +location.pointName}
+                                                                                {/* {i + " " +location.pointName} */}
                                                                             </td>
                                                                         ))}
                                                                         <td style={{ ...cellStyle, backgroundColor: 'transparent' }}>
-                                                                            <b>{index + " " + location.pointName}</b>
+                                                                            <b>{location.pointName}</b>
                                                                         </td>
                                                                     </tr>
                                                                 )    

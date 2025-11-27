@@ -10,40 +10,56 @@ import { Col } from '../../../../components/Layout'
 import Button from '../../../../components/Button'
 import SetoranModal from '../../../../components/SetoranModal'
 import ConfirmationModal from '../../../../components/ConfirmationModal'
+import { dateFilter } from '../../../../utils/filters'
 
 export default function Deposit(props) {
     const router = useRouter()
 
+    const [_trajectRange, _setTrajectRange] = useState([])
+    const [_busRange, _setBusRange] = useState([])
+
     const __COLUMNS = [
         {
-            title: 'Tanggal',
-            field: 'date',
-            textAlign: "left"
-        },
-        {
-            title: 'Cabang',
-            field: 'branch',
+            title: 'Tanggal Penugasan',
+            field: 'assign_date',
             textAlign: "left",
             customCell: (value) => {
-                return value.name
+                return dateFilter.getMonthDate(new Date(value))
             }
         },
         {
-            title: 'Segmentasi',
-            field: 'traject_type_code',
-            textAlign: "left"
-        },
-        {
             title: 'Trayek',
-            field: 'traject_name'
+            field: 'traject_id',
+            customCell: (value, row) => {
+                const traject = _trajectRange.find(t => t.id === value)
+                return traject?.name || row.trajectMasterName || row.trajectName || '-'
+            }
         },
         {
             title: 'Bus',
-            field: 'bus_code'
+            field: 'bus_id',
+            customCell: (value, row) => {
+                const bus = _busRange.find(t => t.id === value)
+                return bus?.name || bus?.code || '-'
+            }
         },
         {
             title: 'Ritase',
             field: 'ritase'
+        },
+        {
+            title: 'Penumpang',
+            field: 'setoran',
+            customCell: (value, row) => {
+                return value.cash_pnp_count + value.non_cash_pnp_count
+            }
+        },
+        {
+            title: 'Jumlah Setoran (Rp)',
+            field: 'setoran',
+            customCell: (value, row) => {
+                return value.payment_amount
+            }
         },
         {
             title: 'Aksi',
@@ -56,6 +72,7 @@ export default function Deposit(props) {
                         icon={<BsCash />}
                         styles={Button.primary}
                         onClick={() => {
+                            localStorage.setItem("operasional_deposit", JSON.stringify(row))
                             router.push(`/admin/operation/deposit/${value.id}`)
                         }}
                         small
@@ -82,15 +99,13 @@ export default function Deposit(props) {
     const [_isProcessing, _setIsProcessing] = useState(false)
 
     useEffect(() => {
-        _getData(_page)
+        _getTraject()
     }, [])
 
     function _toggleModal(visible, data = {}) {
         _setModalVisible(visible)
         _setSelectedData(data)
     }
-
-
 
     function _setPagination(pagination) {
         _setPage(oldData => {
@@ -118,6 +133,47 @@ export default function Deposit(props) {
             })
         } catch (e) {
             popAlert({ message: e.message })
+        }
+    }
+
+    async function _getTraject() {
+
+        const params = {
+            "companyId": props.authData.companyId,
+            "startFrom": 0,
+            "length": 360
+        }
+
+        try {
+            const result = await postJSON('/masterData/trayek/list', params, props.authData.token)
+
+            _setTrajectRange(result.data)
+
+            _getBus()
+
+        } catch (e) {
+            popAlert({ message: e.message })
+            return []
+        }
+    }
+
+    async function _getBus() {
+
+        const params = {
+            "startFrom": 0,
+            "length": 360
+        }
+
+        try {
+            const result = await postJSON('/masterData/bus/list', params, props.authData.token)
+
+            _setBusRange(result.data)
+
+            _getData(_page)
+
+        } catch (e) {
+            popAlert({ message: e.message })
+            return []
         }
     }
 

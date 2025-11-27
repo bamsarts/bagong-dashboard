@@ -18,6 +18,7 @@ import PublishedTicketModal from '../../../components/PublishedTicketModal'
 import { BsFillSignpostFill, BsThreeDotsVertical, BsFillTicketPerforatedFill , BsCloudDownload , BsFillTrashFill } from 'react-icons/bs'
 import styles from '../master-data/traject/traject-list/Trajectlist.module.scss'
 import generateClasses from '../../../utils/generateClasses'
+import { camelToSnakeCase } from '../../../utils/case-converter'
 
 export default function Transaction(props) {
 
@@ -786,8 +787,7 @@ export default function Transaction(props) {
             delete params['length']
             delete params.sortMode
             delete params.startFrom
-        }
-
+        } 
 
         try {
             let result
@@ -795,7 +795,7 @@ export default function Transaction(props) {
             if (_activeIndex == "qss") {
                 result = await postJSON("/laporan/transaksi/penjualan/harian/qss/list", params, props.authData.token)
             } else if(_activeIndex == "mpos"){
-                result = await get("/transaction/list?"+objectToParams(params), props.authData.token)
+                result = await get("/transaction/list?"+objectToParams(camelToSnakeCase(params)), props.authData.token)
             } else {
                 result = await get("/monitoring/transaction/list?" + objectToParams(params), props.authData.token)
             }

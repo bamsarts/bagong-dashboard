@@ -1,18 +1,14 @@
 import { useEffect, useState, useContext } from 'react'
-import Modal, { ModalContent } from '../Modal'
+import { ModalContent } from '../Modal'
 import Input from '../Input'
 import { popAlert } from '../Main'
 import styles from './AssignTask.module.scss'
 import Button from '../Button'
-import { postJSON, postFormData } from '../../api/utils'
+import { postJSON } from '../../api/utils'
 import AppContext from '../../context/app'
-import generateClasses from '../../utils/generateClasses'
-import Label from '../Label'
-import { FaPray } from 'react-icons/fa'
-import bank from '../../utils/bank'
 import DatePicker from 'react-datepicker'
-import { dateFilter, currency } from '../../utils/filters'
-import { Col, Row } from '../Layout'
+import { dateFilter } from '../../utils/filters'
+import { Col } from '../Layout'
 import "react-datepicker/dist/react-datepicker.css";
 
 const defaultProps = {
@@ -29,39 +25,42 @@ AssignTaskModal.defaultProps = defaultProps
 export default function AssignTaskModal(props = defaultProps) {
 
     const CONFIG_PARAM = {
-        "scheduleType": "",
-        "scheduleTemplateId": "",
-        "dateSelects": [],
-        "assignType": "DAILY", //DAILY,PARTNER,DEFAULT
-        "ritase": 0,
-        "isOTA": true,
-        "isApps": true,
-        "isMPOS": true,
-        "isCounter": true
+        "assignDate": "",
+        "companyId": "",
+        "busId": "",
+        "crew1_id": "",
+        "crew2_id": "",
+        "crew3_id": "",
+        "items": [
+            {
+                "scheduleAssignId": "",
+                "ritase": ""
+            }
+        ],
+        "bus": {},
+        "crew1": {},
+        "crew2": {},
+        "crew3": {}
     }
     const [_form, _setForm] = useState(CONFIG_PARAM)
     const [_isProcessing, _setIsProcessing] = useState(false)
     const appContext = useContext(AppContext)
-    const [_activeFormatDate, _setActiveFormatDate] = useState(false)
     const [_startDate, _setStartDate] = useState(new Date());
-    const [_endDate, _setEndDate] = useState(null);
-    const [_dateEachSelected, _setDateEachSelected] = useState([])
-    const [_startDateEach, _setStartDateEach] = useState(new Date())
-    const [_tempStartDate, _setTempStartDate] = useState(null)
-    const [_tempEndDate, _setTempEndDate] = useState(null)
-    const [_isComplete, _setIsComplete] = useState(true)
+    const [_busRanges, _setBusRanges] = useState([])
+    const [_crewRanges, _setCrewRanges] = useState([])
+    const [_scheduleRanges, _setScheduleRanges] = useState([])
+    const [_isComplete, _setIsComplete] = useState(false)
 
     const onChangeDate = (dates) => {
-        const [start, end] = dates;
-        _setStartDate(start);
-        _setEndDate(end);
-
+        _setStartDate(dates);
+        _updateQuery({
+            "assignDate": dateFilter.basicDate(dates).normal
+        })
     };
 
     function _clearForm() {
         _setForm(CONFIG_PARAM)
         _setStartDate(new Date())
-        _setEndDate(null)
     }
 
     function _updateQuery(data = {}) {
@@ -73,88 +72,141 @@ export default function AssignTaskModal(props = defaultProps) {
         })
     }
 
-    function _updateDateSelects(date) {
-        let dates = _dateEachSelected
-        let isRemove = false
+    useEffect(() => {
+        _getBusList()
+        _getCrewList()
+        _getScheduleList()
+    }, [])
 
-        dates.forEach(function (val, key) {
-            if (dateFilter.basicDate(val).normal == dateFilter.basicDate(date).normal) {
-                dates.splice(key, 1)
-                isRemove = true
-            }
-        })
-
-        if (!isRemove) {
-            dates.push(date)
+    async function _getBusList() {
+        const params = {
+            "startFrom": 0,
+            "length": 100,
+            "companyId": appContext.authData.companyId
         }
 
-        _setDateEachSelected(dates)
+        try {
+            const result = await postJSON(`/masterData/bus/list`, params, appContext.authData.token)
+            let busRange = []
+            result.data.forEach(function (val) {
+                busRange.push({
+                    "title": val.name + " (" + val.code + ")",
+                    "value": val.id,
+                    "data": val
+                })
+            })
+            _setBusRanges(busRange)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    async function _getCrewList() {
+        const params = {
+            "startFrom": 0,
+            "length": 100,
+            "companyId": appContext.authData.companyId
+        }
+
+        try {
+            const result = await postJSON(`/masterData/crew/list`, params, appContext.authData.token)
+            let crewRange = []
+            result.data.forEach(function (val) {
+                crewRange.push({
+                    "title": val.name,
+                    "value": val.id,
+                    "data": val
+                })
+            })
+            _setCrewRanges(crewRange)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    async function _getScheduleList() {
+        const params = {
+            "startFrom": 0,
+            "length": 100
+        }
+
+        try {
+            const result = await postJSON(`/masterData/jadwal/master/list`, params, appContext.authData.token)
+            let scheduleRange = []
+            result.data.forEach(function (val) {
+                scheduleRange.push({
+                    "title": val.name || val.code || `Schedule ${val.id}`,
+                    "value": val.id,
+                    "data": val
+                })
+            })
+            _setScheduleRanges(scheduleRange)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    function _addScheduleItem() {
+        let items = [..._form.items]
+        items.push({
+            "scheduleAssignId": "",
+            "ritase": ""
+        })
+        _updateQuery({ items })
+    }
+
+    function _removeScheduleItem(index) {
+        let items = [..._form.items]
+        items.splice(index, 1)
+        _updateQuery({ items })
+    }
+
+    function _updateScheduleItem(index, field, value) {
+        let items = [..._form.items]
+        items[index][field] = value
+        _updateQuery({ items })
     }
 
     useEffect(() => {
-
-        if (_form.dateSelects.length > 0) {
-            _setIsComplete(false)
-        } else {
-            _setIsComplete(true)
-        }
-    }, [_form.dateSelects])
-
-    useEffect(() => {
-        if (_activeFormatDate) {
-            console.log(_dateEachSelected)
-            console.log(_startDate)
-            if (_dateEachSelected.length > 0) {
-                _setIsComplete(false)
-            } else {
-                _setIsComplete(true)
-            }
-        } else {
-
-
-            if (_startDate != null && _endDate != null) {
-                _setIsComplete(false)
-            } else {
-                _setIsComplete(true)
-            }
-        }
-    }, [_startDateEach, _startDate, _endDate])
+        const isValid = _form.assignDate && _form.busId && _form.crew1_id &&
+            _form.items.length > 0 &&
+            _form.items.every(item => item.scheduleAssignId && item.ritase)
+        _setIsComplete(!isValid)
+    }, [_form])
 
 
     useEffect(() => {
-        _updateQuery({
-            "scheduleType": props.data?.trajectTypeCategory,
-            "scheduleTemplateId": props.data?.id
-        })
-
         if (props.visible) {
-            _setActiveFormatDate(false)
             _setStartDate(new Date())
-            _setEndDate(null)
-            _setDateEachSelected([])
-            _setStartDateEach(new Date())
+            _updateQuery({
+                "companyId": appContext.authData.companyId,
+                "assignDate": dateFilter.basicDate(new Date()).normal
+            })
         }
     }, [props.visible])
 
     async function _submitData() {
-
         let query = {
-            ..._form
+            "assignDate": _form.assignDate,
+            "companyId": _form.companyId,
+            "busId": _form.busId,
+            "crew1_id": _form.crew1_id,
+            "crew2_id": _form.crew2_id,
+            "crew3_id": _form.crew3_id,
+            "items": _form.items
         }
-        query.dateSelects = _activeFormatDate ? _sortDate() : _loopDate(_startDate)
 
         console.log(query)
-       
+
         _setIsProcessing(true)
 
         try {
-
-            const result = await postJSON('/masterData/jadwal/master/add', query, appContext.authData.token)
+            const result = await postJSON('/masterData/task/assign', query, appContext.authData.token)
 
             if (result) props.closeModal()
             _clearForm()
             popAlert({ "message": "Berhasil disimpan", "type": "success" })
-            props.onSuccess()
+            if (props.onSuccess) props.onSuccess()
         } catch (e) {
             let errMessage = ""
             if (e.message?.details) {
@@ -163,53 +215,13 @@ export default function AssignTaskModal(props = defaultProps) {
                 errMessage = e.message
             }
             popAlert({ message: errMessage })
-            _setStartDate(null)
-            _setEndDate(null)
-
         } finally {
             _setIsProcessing(false)
         }
     }
 
-    function _sortDate() {
-        let normalDates = []
-        let dateRange = _dateEachSelected.sort(function (a, b) {
-            return a - b;
-        })
-
-        dateRange.forEach(function (val, key) {
-            normalDates.push(dateFilter.basicDate(val).normal)
-        })
-
-        return normalDates
-    }
-
-    function _loopDate(startDate) {
-        let state = true
-        let startDateChoosed = startDate
-        let dateRange = []
-
-        // _setTempStartDate(new Date("2024-01-02"))
-        // _setTempEndDate(_endDate)
-
-        for (let i = 0; i < 360; i++) {
-            if (state) {
-                dateRange.push(dateFilter.basicDate(startDateChoosed).normal)
-                if (startDateChoosed.getTime() == _endDate.getTime()) {
-                    state = false
-                } else {
-                    startDateChoosed.setDate(startDateChoosed.getDate() + 1)
-                }
-            }
-        }
-
-
-
-        return dateRange
-    }
-
     return (
-       <div className={styles.modal_wrapper}>
+        <div className={styles.modal_wrapper}>
             <div
                 className={`${styles.backdrop} ${props.visible ? styles.visible : ''}`}
                 onClick={props.closeModal}
@@ -217,7 +229,7 @@ export default function AssignTaskModal(props = defaultProps) {
             <div style={{ minWidth: "50%" }} className={`${styles.modal_container} ${props.visible ? styles.visible : ''}`}>
                 <ModalContent
                     header={{
-                        title: 'Tentukan Tanggal',
+                        title: 'Assign Task',
                         closeModal: () => {
                             props.closeModal()
                             _clearForm()
@@ -225,304 +237,135 @@ export default function AssignTaskModal(props = defaultProps) {
                     }}
                 >
 
-                    <div
-                        className={styles.mb_1}
-                    >
-                        <div
-                            className={styles.mb_1}
-                        >
-                            Format Tanggal
+                    <Col column={6} style={{ position: "relative" }}>
+                        <div className={styles.mb_1}>
+                            Tanggal Penugasan
                         </div>
+                        <div style={{ position: "relative" }}>
+                            <DatePicker
+                                onChange={onChangeDate}
+                                minDate={new Date()}
+                                selected={_startDate}
+                                inline
+                            />
+                        </div>
+                    </Col>
 
-                        <Label
-                            activeIndex={_activeFormatDate}
-                            labels={[
-                                {
-                                    class: "primary",
-                                    title: 'Rentang',
-                                    value: false,
-                                    onClick: () => {
-                                        _setActiveFormatDate(false)
-                                    }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Satuan',
-                                    value: true,
-                                    onClick: () => {
-                                        _setActiveFormatDate(true)
-                                    }
-                                }
-                            ]}
-                        />
-
-                    </div>
-
-                    {
-                        !_activeFormatDate && (
-                            <Col
-                                column={6}
-                                style={{
-                                    "position": "relative"
-                                }}
-                            >
-                                <div
-                                    className={styles.mb_1}
-                                >
-                                    Tanggal
-                                </div>
-
-                                <div
-                                    style={{
-                                        justifyContent: "space-between",
-                                        display: "flex"
-                                    }}
-                                >
-                                    {
-                                        _endDate != null && (
-                                            <Row
-                                                style={{
-                                                    width: "100%"
-                                                }}
-                                                spaceBetween
-                                                className={styles.mb_1}
-                                            >
-                                                <span>{dateFilter.getFullDate(_startDate)}</span>
-                                                <span>s.d</span>
-                                                <span>{dateFilter.getFullDate(_endDate)}</span>
-                                            </Row>
-                                        )
-                                    }
-
-                                </div>
-
-                                <div
-                                    style={{
-                                        "position": "relative"
-                                    }}
-                                >
-                                    <DatePicker
-                                        // selected={_startDate}
-                                        onChange={onChangeDate}
-                                        monthsShown={2}
-                                        minDate={new Date()}
-                                        startDate={_startDate}
-                                        endDate={_endDate}
-                                        inline
-                                        selectsRange
-                                    />
-                                </div>
-
-                            </Col>
-                        )
-                    }
-
-                    {
-                        _activeFormatDate && (
-                            <Row>
-                                <Col
-                                    column={3}
-                                >
-                                    <div
-                                        className={styles.mb_1}
-                                    >
-                                        Pilih Tanggal
-                                    </div>
-
-                                    <DatePicker
-                                        selected={_startDateEach}
-                                        key={new Date()}
-                                        onChange={(value) => {
-                                            _setStartDateEach(value)
-                                            _updateDateSelects(value)
-                                        }}
-                                        shouldCloseOnSelect={false}
-                                        minDate={new Date()}
-                                        inline
-                                        highlightDates={_dateEachSelected}
-                                    />
-                                </Col>
-
-                                <Col
-                                    column={3}
-                                >
-                                    <div
-                                        className={styles.mb_1}
-                                    >
-                                        Tanggal Terpilih
-                                    </div>
-
-                                    <div
-                                        style={{
-                                            display: "grid"
-                                        }}
-                                    >
-                                        {
-                                            _dateEachSelected.map(function (val, key) {
-                                                return (
-                                                    <span
-                                                        key={key}
-                                                        style={{
-                                                            "marginBottom": ".2rem"
-                                                        }}
-                                                    >
-                                                        {dateFilter.getFullDate(val)}
-                                                    </span>
-                                                )
-                                            })
-                                        }
-                                    </div>
-
-                                </Col>
-
-                            </Row>
-                        )
-                    }
-
-                    <div
-                        className={styles.mb_1}
-                        style={{
-                            marginTop: "1rem"
+                    <Input
+                        withMargin
+                        title={"Bus"}
+                        placeholder={'Pilih Bus'}
+                        value={_form.bus.title}
+                        suggestions={_busRanges}
+                        suggestionField={'title'}
+                        onSuggestionSelect={(data) => {
+                            _updateQuery({
+                                "busId": data.value,
+                                "bus": data
+                            })
                         }}
-                    >
-                        <div
-                            className={styles.mb_1}
-                        >
-                            Tipe Penugasan
-                        </div>
+                    />
 
-                        <Label
-                            activeIndex={_form.assignType}
-                            labels={[
-                                {
-                                    class: "primary",
-                                    title: 'Daily',
-                                    value: "DAILY",
-                                    onClick: () => {
-                                        _updateQuery({ assignType: "DAILY" })
-                                    }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Partner',
-                                    value: "PARTNER",
-                                    onClick: () => {
-                                        _updateQuery({ assignType: "PARTNER" })
-                                    }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Default',
-                                    value: "DEFAULT",
-                                    onClick: () => {
-                                        _updateQuery({ assignType: "DEFAULT" })
-                                    }
-                                }
-                            ]}
-                        />
-                    </div>
-
-                    <div
-                        className={styles.mb_1}
-                    >
-                        <div
-                            className={styles.mb_1}
-                        >
-                            Ritase
-                        </div>
-                        <Input
-                            type="number"
-                            value={_form.ritase}
-                            onChange={(e) => _updateQuery({ ritase: parseInt(e) || 0 })}
-                            placeholder="Masukkan jumlah ritase"
-                        />
-                    </div>
-
-                    <div
-                        className={styles.mb_1}
-                    >
-                        <div
-                            className={styles.mb_1}
-                        >
-                            Channel Penjualan
-                        </div>
-
-                        <Row
-                            style={{
-                                gap: "1rem"
-                            }}
-                        >
-                            <label
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "0.5rem",
-                                    cursor: "pointer"
-                                }}
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={_form.isOTA}
-                                    onChange={(e) => _updateQuery({ isOTA: e.target.checked })}
-                                />
-                                <span>OTA</span>
-                            </label>
-
-                            <label
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "0.5rem",
-                                    cursor: "pointer"
-                                }}
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={_form.isApps}
-                                    onChange={(e) => _updateQuery({ isApps: e.target.checked })}
-                                />
-                                <span>Apps</span>
-                            </label>
-
-                            <label
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "0.5rem",
-                                    cursor: "pointer"
-                                }}
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={_form.isMPOS}
-                                    onChange={(e) => _updateQuery({ isMPOS: e.target.checked })}
-                                />
-                                <span>MPOS</span>
-                            </label>
-
-                            <label
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "0.5rem",
-                                    cursor: "pointer"
-                                }}
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={_form.isCounter}
-                                    onChange={(e) => _updateQuery({ isCounter: e.target.checked })}
-                                />
-                                <span>Counter</span>
-                            </label>
-                        </Row>
-                    </div>
-
-                    <div
-                        style={{
-                            marginTop: "1rem"
+                    <Input
+                        withMargin
+                        title={"Crew 1"}
+                        placeholder={'Pilih Crew 1'}
+                        value={_form.crew1.title}
+                        suggestions={_crewRanges}
+                        suggestionField={'title'}
+                        onSuggestionSelect={(data) => {
+                            _updateQuery({
+                                "crew1_id": data.value,
+                                "crew1": data
+                            })
                         }}
-                    >
+                    />
+
+                    <Input
+                        withMargin
+                        title={"Crew 2 (Optional)"}
+                        placeholder={'Pilih Crew 2'}
+                        value={_form.crew2.title}
+                        suggestions={_crewRanges}
+                        suggestionField={'title'}
+                        onSuggestionSelect={(data) => {
+                            _updateQuery({
+                                "crew2_id": data.value,
+                                "crew2": data
+                            })
+                        }}
+                    />
+
+                    <Input
+                        withMargin
+                        title={"Crew 3 (Optional)"}
+                        placeholder={'Pilih Crew 3'}
+                        value={_form.crew3.title}
+                        suggestions={_crewRanges}
+                        suggestionField={'title'}
+                        onSuggestionSelect={(data) => {
+                            _updateQuery({
+                                "crew3_id": data.value,
+                                "crew3": data
+                            })
+                        }}
+                    />
+
+                    <div style={{ marginTop: "1rem", marginBottom: "0.5rem" }}>
+                        <strong>Schedule Items</strong>
+                    </div>
+
+                    {_form.items.map((item, index) => (
+                        <div key={index} style={{
+                            border: "1px solid #ddd",
+                            padding: "1rem",
+                            marginBottom: "1rem",
+                            borderRadius: "4px"
+                        }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                                <span>Item {index + 1}</span>
+                                {_form.items.length > 1 && (
+                                    <Button
+                                        title={'Remove'}
+                                        styles={Button.danger}
+                                        onClick={() => _removeScheduleItem(index)}
+                                    />
+                                )}
+                            </div>
+
+                            <Input
+                                withMargin
+                                title={"Schedule"}
+                                placeholder={'Pilih Schedule'}
+                                value={_scheduleRanges.find(s => s.value === item.scheduleAssignId)?.title || ''}
+                                suggestions={_scheduleRanges}
+                                suggestionField={'title'}
+                                onSuggestionSelect={(data) => {
+                                    _updateScheduleItem(index, "scheduleAssignId", data.value)
+                                }}
+                            />
+
+                            <Input
+                                withMargin
+                                title={"Ritase"}
+                                placeholder={'Masukkan Ritase'}
+                                value={item.ritase}
+                                onChange={(value) => {
+                                    _updateScheduleItem(index, "ritase", value)
+                                }}
+                            />
+                        </div>
+                    ))}
+
+                    <div style={{ marginBottom: "1rem" }}>
+                        <Button
+                            title={'+ Add Schedule Item'}
+                            styles={Button.primary}
+                            onClick={_addScheduleItem}
+                        />
+                    </div>
+
+                    <div style={{ marginTop: "1rem" }}>
                         <Button
                             disabled={_isComplete}
                             title={'Simpan'}
@@ -531,7 +374,6 @@ export default function AssignTaskModal(props = defaultProps) {
                             onProcess={_isProcessing}
                         />
                     </div>
-
 
                 </ModalContent>
             </div>
