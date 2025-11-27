@@ -37,6 +37,7 @@ export default function SetoranModal(props = defaultProps) {
     const [_form, _setForm] = useState(CONFIG_FORM)
     const [_isProcessing, _setIsProcessing] = useState(false)
     const [_trajectList, _setTrajectList] = useState([])
+    const [_trajectTripList, _setTrajectTripList] = useState([])
     const [_pointList, _setPointList] = useState([])
     const [_crewTraject, _setCrewTraject] = useState([
         {
@@ -47,7 +48,8 @@ export default function SetoranModal(props = defaultProps) {
             allow_update: true,
             format_amount: "NOMINAL",
             min: 1,
-            max: 1
+            max: 1,
+            traject_id: null
         }
     ])
 
@@ -60,7 +62,9 @@ export default function SetoranModal(props = defaultProps) {
             allow_update: true,
             format_amount: "NOMINAL",
             min: 1,
-            max: 1
+            max: 1,
+            traject_id: null,
+            traject_name: ""
         }
     ])
 
@@ -73,7 +77,8 @@ export default function SetoranModal(props = defaultProps) {
             allow_update: true,
             format_amount: "PERCENTAGE",
             min: 2100000,
-            max: 2400000
+            max: 2400000,
+            traject_id: null,
         },
         {
             desc: "(Pendapatan Rp2.400.000 ke atas) selisihnya dikalikan",
@@ -83,7 +88,8 @@ export default function SetoranModal(props = defaultProps) {
             allow_update: true,
             format_amount: "PERCENTAGE",
             min: 2400000,
-            max: 1
+            max: 1,
+            traject_id: null,
         }
     ])
 
@@ -96,7 +102,8 @@ export default function SetoranModal(props = defaultProps) {
             allow_update: true,
             format_amount: "NOMINAL",
             min: 1,
-            max: 1
+            max: 1,
+            traject_id: null,
         },
         {
             desc: "Gaji Kondektur",
@@ -106,7 +113,8 @@ export default function SetoranModal(props = defaultProps) {
             allow_update: true,
             format_amount: "NOMINAL",
             min: 1,
-            max: 1
+            max: 1,
+            traject_id: null,
         },
         {
             desc: "Gaji Kernet",
@@ -116,7 +124,8 @@ export default function SetoranModal(props = defaultProps) {
             allow_update: true,
             format_amount: "NOMINAL",
             min: 1,
-            max: 1
+            max: 1,
+            traject_id: null,
         },
         {
             desc: "UM KRU (3 Orang)",
@@ -126,7 +135,8 @@ export default function SetoranModal(props = defaultProps) {
             allow_update: true,
             format_amount: "NOMINAL",
             min: 1,
-            max: 1
+            max: 1,
+            traject_id: null,
         },
         {
             desc: "Tol Waru Gunung - Kertosono 2 Rit",
@@ -136,7 +146,8 @@ export default function SetoranModal(props = defaultProps) {
             allow_update: true,
             format_amount: "NOMINAL",
             min: 1,
-            max: 1
+            max: 1,
+            traject_id: null,
         },
     ])
 
@@ -204,8 +215,8 @@ export default function SetoranModal(props = defaultProps) {
                 name: props.data.name || "",
                 desc: props.data.desc || "",
                 amount: props.data.amount || "",
-                trajectId: props.data['traject.id'],
-                trajectName: props.data['traject.name'],
+                trajectId: props.data['traject_master.id'],
+                trajectName: props.data['traject_master.name'],
                 companyId: props.data.company_id
             })
 
@@ -216,6 +227,7 @@ export default function SetoranModal(props = defaultProps) {
 
         if (props.visible) {
             _getTraject()
+            _getTrajectTrip()
             _getLocation()
         }
     }, [props.data, props.visible])
@@ -310,7 +322,35 @@ export default function SetoranModal(props = defaultProps) {
             const query = {
                 startFrom: 0,
                 length: 360,
-                companyId: appContext.authData.companyId
+            }
+
+            const result = await postJSON('/masterData/trayekMaster/list', query, appContext.authData.token)
+
+            if (result) {
+                // Convert object to array for easier mapping
+                let data = []
+
+                result.data.forEach(element => {
+                    element.title = element.code + " | " + element.name
+                    element.idTraject = element.id
+
+                    delete element.id
+                    data.push(element)
+                });
+
+                _setTrajectList(data)
+            }
+        } catch (e) {
+            console.error('Error fetching traject data:', e)
+            popAlert({ message: 'Gagal memuat data trayek' })
+        }
+    }
+
+    async function _getTrajectTrip() {
+        try {
+            const query = {
+                startFrom: 0,
+                length: 360,
             }
 
             const result = await postJSON('/masterData/trayek/list', query, appContext.authData.token)
@@ -320,14 +360,14 @@ export default function SetoranModal(props = defaultProps) {
                 let data = []
 
                 result.data.forEach(element => {
-                    element.title = "(" + element.code + ") " + element.name
+                    element.title = element.code + " | " + element.name
                     element.idTraject = element.id
 
                     delete element.id
                     data.push(element)
                 });
 
-                _setTrajectList(data)
+                _setTrajectTripList(data)
             }
         } catch (e) {
             console.error('Error fetching traject data:', e)
@@ -354,7 +394,7 @@ export default function SetoranModal(props = defaultProps) {
     async function _getDepositByTraject() {
         try {
 
-            const result = await get('/masterData/setoranDefaultByTraject/' + props.data?.traject_id, appContext.authData.token)
+            const result = await get('/masterData/setoranDefaultByTraject/' + props.data?.master_traject_id, appContext.authData.token)
 
             if (result) {
                 // Group data by name to match state variables
@@ -453,10 +493,12 @@ export default function SetoranModal(props = defaultProps) {
                     formatAmount: item.format_amount || 'NOMINAL',
                     min: String(item.min || 0).replace(/\./g, ''),
                     max: String(item.max || 0).replace(/\./g, ''),
+                    trajectId: item.traject_id,
                     originalAmount: item.originalAmount,
                     originalDesc: item.originalDesc,
                     originalMin: item.originalMin,
-                    originalMax: item.originalMax
+                    originalMax: item.originalMax,
+                    originalTrajectId: item.originalTrajectId
                 })),
                 ..._others.map(item => ({
                     ...(item.id && { id: item.id }),
@@ -529,14 +571,14 @@ export default function SetoranModal(props = defaultProps) {
             const itemsToUpdate = allDetails.filter(detail => {
                 if (!detail.id) return false
                 // Only update if there are changes
-                const hasChanges = detail.amount !== detail.originalAmount || detail.desc !== detail.originalDesc || detail?.min !== detail?.originalMin || detail?.max !== detail?.originalMax
+                const hasChanges = detail.amount !== detail.originalAmount || detail.desc !== detail.originalDesc || detail?.min !== detail?.originalMin || detail?.max !== detail?.originalMax || detail?.trajectId !== detail?.originalTrajectId 
                 return hasChanges
             })
 
             // Add new items (without id)
             if (itemsToAdd.length > 0) {
                 const promisesAdd = itemsToAdd.map(detail => {
-                    const { originalAmount, originalDesc, originalMax, originalMin, ...detailToAdd } = detail
+                    const { originalAmount, originalDesc, originalMax, originalMin, originalTrajectId, ...detailToAdd } = detail
                     return postJSON('/masterData/setoranDefaultDetail/add', detailToAdd, appContext.authData.token)
                 })
                 await Promise.all(promisesAdd)
@@ -545,7 +587,7 @@ export default function SetoranModal(props = defaultProps) {
             // Update existing items (with id and changes)
             if (itemsToUpdate.length > 0) {
                 const promisesUpdate = itemsToUpdate.map(detail => {
-                    const { originalAmount, originalDesc, originalMax, originalMin, ...detailToUpdate } = detail
+                    const { originalAmount, originalDesc, originalMax, originalMin, originalTrajectId, ...detailToUpdate } = detail
                     return postJSON('/masterData/setoranDefaultDetail/update', detailToUpdate, appContext.authData.token)
                 })
                 await Promise.all(promisesUpdate)
@@ -567,7 +609,7 @@ export default function SetoranModal(props = defaultProps) {
                 className={`${styles.backdrop} ${props.visible ? styles.visible : ''}`}
                 onClick={props.closeModal}
             />
-            <div style={{ minWidth: "50%" }} className={`${styles.modal_container} ${props.visible ? styles.visible : ''}`}>
+            <div style={{ minWidth: "60%" }} className={`${styles.modal_container} ${props.visible ? styles.visible : ''}`}>
                 <ModalContent
                     header={{
                         title: (props.data?.id ? 'Ubah' : 'Tambah') + ' Form Setoran',
@@ -650,7 +692,7 @@ export default function SetoranModal(props = defaultProps) {
                                                         <Input
                                                             title={key < 1 ? 'Rute' : ""}
                                                             placeholder={'Pilih rute'}
-                                                            suggestions={_trajectList}
+                                                            suggestions={_trajectTripList}
                                                             suggestionsField={"title"}
                                                             value={val.desc || ""}
                                                             onSuggestionSelect={(value) => {
@@ -680,11 +722,13 @@ export default function SetoranModal(props = defaultProps) {
                                                         column={1}
                                                         withPadding
                                                         style={{
-                                                            flexDirection: "row"
+                                                            flexDirection: "row",
+                                                            gap: "1rem"
                                                         }}
                                                         alignEnd
                                                     >
                                                         <Button
+                                                            small
                                                             title={"-"}
                                                             styles={Button.error}
                                                             disabled={_crewTraject.length <= 1}
@@ -705,6 +749,7 @@ export default function SetoranModal(props = defaultProps) {
                                                         />
                                                         {key === _crewTraject.length - 1 && (
                                                             <Button
+                                                                small
                                                                 title={"+"}
                                                                 styles={Button.primary}
                                                                 onClick={() => {
@@ -745,7 +790,26 @@ export default function SetoranModal(props = defaultProps) {
                                                 <Row>
                                                     <Col
                                                         withPadding
-                                                        column={3}
+                                                        column={2}
+                                                    >
+
+                                                        <Input
+                                                            title={key < 1 ? 'Rute' : ""}
+                                                            placeholder={'Pilih rute'}
+                                                            suggestions={_trajectTripList}
+                                                            suggestionsField={"title"}
+                                                            value={val.traject_name || ""}
+                                                            onSuggestionSelect={(value) => {
+                                                                const updatedList = [..._brokerPoint];
+                                                                updatedList[key].traject_id = value.idTraject
+                                                                updatedList[key].traject_name = value.name
+                                                                _setBrokerPoint(updatedList);
+                                                            }}
+                                                        />
+                                                    </Col>
+                                                    <Col
+                                                        withPadding
+                                                        column={2}
                                                     >
 
                                                         <Input
@@ -782,11 +846,13 @@ export default function SetoranModal(props = defaultProps) {
                                                         column={1}
                                                         withPadding
                                                         style={{
-                                                            flexDirection: "row"
+                                                            flexDirection: "row",
+                                                            gap: "1rem"
                                                         }}
                                                         alignEnd
                                                     >
                                                         <Button
+                                                            small
                                                             title={"-"}
                                                             styles={Button.error}
                                                             disabled={_brokerPoint.length <= 1}
@@ -807,6 +873,7 @@ export default function SetoranModal(props = defaultProps) {
                                                         />
                                                         {key === _brokerPoint.length - 1 && (
                                                             <Button
+                                                                small
                                                                 title={"+"}
                                                                 styles={Button.primary}
                                                                 onClick={() => {
@@ -842,7 +909,7 @@ export default function SetoranModal(props = defaultProps) {
                                                 <Row key={key}>
                                                     <Col
                                                         withPadding
-                                                        column={3}
+                                                        column={4}
                                                     >
                                                         <Input
 
@@ -873,57 +940,7 @@ export default function SetoranModal(props = defaultProps) {
                                                         />
                                                     </Col>
 
-                                                     {/* <Col
-                                                        column={1}
-                                                        withPadding
-                                                        style={{
-                                                            flexDirection: "row"
-                                                        }}
-                                                        alignEnd
-                                                    >
-                                                        <Button
-                                                            title={"-"}
-                                                            styles={Button.error}
-                                                            disabled={_others.length <= 1}
-                                                            onClick={async () => {
-                                                                if (_others.length > 1) {
-                                                                    // Remove the last split
-
-                                                                    // If the item has an id, delete it from the API
-                                                                    if (val?.id) {
-                                                                        await _deleteFormat(val.id);
-                                                                    }
-
-                                                                    const updatedList = _others.slice(0, -1);
-                                                                    _setOthers(updatedList);
-                                                                }
-                                                            }}
-                                                            className={styles.incrementBtn}
-                                                        />
-                                                        {key === _others.length - 1 && (
-                                                            <Button
-                                                                title={"+"}
-                                                                styles={Button.primary}
-                                                                onClick={() => {
-                                                                    // Add a new split with default values
-                                                                    if (_others.length > 0) {
-                                                                        // Clone the last split as a template, but clear payment info and id
-                                                                        const last = _others[_others.length - 1];
-                                                                        const newSplit = {
-                                                                            ...last,
-                                                                            name: "",
-                                                                            amount: 1000,
-                                                                        };
-
-                                                                        const updatedList = [..._others, newSplit];
-                                                                        _setOthers(updatedList);
-                                                                    }
-                                                                }}
-                                                                className={styles.incrementBtn}
-                                                            />
-                                                        )}
-                                                    </Col> */}
-
+                                        
                                                 </Row>
                                             )
                                         })
@@ -994,11 +1011,13 @@ export default function SetoranModal(props = defaultProps) {
                                                         column={1}
                                                         withPadding
                                                         style={{
-                                                            flexDirection: "row"
+                                                            flexDirection: "row",
+                                                            gap: "1rem"
                                                         }}
                                                         alignEnd
                                                     >
                                                         <Button
+                                                            small
                                                             title={"-"}
                                                             styles={Button.error}
                                                             disabled={_rewardCrew.length <= 1}
@@ -1013,6 +1032,7 @@ export default function SetoranModal(props = defaultProps) {
                                                         />
                                                         {key === _rewardCrew.length - 1 && (
                                                             <Button
+                                                                small
                                                                 title={"+"}
                                                                 styles={Button.primary}
                                                                 onClick={() => {
@@ -1086,11 +1106,13 @@ export default function SetoranModal(props = defaultProps) {
                                                         column={1}
                                                         withPadding
                                                         style={{
-                                                            flexDirection: "row"
+                                                            flexDirection: "row",
+                                                            gap: "1rem"
                                                         }}
                                                         alignEnd
                                                     >
                                                         <Button
+                                                            small
                                                             title={"-"}
                                                             styles={Button.error}
                                                             disabled={_depositNotes.length <= 1}
@@ -1111,6 +1133,7 @@ export default function SetoranModal(props = defaultProps) {
                                                         />
                                                         {key === _depositNotes.length - 1 && (
                                                             <Button
+                                                                small
                                                                 title={"+"}
                                                                 styles={Button.primary}
                                                                 onClick={() => {

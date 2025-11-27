@@ -20,7 +20,7 @@ export default function Setoran(props) {
     const __COLUMNS = [
         {
             title: 'Trayek',
-            field: 'traject.name',
+            field: 'traject_master.name',
             textAlign: "left"
         },
         {

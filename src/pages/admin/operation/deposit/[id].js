@@ -214,6 +214,7 @@ export default function DepositDetail(props) {
                                                             {_pointTraject.map((location, index) => {
 
                                                                 let origin = (indexStart, indexEnd) => {
+                                                                    let isMatch = false
                                                                     
                                                                 }
 
@@ -223,11 +224,11 @@ export default function DepositDetail(props) {
                                                                     <tr key={index}>
                                                                         {Array.from({ length: (location.pointOrder - 1) }).map((_, i) => (
                                                                             <td key={`empty-${i}`} style={{ ...cellStyle, backgroundColor: 'transparent' }}>
-                                                                                {/* {i + " " +location.pointName} */}
+                                                                                {i + " " +location.pointName}
                                                                             </td>
                                                                         ))}
                                                                         <td style={{ ...cellStyle, backgroundColor: 'transparent' }}>
-                                                                            <b>{location.pointName}</b>
+                                                                            <b>{index + " " + location.pointName}</b>
                                                                         </td>
                                                                     </tr>
                                                                 )    
