@@ -8,7 +8,7 @@ import { postJSON } from '../../api/utils'
 import AppContext from '../../context/app'
 import DatePicker from 'react-datepicker'
 import { dateFilter } from '../../utils/filters'
-import { Col } from '../Layout'
+import { Col, Row } from '../Layout'
 import "react-datepicker/dist/react-datepicker.css";
 
 const defaultProps = {
@@ -316,45 +316,54 @@ export default function AssignTaskModal(props = defaultProps) {
                     </div>
 
                     {_form.items.map((item, index) => (
-                        <div key={index} style={{
+                        <Row 
+                        key={index} 
+                        style={{
                             border: "1px solid #ddd",
                             padding: "1rem",
                             marginBottom: "1rem",
                             borderRadius: "4px"
                         }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                                <span>Item {index + 1}</span>
-                                {_form.items.length > 1 && (
-                                    <Button
-                                        title={'Remove'}
-                                        styles={Button.danger}
-                                        onClick={() => _removeScheduleItem(index)}
-                                    />
-                                )}
-                            </div>
+                            
+                            <Col>
+                                <Input
+                                    withMargin
+                                    title={"Schedule"}
+                                    placeholder={'Pilih Schedule'}
+                                    value={_scheduleRanges.find(s => s.value === item.scheduleAssignId)?.title || ''}
+                                    suggestions={_scheduleRanges}
+                                    suggestionField={'title'}
+                                    onSuggestionSelect={(data) => {
+                                        _updateScheduleItem(index, "scheduleAssignId", data.value)
+                                    }}
+                                />
+                            </Col>
+                            
+                            <Col>
+                                <Input
+                                    withMargin
+                                    title={"Ritase"}
+                                    placeholder={'Masukkan Ritase'}
+                                    value={item.ritase}
+                                    onChange={(value) => {
+                                        _updateScheduleItem(index, "ritase", value)
+                                    }}
+                                />
+                            </Col>
 
-                            <Input
-                                withMargin
-                                title={"Schedule"}
-                                placeholder={'Pilih Schedule'}
-                                value={_scheduleRanges.find(s => s.value === item.scheduleAssignId)?.title || ''}
-                                suggestions={_scheduleRanges}
-                                suggestionField={'title'}
-                                onSuggestionSelect={(data) => {
-                                    _updateScheduleItem(index, "scheduleAssignId", data.value)
-                                }}
-                            />
-
-                            <Input
-                                withMargin
-                                title={"Ritase"}
-                                placeholder={'Masukkan Ritase'}
-                                value={item.ritase}
-                                onChange={(value) => {
-                                    _updateScheduleItem(index, "ritase", value)
-                                }}
-                            />
-                        </div>
+                            <Col>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                                    {_form.items.length > 1 && (
+                                        <Button
+                                            title={'Remove'}
+                                            styles={Button.danger}
+                                            onClick={() => _removeScheduleItem(index)}
+                                        />
+                                    )}
+                                </div>
+                            </Col>
+                            
+                        </Row>
                     ))}
 
                     <div style={{ marginBottom: "1rem" }}>
