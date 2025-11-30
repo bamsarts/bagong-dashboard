@@ -327,10 +327,7 @@ export default function DepositDetail(props) {
                                             
                                                         <Row
                                                             key={item.id}
-                                                            flexEnd
-                                                            style={{
-                                                                gap: "1rem"
-                                                            }}
+                                                            
                                                         >
                                                             <Col
                                                                 withPadding
@@ -383,13 +380,148 @@ export default function DepositDetail(props) {
                                         margin: "3rem 0rem"
                                     }}
                                 >
+                                    <h4>PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)</h4>
+
+                                    {
+                                        _setoranData.data.biaya[0].details
+                                            ?.filter(item => item.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)")
+                                                .map((item, index) => (
+                                                    
+                                            
+                                                        <Row
+                                                            key={item.id}
+                                                            
+                                                        >
+                                                            <Col
+                                                                withPadding
+                                                                alignEnd
+                                                                justifyCenter
+                                                                column={2}
+                                                            >
+                                                                <span>{item.desc}</span>
+                                                            </Col>
+
+                                                            <Col
+                                                                withPadding
+                                                                column={1}
+                                                            >
+                                                                <Input
+                                                                    type="number"
+                                                                    value={""}
+                                                                    placeholder={`Rp`}
+                                                                />
+                                                            </Col>
+                                                            <Col
+                                                                withPadding
+                                                                column={1}
+                                                            >
+                                                                <Input
+                                                                    type="number"
+                                                                    value={item.amount}
+                                                                    placeholder={`Rp`}
+                                                                />
+                                                            </Col>
+                                                            <Col
+                                                                withPadding
+                                                                column={1}
+                                                            >
+                                                                <Input
+                                                                    type="number"
+                                                                    value={""}
+                                                                    placeholder={`Rp`}
+                                                                />
+                                                            </Col>
+
+                                                        </Row>
+                                                        
+                                                ))
+                                    }
+
+                                    {
+                                        _setoranData.data.biaya[0].details
+                                            ?.filter(item => item.name === "Lain-lain")
+                                                .map((item, index) => (
+                                                    
+                                            
+                                                        <Row
+                                                            key={item.id}
+                                                            
+                                                        >
+                                                            <Col
+                                                                withPadding
+                                                                alignEnd
+                                                                justifyCenter
+                                                                column={4}
+                                                            >
+                                                                <span>{item.desc}</span>
+                                                            </Col>
+
+                                                            
+                                                            <Col
+                                                                withPadding
+                                                                column={1}
+                                                            >
+                                                                <Input
+                                                                    type="number"
+                                                                    value={item.amount}
+                                                                    placeholder={`Rp`}
+                                                                />
+                                                            </Col>
+
+                                                        </Row>
+                                                        
+                                                ))
+                                    }
+
+                                    {
+                                        _setoranData.data.biaya[0].details
+                                            ?.filter(item => item.name === "Bonus Kru")
+                                                .map((item, index) => (
+                                                    
+                                            
+                                                        <Row
+                                                            key={item.id}
+                                                            
+                                                        >
+                                                            <Col
+                                                                withPadding
+                                                                alignEnd
+                                                                justifyCenter
+                                                                column={5 }
+                                                            >
+                                                                <span>{item.desc} {item.amount}%</span>
+                                                            </Col>
+
+                                                            
+                                                            <Col
+                                                                withPadding
+                                                                column={1}
+                                                            >
+                                                                <Input
+                                                                    type="number"
+                                                                    value={0}
+                                                                    placeholder={`Rp`}
+                                                                />
+                                                            </Col>
+
+                                                        </Row>
+                                                        
+                                                ))
+                                    }
+                                </div>
+
+                                <div
+                                    style={{
+                                        margin: "3rem 0rem"
+                                    }}
+                                >
                                     <h4>Catatan Saku</h4>
 
                                     <Row>
                                         {_setoranData.data.biaya[0]?.details
                                             ?.filter(item => item.name === "Catatan Saku")
                                             .map((item, index) => (
-                                                <Col key={item.id} column={3} withPadding>
+                                                <Col key={item.id} column={1} withPadding>
                                                     <Input
                                                         title={item.desc}
                                                         type="number"
