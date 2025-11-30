@@ -50,12 +50,6 @@ export default function DepositDetail(props) {
     }, []);
 
 
-    useEffect(() => {
-        console.log("fa")
-        console.log(_setoranData)
-    }, [_setoranData])
-
-
 
     async function _fetchSetoranDetail() {
         _setIsLoading(true)
@@ -121,8 +115,7 @@ export default function DepositDetail(props) {
            
             // Find the assignment by ID
             const assignment = data.data?.find(item => item.schedule_assign_id === deposit.schedule_assign_id);
-            console.log("assignmend")
-            console.log(assignment)
+            
             _setAssignedData(assignment)
         } catch (error) {
             console.error('Error fetching assigned bus:', error);
