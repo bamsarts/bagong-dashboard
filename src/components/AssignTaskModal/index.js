@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react'
+import { useEffect, useState, useContext, forwardRef } from 'react'
 import { ModalContent } from '../Modal'
 import Input from '../Input'
 import { popAlert } from '../Main'
@@ -9,6 +9,7 @@ import AppContext from '../../context/app'
 import DatePicker from 'react-datepicker'
 import { dateFilter } from '../../utils/filters'
 import { Col, Row } from '../Layout'
+import Table from '../Table'
 import "react-datepicker/dist/react-datepicker.css";
 
 const defaultProps = {
@@ -47,9 +48,16 @@ export default function AssignTaskModal(props = defaultProps) {
     const appContext = useContext(AppContext)
     const [_startDate, _setStartDate] = useState(new Date());
     const [_busRanges, _setBusRanges] = useState([])
-    const [_crewRanges, _setCrewRanges] = useState([])
+    const [_driverRanges, _setDriverRanges] = useState([])
+    const [_kondekturRanges, _setKondekturRanges] = useState([])
+    const [_kernetRanges, _setKernetRanges] = useState([])
+
+
     const [_scheduleRanges, _setScheduleRanges] = useState([])
     const [_isComplete, _setIsComplete] = useState(false)
+    const [_scheduleMasterData, _setScheduleMasterData] = useState([])
+    const [_selectedSchedules, _setSelectedSchedules] = useState([])
+    const [_showScheduleTable, _setShowScheduleTable] = useState(false)
 
     const onChangeDate = (dates) => {
         _setStartDate(dates);
@@ -57,6 +65,23 @@ export default function AssignTaskModal(props = defaultProps) {
             "assignDate": dateFilter.basicDate(dates).normal
         })
     };
+
+    const DatepickerAssign = forwardRef(({ value, onClick }, ref) => (
+        <Col
+            justifyCenter
+        >
+            <Input
+                withMargin
+                title={"Tanggal Penugasan"}
+                onClick={onClick}
+                ref={ref}
+                value={_startDate == "" ? "" : dateFilter.getMonthDate(_startDate)}
+                onChange={(value) => {
+
+                }}
+            />
+        </Col>
+    ));
 
     function _clearForm() {
         _setForm(CONFIG_PARAM)
@@ -74,7 +99,9 @@ export default function AssignTaskModal(props = defaultProps) {
 
     useEffect(() => {
         _getBusList()
-        _getCrewList()
+        _getCrewList(18) //kernet
+        _getCrewList(19) //kondektur
+        _getCrewList(17) //driver
         _getScheduleList()
     }, [])
 
@@ -90,7 +117,7 @@ export default function AssignTaskModal(props = defaultProps) {
             let busRange = []
             result.data.forEach(function (val) {
                 busRange.push({
-                    "title": val.name + " (" + val.code + ")",
+                    "title": val.name,
                     "value": val.id,
                     "data": val
                 })
@@ -101,24 +128,33 @@ export default function AssignTaskModal(props = defaultProps) {
         }
     }
 
-    async function _getCrewList() {
+    async function _getCrewList(roleId) {
         const params = {
             "startFrom": 0,
-            "length": 100,
-            "companyId": appContext.authData.companyId
+            "length": 360,
+            "orderBy": "idUser",
+            "sortMode": "desc",
+            "role_id": roleId
         }
 
         try {
-            const result = await postJSON(`/masterData/crew/list`, params, appContext.authData.token)
+            const result = await postJSON(`/masterData/userRoleAkses/user/list`, params, appContext.authData.token)
             let crewRange = []
             result.data.forEach(function (val) {
                 crewRange.push({
                     "title": val.name,
                     "value": val.id,
-                    "data": val
                 })
             })
-            _setCrewRanges(crewRange)
+
+            if (roleId == 18) {
+                _setKernetRanges(crewRange)
+            } else if (roleId == 19) {
+                _setKondekturRanges(crewRange)
+            } else {
+                _setDriverRanges(crewRange)
+            }
+
         } catch (e) {
             console.log(e)
         }
@@ -167,6 +203,46 @@ export default function AssignTaskModal(props = defaultProps) {
         _updateQuery({ items })
     }
 
+    async function _scheduleMaster() {
+        const params = {
+            "startFrom": 0,
+            "length": 100,
+            "sortMode": "desc",
+            "scheduleType": "INTERCITY",
+            "orderBy": "id"
+        }
+
+        try {
+            const result = await postJSON(`/masterData/jadwal/master/list`, params, appContext.authData.token)
+            _setScheduleMasterData(result.data || [])
+
+            // Pre-select currently assigned schedules
+            const currentScheduleIds = _form.items.map(item => item.scheduleAssignId).filter(id => id)
+            _setSelectedSchedules(currentScheduleIds)
+
+            _setShowScheduleTable(true)
+        } catch (e) {
+            console.log(e)
+            popAlert({ message: "Gagal memuat data jadwal" })
+        }
+    }
+
+    function _handleScheduleSelection(selectedIds) {
+        _setSelectedSchedules(selectedIds)
+    }
+
+    function _applyScheduleSelection() {
+        const newItems = _selectedSchedules.map(scheduleId => {
+            const existingItem = _form.items.find(item => item.scheduleAssignId === scheduleId)
+            return existingItem || {
+                "scheduleAssignId": scheduleId,
+                "ritase": ""
+            }
+        })
+        _updateQuery({ items: newItems })
+        _setShowScheduleTable(false)
+    }
+
     useEffect(() => {
         const isValid = _form.assignDate && _form.busId && _form.crew1_id &&
             _form.items.length > 0 &&
@@ -194,14 +270,20 @@ export default function AssignTaskModal(props = defaultProps) {
             "crew2_id": _form.crew2_id,
             "crew3_id": _form.crew3_id,
             "items": _form.items
+        }   
+
+        for(var i=0; i < 3; i++){
+            
         }
 
-        console.log(query)
-
+        query.items.forEach(function(val, key){
+            val.ritase = key + 1
+        })
+        
         _setIsProcessing(true)
 
         try {
-            const result = await postJSON('/masterData/task/assign', query, appContext.authData.token)
+            const result = await postJSON('/data/penugasan/add', query, appContext.authData.token)
 
             if (result) props.closeModal()
             _clearForm()
@@ -229,7 +311,7 @@ export default function AssignTaskModal(props = defaultProps) {
             <div style={{ minWidth: "50%" }} className={`${styles.modal_container} ${props.visible ? styles.visible : ''}`}>
                 <ModalContent
                     header={{
-                        title: 'Assign Task',
+                        title: 'Tambah Penugasan',
                         closeModal: () => {
                             props.closeModal()
                             _clearForm()
@@ -238,17 +320,14 @@ export default function AssignTaskModal(props = defaultProps) {
                 >
 
                     <Col column={6} style={{ position: "relative" }}>
-                        <div className={styles.mb_1}>
-                            Tanggal Penugasan
-                        </div>
-                        <div style={{ position: "relative" }}>
-                            <DatePicker
-                                onChange={onChangeDate}
-                                minDate={new Date()}
-                                selected={_startDate}
-                                inline
-                            />
-                        </div>
+                        <DatePicker
+                            onChange={(date) => {
+                                _setStartDate(date)
+                            }}
+                            minDate={new Date()}
+                            selected={_startDate}
+                            customInput={<DatepickerAssign />}
+                        />
                     </Col>
 
                     <Input
@@ -268,10 +347,10 @@ export default function AssignTaskModal(props = defaultProps) {
 
                     <Input
                         withMargin
-                        title={"Crew 1"}
-                        placeholder={'Pilih Crew 1'}
+                        title={"Kondektur"}
+                        placeholder={'Pilih Kondektur'}
                         value={_form.crew1.title}
-                        suggestions={_crewRanges}
+                        suggestions={_kondekturRanges}
                         suggestionField={'title'}
                         onSuggestionSelect={(data) => {
                             _updateQuery({
@@ -283,10 +362,10 @@ export default function AssignTaskModal(props = defaultProps) {
 
                     <Input
                         withMargin
-                        title={"Crew 2 (Optional)"}
-                        placeholder={'Pilih Crew 2'}
+                        title={"Driver"}
+                        placeholder={'Pilih Driver'}
                         value={_form.crew2.title}
-                        suggestions={_crewRanges}
+                        suggestions={_driverRanges}
                         suggestionField={'title'}
                         onSuggestionSelect={(data) => {
                             _updateQuery({
@@ -298,10 +377,10 @@ export default function AssignTaskModal(props = defaultProps) {
 
                     <Input
                         withMargin
-                        title={"Crew 3 (Optional)"}
-                        placeholder={'Pilih Crew 3'}
+                        title={"Kernet"}
+                        placeholder={'Pilih Kernet'}
                         value={_form.crew3.title}
-                        suggestions={_crewRanges}
+                        suggestions={_kernetRanges}
                         suggestionField={'title'}
                         onSuggestionSelect={(data) => {
                             _updateQuery({
@@ -312,71 +391,130 @@ export default function AssignTaskModal(props = defaultProps) {
                     />
 
                     <div style={{ marginTop: "1rem", marginBottom: "0.5rem" }}>
-                        <strong>Schedule Items</strong>
+                        <strong>Jadwal Assign</strong>
                     </div>
 
-                    {_form.items.map((item, index) => (
-                        <Row 
-                        key={index} 
-                        style={{
-                            border: "1px solid #ddd",
-                            padding: "1rem",
-                            marginBottom: "1rem",
-                            borderRadius: "4px"
-                        }}>
-                            
-                            <Col>
-                                <Input
-                                    withMargin
-                                    title={"Schedule"}
-                                    placeholder={'Pilih Schedule'}
-                                    value={_scheduleRanges.find(s => s.value === item.scheduleAssignId)?.title || ''}
-                                    suggestions={_scheduleRanges}
-                                    suggestionField={'title'}
-                                    onSuggestionSelect={(data) => {
-                                        _updateScheduleItem(index, "scheduleAssignId", data.value)
-                                    }}
-                                />
-                            </Col>
-                            
-                            <Col>
-                                <Input
-                                    withMargin
-                                    title={"Ritase"}
-                                    placeholder={'Masukkan Ritase'}
-                                    value={item.ritase}
-                                    onChange={(value) => {
-                                        _updateScheduleItem(index, "ritase", value)
-                                    }}
-                                />
-                            </Col>
+                    {!_showScheduleTable ? (
+                        <>
+                            {_form.items.map((item, index) => (
+                                <Row
+                                    key={index}
+                                    style={{
+                                        border: "1px solid #ddd",
+                                        padding: "1rem",
+                                        marginBottom: "1rem",
+                                        borderRadius: "4px"
+                                    }}>
 
-                            <Col>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                                    {_form.items.length > 1 && (
-                                        <Button
-                                            title={'Remove'}
-                                            styles={Button.danger}
-                                            onClick={() => _removeScheduleItem(index)}
+                                    <Col>
+                                        <div style={{ marginBottom: "0.5rem" }}>
+                                            <strong>
+                                                {_scheduleRanges.find(s => s.value === item.scheduleAssignId)?.title || 'Jadwal tidak ditemukan'}
+                                            </strong>
+                                        </div>
+                                    </Col>
+
+                                    <Col>
+                                        <Input
+                                            withMargin
+                                            title={"Ritase"}
+                                            placeholder={'Masukkan Ritase'}
+                                            value={item.ritase}
+                                            onChange={(value) => {
+                                                _updateScheduleItem(index, "ritase", value)
+                                            }}
                                         />
-                                    )}
-                                </div>
-                            </Col>
-                            
-                        </Row>
-                    ))}
+                                    </Col>
 
-                    <div style={{ marginBottom: "1rem" }}>
-                        <Button
-                            title={'+ Add Schedule Item'}
-                            styles={Button.primary}
-                            onClick={_addScheduleItem}
-                        />
-                    </div>
+                                    <Col>
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                                            {_form.items.length > 1 && (
+                                                <Button
+                                                    title={'Remove'}
+                                                    styles={Button.danger}
+                                                    onClick={() => _removeScheduleItem(index)}
+                                                />
+                                            )}
+                                        </div>
+                                    </Col>
+
+                                </Row>
+                            ))}
+
+                            <div style={{ marginBottom: "1rem" }}>
+                                <Button
+                                    title={'Pilih Jadwal'}
+                                    styles={Button.primary}
+                                    onClick={_scheduleMaster}
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        <div style={{ marginBottom: "1rem" }}>
+                            <Table
+                                columns={[
+                                    {
+                                        checkbox: true,
+                                        field: 'id',
+                                        disabled: () => false
+                                    },
+                                    {
+                                        title: 'Kode',
+                                        field: 'code',
+                                        minWidth: '150px'
+                                    },
+                                    {
+                                        title: 'Jadwal',
+                                        field: 'departureDate',
+                                        minWidth: '200px'
+                                    },
+                                    {
+                                        title: 'Trayek',
+                                        field: 'trajectMasterName',
+                                        minWidth: '200px'
+                                    },
+                                    {
+                                        title: 'Ritase',
+                                        field: 'id',
+                                        minWidth: '100px',
+                                        customCell: (value, row) => {
+                                            return (
+                                                <Input
+                                                    withMargin
+                                                    title={"Ritase"}
+                                                    placeholder={'Masukkan Ritase'}
+                                                    value={row.ritase}
+                                                    onChange={(value) => {
+                                                        // _updateScheduleItem(index, "ritase", value)
+                                                    }}
+                                                />
+                                            )
+                                        }
+                                    }
+                                ]}
+                                records={_scheduleMasterData}
+                                onSelectionChange={_handleScheduleSelection}
+                                selectionDataFilter={() => true}
+                            />
+                            <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem" }}>
+                                <Button
+                                    title={'Terapkan'}
+                                    styles={Button.secondary}
+                                    onClick={_applyScheduleSelection}
+                                    disabled={_selectedSchedules.length === 0}
+                                />
+                                <Button
+                                    title={'Batal'}
+                                    styles={Button.danger}
+                                    onClick={() => _setShowScheduleTable(false)}
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     <div style={{ marginTop: "1rem" }}>
                         <Button
-                            disabled={_isComplete}
+                            // disabled={_isComplete}
                             title={'Simpan'}
                             styles={Button.secondary}
                             onClick={_submitData}

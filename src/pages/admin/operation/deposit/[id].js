@@ -9,7 +9,7 @@ import { Row, Col } from '../../../../components/Layout'
 import Input from '../../../../components/Input'
 import styles from './Deposit.module.scss'
 import Image from 'next/image'
-import { dateFilter } from '../../../../utils/filters'
+import { currency, dateFilter } from '../../../../utils/filters'
 
 export default function DepositDetail(props) {
     const router = useRouter()
@@ -21,6 +21,9 @@ export default function DepositDetail(props) {
     const [depositData, setDepositData] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const [_assignedData, _setAssignedData] = useState({})
+    const [_totalExpenses, _setTotalExpenses] = useState(0)
+    const [_totalGrossAmount, _setTotalGrossAmount] = useState(0)
+    const [_totalIncomeByPercentage, _setTotalIncomeByPercentage] = useState(0)
 
     const summaryRows = [
         { label: 'Jumlah' },
@@ -49,12 +52,24 @@ export default function DepositDetail(props) {
         }
     }, []);
 
+    useEffect(() => {
+        if (_setoranData?.data?.setoran) {
+            _setTotalExpenses(_calculateTotalExpenses(_setoranData.data.biaya))
+        }
+    }, [_setoranData])
 
+    useEffect(() => {
+        if (_setoranData?.data?.biaya && _totalGrossAmount > 0 && _totalExpenses >= 0) {
+            _setTotalIncomeByPercentage(_calculateIncomeByPercentage())
+        }
+    }, [_setoranData, _totalGrossAmount, _totalExpenses])
 
     async function _fetchSetoranDetail() {
         _setIsLoading(true)
         try {
             const data = await get(`/data/setoran/setoranById/${id}`, props.authData.token)
+            let totalGross = 0
+
             _setSetoranData(data)
 
             // Iterate through ritase and fetch trajectory tracks
@@ -65,9 +80,15 @@ export default function DepositDetail(props) {
                         const trackData = await _getTrackTraject(ritase.traject_id)
                         tracks[ritase.traject_id] = trackData
                     }
+
+                    totalGross += (ritase.cash_payment_amount + ritase.non_cash_payment_amount)
                 }
                 _setTrajectTracks(tracks)
             }
+
+            _setTotalGrossAmount(totalGross)
+
+
 
         } catch (e) {
             popAlert({ message: e.message })
@@ -109,13 +130,13 @@ export default function DepositDetail(props) {
         }
 
         try {
-            
+
 
             const data = await postJSON(`/data/penugasan/list`, query, props.authData.token);
-           
+
             // Find the assignment by ID
             const assignment = data.data?.find(item => item.schedule_assign_id === deposit.schedule_assign_id);
-            
+
             _setAssignedData(assignment)
         } catch (error) {
             console.error('Error fetching assigned bus:', error);
@@ -132,6 +153,94 @@ export default function DepositDetail(props) {
             }
         })
     }
+
+    function _findMandoran(trajectId) {
+        let totalPnpCount = 0;
+
+        if (!_setoranData?.data?.manifest) return totalPnpCount;
+
+        _setoranData.data.manifest.forEach(ritase => {
+            if (ritase.traject_id === trajectId && ritase.category === "MANDOR") {
+                totalPnpCount += parseInt(ritase.pnp_count) || 0;
+            }
+        });
+
+        return totalPnpCount;
+    }
+
+    function _findCrewKarcis(trajectId) {
+        let totalPnpCount = 0;
+
+        if (!_setoranData?.data?.ritase) return totalPnpCount;
+
+
+        _setoranData.data.ritase.forEach(ritase => {
+            if (ritase.traject_id === trajectId) {
+                console.log("karcis")
+                console.log(ritase)
+                totalPnpCount += parseInt(ritase.non_cash_pnp_count) + parseInt(ritase.cash_pnp_count);
+            }
+        });
+
+        return totalPnpCount;
+    }
+
+    function _calculateTotalExpenses(costData) {
+        let total = 0;
+
+        if (!costData[0]?.details) return total;
+
+        costData[0].details.forEach(item => {
+            let passengerCount = 0;
+
+            // Calculate passenger count based on the expense type
+            if (item.name === "PER KARCIS UNTUK KRU") {
+                passengerCount = _findCrewKarcis(item.traject_id);
+            } else if (item.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)") {
+                passengerCount = _findMandoran(item.traject_id);
+            } else if (item.name === "Lain-lain") {
+                // For "Lain-lain", use amount directly without multiplying by passenger count
+                total += parseInt(item.amount) || 0;
+                return;
+            }
+
+            // Calculate total for items that need passenger count multiplication
+            total += passengerCount * (parseInt(item.amount) || 0);
+        });
+
+        return total;
+    }
+
+    function _calculateIncomeByPercentage() {
+        let total = 0;
+
+        if (!_setoranData?.data?.biaya?.[0]?.details) return total;
+
+        const netIncome = _totalGrossAmount - _totalExpenses;
+
+        _setoranData.data.biaya[0].details.forEach(item => {
+            if (item.format_amount === "PERCENTAGE" && item.name == "Bonus Kru") {
+                const min = parseInt(item.min) || 0;
+                const max = parseInt(item.max) || 0;
+
+                // Check if netIncome matches the criteria
+                // If max is 0, it means no upper limit
+                const meetsMinCriteria = netIncome >= min;
+                const meetsMaxCriteria = max === 0 || netIncome <= max;
+
+                if (meetsMinCriteria && meetsMaxCriteria) {
+                    // Calculate the difference from min threshold
+                    const difference = netIncome - min;
+                    // Apply percentage to the difference
+                    const percentageAmount = (difference * (parseInt(item.amount) || 0)) / 100;
+                    total += percentageAmount;
+                }
+            }
+        });
+
+        return total;
+    }
+
 
     return (
         <Main>
@@ -169,7 +278,7 @@ export default function DepositDetail(props) {
                                         </div>
                                         <div>
                                             <span>Nopol</span>
-                                            <span> : {_assignedData.bus_name}</span>
+                                            <span> : {_assignedData?.bus_name}</span>
                                         </div>
                                         <div>
                                             <span>Ritase</span>
@@ -181,15 +290,15 @@ export default function DepositDetail(props) {
                                     >
                                         <div>
                                             <span>Driver</span>
-                                            <span> : {_assignedData.bus_crew2_name}</span>
+                                            <span> : {_assignedData?.bus_crew2_name}</span>
                                         </div>
                                         <div>
                                             <span>Kondektur</span>
-                                            <span> : {_assignedData.bus_crew1_name}</span>
+                                            <span> : {_assignedData?.bus_crew1_name}</span>
                                         </div>
                                         <div>
                                             <span>Kenek</span>
-                                            <span> : {_assignedData.bus_crew3_name}</span>
+                                            <span> : {_assignedData?.bus_crew3_name}</span>
                                         </div>
                                     </Col>
                                     <Col
@@ -231,17 +340,21 @@ export default function DepositDetail(props) {
                                             const trajectTrack = _trajectTracks[ritaseData.traject_id] || []
 
                                             const getPnpCount = (originName, destinationName) => {
-                                                let count = 0
+                                                let data = {
+                                                    passengerCount: 0,
+                                                    ticketPrice: 0
+                                                }
 
                                                 const detail = ritaseData.detail?.find(
                                                     d => d.origin_name === originName && d.destination_name === destinationName
                                                 );
 
                                                 if (detail) {
-                                                    count += parseInt(detail?.pnp_count) || 0;
+                                                    data.passengerCount += parseInt(detail?.pnp_count) || 0;
+                                                    data.ticketPrice = parseInt(detail?.payment_amount) / parseInt(detail?.pnp_count)
                                                 }
 
-                                                return count > 0 ? count : ""
+                                                return data
                                             };
 
                                             return (
@@ -262,11 +375,11 @@ export default function DepositDetail(props) {
 
                                                                             let origin = trajectTrack[i].pointName
                                                                             let destination = location.pointName
-                                                                            let pnp = getPnpCount(origin, destination)
+                                                                            let passenger = getPnpCount(origin, destination).passengerCount
 
                                                                             return (
                                                                                 <td key={`empty-${i}`} style={{ ...cellStyle, backgroundColor: 'transparent', textAlign: "right" }}>
-                                                                                    {pnp}
+                                                                                    {passenger}
                                                                                 </td>
                                                                             )
 
@@ -278,14 +391,41 @@ export default function DepositDetail(props) {
                                                                 )
                                                             })}
 
-                                                            {summaryRows.map((row, index) => (
-                                                                <tr key={`summary-${index}`}>
-                                                                    {Array.from({ length: trajectTrack.length - 1 }).map((_, i) => (
-                                                                        <td key={`empty-${i}`} style={{ ...cellStyle, backgroundColor: 'transparent' }}></td>
-                                                                    ))}
-                                                                    <td style={cellStyle}>{row.label}</td>
-                                                                </tr>
-                                                            ))}
+                                                            {summaryRows.map((row, index) => {
+                                                                // Calculate column totals
+                                                                const columnTotals = Array.from({ length: trajectTrack.length - 1 }).map((_, colIndex) => {
+                                                                    let summary = {
+                                                                        passenger: 0,
+                                                                        amount: 0
+                                                                    }
+
+                                                                    trajectTrack.forEach((location, rowIndex) => {
+                                                                        if (rowIndex > colIndex) {
+                                                                            const origin = trajectTrack[colIndex].pointName;
+                                                                            const destination = location.pointName;
+                                                                            const data = getPnpCount(origin, destination)
+                                                                            const passenger = data.passengerCount;
+                                                                            const ticketPrice = data.ticketPrice
+
+                                                                            summary.passenger += parseInt(passenger) || 0;
+                                                                            summary.amount += parseInt(ticketPrice) || 0;
+                                                                        }
+                                                                    });
+
+                                                                    return summary;
+                                                                });
+
+                                                                return (
+                                                                    <tr key={`summary-${index}`}>
+                                                                        {columnTotals.map((total, i) => (
+                                                                            <td key={`total-${i}`} style={{ ...cellStyle, backgroundColor: '#f0f0f0', textAlign: 'right', fontWeight: 'bold' }}>
+                                                                                {index === 0 ? total.passenger : currency(total.amount * total.passenger)}
+                                                                            </td>
+                                                                        ))}
+                                                                        <td style={{ ...cellStyle, fontWeight: 'bold' }}>{row.label}</td>
+                                                                    </tr>
+                                                                );
+                                                            })}
                                                         </tbody>
                                                     </table>
                                                 </Col>
@@ -337,6 +477,34 @@ export default function DepositDetail(props) {
                                             )
                                         })
                                     }
+
+                                    <Row
+                                        flexEnd
+                                        style={{
+                                            gap: "1rem"
+                                        }}
+                                    >
+                                        <Col
+                                            withPadding
+                                            alignEnd
+                                            justifyCenter
+                                            column={2}
+                                        >
+                                            <span>TOTAL PENDAPATAN KOTOR</span>
+                                        </Col>
+
+                                        <Col
+                                            withPadding
+                                            column={1}
+                                        >
+                                            <Input
+                                                type="number"
+                                                value={_totalGrossAmount}
+                                                placeholder={`Rp`}
+                                            />
+                                        </Col>
+
+                                    </Row>
                                 </div>
 
                                 <div
@@ -349,56 +517,58 @@ export default function DepositDetail(props) {
                                     {
                                         _setoranData.data.biaya[0].details
                                             ?.filter(item => item.name === "PER KARCIS UNTUK KRU")
-                                            .map((item, index) => (
+                                            .map((item, index) => {
 
+                                                let pnp = _findCrewKarcis(item.traject_id)
 
-                                                <Row
-                                                    key={item.id}
+                                                return (
+                                                    <Row
+                                                        key={item.id}
 
-                                                >
-                                                    <Col
-                                                        withPadding
-                                                        alignEnd
-                                                        justifyCenter
-                                                        column={2}
                                                     >
-                                                        <span>{item.desc}</span>
-                                                    </Col>
+                                                        <Col
+                                                            withPadding
+                                                            alignEnd
+                                                            justifyCenter
+                                                            column={2}
+                                                        >
+                                                            <span>{item.desc}</span>
+                                                        </Col>
 
-                                                    <Col
-                                                        withPadding
-                                                        column={1}
-                                                    >
-                                                        <Input
-                                                            type="number"
-                                                            value={""}
-                                                            placeholder={`Rp`}
-                                                        />
-                                                    </Col>
-                                                    <Col
-                                                        withPadding
-                                                        column={1}
-                                                    >
-                                                        <Input
-                                                            type="number"
-                                                            value={item.amount}
-                                                            placeholder={`Rp`}
-                                                        />
-                                                    </Col>
-                                                    <Col
-                                                        withPadding
-                                                        column={1}
-                                                    >
-                                                        <Input
-                                                            type="number"
-                                                            value={""}
-                                                            placeholder={`Rp`}
-                                                        />
-                                                    </Col>
+                                                        <Col
+                                                            withPadding
+                                                            column={1}
+                                                        >
+                                                            <Input
+                                                                type="number"
+                                                                value={pnp}
+                                                                placeholder={`Rp`}
+                                                            />
+                                                        </Col>
+                                                        <Col
+                                                            withPadding
+                                                            column={1}
+                                                        >
+                                                            <Input
+                                                                type="number"
+                                                                value={item.amount}
+                                                                placeholder={`Rp`}
+                                                            />
+                                                        </Col>
+                                                        <Col
+                                                            withPadding
+                                                            column={1}
+                                                        >
+                                                            <Input
+                                                                type="number"
+                                                                value={pnp * item.amount}
+                                                                placeholder={`Rp`}
+                                                            />
+                                                        </Col>
 
-                                                </Row>
-
-                                            ))
+                                                    </Row>
+                                                )
+                                            })
                                     }
                                 </div>
 
@@ -412,56 +582,56 @@ export default function DepositDetail(props) {
                                     {
                                         _setoranData.data.biaya[0].details
                                             ?.filter(item => item.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)")
-                                            .map((item, index) => (
+                                            .map((item, index) => {
 
+                                                let pnp = _findMandoran(item.traject_id)
 
-                                                <Row
-                                                    key={item.id}
-
-                                                >
-                                                    <Col
-                                                        withPadding
-                                                        alignEnd
-                                                        justifyCenter
-                                                        column={2}
+                                                return (
+                                                    <Row
+                                                        key={item.id}
                                                     >
-                                                        <span>{item.desc}</span>
-                                                    </Col>
+                                                        <Col
+                                                            withPadding
+                                                            alignEnd
+                                                            justifyCenter
+                                                            column={2}
+                                                        >
+                                                            <span>{item.desc}</span>
+                                                        </Col>
 
-                                                    <Col
-                                                        withPadding
-                                                        column={1}
-                                                    >
-                                                        <Input
-                                                            type="number"
-                                                            value={""}
-                                                            placeholder={`Rp`}
-                                                        />
-                                                    </Col>
-                                                    <Col
-                                                        withPadding
-                                                        column={1}
-                                                    >
-                                                        <Input
-                                                            type="number"
-                                                            value={item.amount}
-                                                            placeholder={`Rp`}
-                                                        />
-                                                    </Col>
-                                                    <Col
-                                                        withPadding
-                                                        column={1}
-                                                    >
-                                                        <Input
-                                                            type="number"
-                                                            value={""}
-                                                            placeholder={`Rp`}
-                                                        />
-                                                    </Col>
-
-                                                </Row>
-
-                                            ))
+                                                        <Col
+                                                            withPadding
+                                                            column={1}
+                                                        >
+                                                            <Input
+                                                                type="number"
+                                                                value={pnp}
+                                                                placeholder={`Rp`}
+                                                            />
+                                                        </Col>
+                                                        <Col
+                                                            withPadding
+                                                            column={1}
+                                                        >
+                                                            <Input
+                                                                type="number"
+                                                                value={item.amount}
+                                                                placeholder={`Rp`}
+                                                            />
+                                                        </Col>
+                                                        <Col
+                                                            withPadding
+                                                            column={1}
+                                                        >
+                                                            <Input
+                                                                type="number"
+                                                                value={pnp * item.amount}
+                                                                placeholder={`Rp`}
+                                                            />
+                                                        </Col>
+                                                    </Row>
+                                                )
+                                            })
                                     }
 
                                     {
@@ -500,6 +670,55 @@ export default function DepositDetail(props) {
                                             ))
                                     }
 
+                                    <Row>
+                                        <Col
+                                            withPadding
+                                            alignEnd
+                                            justifyCenter
+                                            column={5}
+                                        >
+                                            <span>TOTAL PENGELUARAN</span>
+                                        </Col>
+
+
+                                        <Col
+                                            withPadding
+                                            column={1}
+                                        >
+                                            <Input
+                                                type="number"
+                                                value={_totalExpenses}
+                                                placeholder={`Rp`}
+                                            />
+                                        </Col>
+
+                                    </Row>
+
+                                    <Row>
+                                        <Col
+                                            withPadding
+                                            alignEnd
+                                            justifyCenter
+                                            column={5}
+                                        >
+                                            <span>PENDAPATAN SETELAH DIPOTONG PENGELUARAN</span>
+                                        </Col>
+
+
+                                        <Col
+                                            withPadding
+                                            column={1}
+                                        >
+                                            <Input
+                                                type="number"
+                                                value={_totalGrossAmount - _totalExpenses}
+                                                placeholder={`Rp`}
+                                            />
+                                        </Col>
+
+                                    </Row>
+
+
                                     {
                                         _setoranData.data.biaya[0].details
                                             ?.filter(item => item.name === "Bonus Kru")
@@ -526,7 +745,7 @@ export default function DepositDetail(props) {
                                                     >
                                                         <Input
                                                             type="number"
-                                                            value={0}
+                                                            value={_totalIncomeByPercentage}
                                                             placeholder={`Rp`}
                                                         />
                                                     </Col>
@@ -535,31 +754,106 @@ export default function DepositDetail(props) {
 
                                             ))
                                     }
+
+                                    <Row>
+                                        <Col
+                                            withPadding
+                                            alignEnd
+                                            justifyCenter
+                                            column={5}
+                                        >
+                                            <span>PENDAPATAN</span>
+                                        </Col>
+
+
+                                        <Col
+                                            withPadding
+                                            column={1}
+                                        >
+                                            <Input
+                                                type="number"
+                                                value={_totalGrossAmount - _totalExpenses - _totalIncomeByPercentage}
+                                                placeholder={`Rp`}
+                                            />
+                                        </Col>
+
+                                    </Row>
                                 </div>
 
                                 <div
                                     style={{
-                                        margin: "3rem 0rem"
+                                        margin: "3rem 0rem 0rem 0rem"
                                     }}
                                 >
                                     <h4>Catatan Saku</h4>
 
-                                    <Row>
-                                        {_setoranData.data.biaya[0]?.details
+                                    {
+
+                                        _setoranData.data.biaya[0]?.details
                                             ?.filter(item => item.name === "Catatan Saku")
                                             .map((item, index) => (
+                                                <Row
+                                                    key={item.id}
+                                                >
+                                                    <Col column={2} withPadding justifyCenter>
+                                                        <span>{item.desc}</span>
+                                                    </Col>
+                                                    <Col column={1} withPadding>
+                                                        <Input
+                                                            type="number"
+                                                            value={item.amount}
+                                                            placeholder={`Masukkan ${item.desc}`}
+                                                        />
+                                                    </Col>
+                                                </Row>
+                                            ))
+                                    }
+
+                                    {_setoranData.data.images
+                                        ?.filter(item => (item.title === "Solar" || item.title == "Tol"))
+                                        .map((item, index) => (
+                                            <Row>
+                                                <Col column={2} withPadding justifyCenter>
+                                                    <span>{item.desc}</span>
+                                                </Col>
                                                 <Col key={item.id} column={1} withPadding>
                                                     <Input
-                                                        title={item.desc}
                                                         type="number"
                                                         value={item.amount}
                                                         placeholder={`Masukkan ${item.desc}`}
                                                     />
                                                 </Col>
-                                            ))
-                                        }
-                                    </Row>
+                                            </Row>
+
+                                        ))
+                                    }
+
+
                                 </div>
+
+                                <Row>
+                                    <Col
+                                        withPadding
+                                        alignEnd
+                                        justifyCenter
+                                        column={5}
+                                    >
+                                        <span>TOTAL SAKU & SOLAR</span>
+                                    </Col>
+
+
+                                    <Col
+                                        withPadding
+                                        column={1}
+                                    >
+                                        <Input
+                                            type="number"
+                                            value={0}
+                                            placeholder={`Rp`}
+                                        />
+                                    </Col>
+
+                                </Row>
 
                                 <div
                                     style={{

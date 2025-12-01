@@ -261,12 +261,6 @@ export default function SetoranModal(props = defaultProps) {
         return desc
     }
 
-    function _countPnp(){
-        let count = 0
-
-        
-    }
-
     async function _submitData() {
         _setIsProcessing(true)
         try {
@@ -471,12 +465,14 @@ export default function SetoranModal(props = defaultProps) {
                     setoranDefaultId: setoranDefaultId,
                     name: item.name || "PER KARCIS UNTUK KRU",
                     desc: item.desc || "",
-                    amount: Number(item.amount) || 0,
+                    amount: parseInt(String(item.amount).replace(".","")) || 0,
                     isDefault: item.is_default || true,
                     allowUpdate: item.allow_update || true,
                     formatAmount: item.format_amount || 'NOMINAL',
                     min: String(item.min || 0).replace(/\./g, ''),
                     max: String(item.max || 0).replace(/\./g, ''),
+                    trajectId: item.traject_id,
+                    originalTrajectId: item.originalTrajectId,
                     originalAmount: item.originalAmount,
                     originalDesc: item.originalDesc,
                     originalMin: item.originalMin,
@@ -574,6 +570,8 @@ export default function SetoranModal(props = defaultProps) {
                 const hasChanges = detail.amount !== detail.originalAmount || detail.desc !== detail.originalDesc || detail?.min !== detail?.originalMin || detail?.max !== detail?.originalMax || detail?.trajectId !== detail?.originalTrajectId 
                 return hasChanges
             })
+
+           
 
             // Add new items (without id)
             if (itemsToAdd.length > 0) {
@@ -698,6 +696,7 @@ export default function SetoranModal(props = defaultProps) {
                                                             onSuggestionSelect={(value) => {
                                                                 const updatedList = [..._crewTraject];
                                                                 updatedList[key].desc = value.name
+                                                                updatedList[key].traject_id = value.idTraject
                                                                 _setCrewTraject(updatedList);
                                                             }}
                                                         />
@@ -1021,8 +1020,14 @@ export default function SetoranModal(props = defaultProps) {
                                                             title={"-"}
                                                             styles={Button.error}
                                                             disabled={_rewardCrew.length <= 1}
-                                                            onClick={() => {
+                                                            onClick={async () => {
                                                                 if (_rewardCrew.length > 1) {
+
+                                                                    // If the item has an id, delete it from the API
+                                                                    if (val?.id) {
+                                                                        await _deleteFormat(val.id);
+                                                                    }
+
                                                                     // Remove the last split
                                                                     const updatedList = _rewardCrew.slice(0, -1);
                                                                     _setRewardCrew(updatedList);
