@@ -534,12 +534,12 @@ export default function Dashboard(props) {
             _getBranch(filteredBranch)
             _getTraject()
             _getActivityRoute()
-            _getRouteLowest()
+            // _getRouteLowest()
         }
 
-        if (props.role_id == "2") {
-            _getSettlement()
-        }
+        // if (props.role_id == "2") {
+        //     _getSettlement()
+        // }
 
     }, [])
 
@@ -1072,16 +1072,19 @@ export default function Dashboard(props) {
             _setDataExportVendor(report.transaction)
             _setDataExportPayment(report.payment)
 
+            if(report?.transaction){
+                report.transaction.forEach(function (val, key) {
+                    let dateTrx = dateFilter.getMonthDate(new Date(val.dateTransaction))
 
-            report.transaction.forEach(function (val, key) {
-                let dateTrx = dateFilter.getMonthDate(new Date(val.dateTransaction))
+                    if (_interval.value == "yearly") {
+                        dateTrx = val.dateTransaction
+                    }
 
-                if (_interval.value == "yearly") {
-                    dateTrx = val.dateTransaction
-                }
+                    data.dateTransaction.push(dateTrx)
+                })
+            }
 
-                data.dateTransaction.push(dateTrx)
-            })
+            
 
             data.dateTransaction = data.dateTransaction.filter(function (item, pos) {
                 return data.dateTransaction.indexOf(item) == pos
@@ -1257,7 +1260,7 @@ export default function Dashboard(props) {
 
         const params = {
             "type": _selectedRouteSearched.value,
-            "length": 80,
+            "length": 50,
             "startDate": dateFilter.basicDate(_startDateRoute).normal,
             "endDate": dateFilter.basicDate(_endDateRoute).normal,
             "group": "departure_date"

@@ -35,7 +35,7 @@ export const TICKET_ORDER_URL = API_ENDPOINT.ticketOrder
 export const WEB_DAMRI = API_ENDPOINT.web_damri_dev
 export const BUCKET = API_ENDPOINT.bucket
 
-const pathReroute = ["/user/", "/member/", "/public/", "/masterData/"]
+const pathReroute = ["/user/", "/member/", "/public/", "/masterData/", "/laporan/"]
 
 function parseJson(response) {
     return new Promise((resolve, reject) => {

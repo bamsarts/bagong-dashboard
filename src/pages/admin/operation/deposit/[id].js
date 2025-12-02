@@ -24,6 +24,11 @@ export default function DepositDetail(props) {
     const [_totalExpenses, _setTotalExpenses] = useState(0)
     const [_totalGrossAmount, _setTotalGrossAmount] = useState(0)
     const [_totalIncomeByPercentage, _setTotalIncomeByPercentage] = useState(0)
+    const [_manifestCost, _setManifestCost] = useState({
+        "fuel": 0,
+        "gas": 0,
+        "notesDeposit": 0
+    })
 
     const summaryRows = [
         { label: 'Jumlah' },
@@ -60,7 +65,13 @@ export default function DepositDetail(props) {
 
     useEffect(() => {
         if (_setoranData?.data?.biaya && _totalGrossAmount > 0 && _totalExpenses >= 0) {
-            _setTotalIncomeByPercentage(_calculateIncomeByPercentage())
+            let data = _calculateIncomeByPercentage()
+            _setTotalIncomeByPercentage(data.incomeByPercentage)
+            _setManifestCost({
+                "fuel": data.fuel,
+                "tol": data.tol,
+                "notesDeposit": data.notesDeposit
+            })
         }
     }, [_setoranData, _totalGrossAmount, _totalExpenses])
 
@@ -126,7 +137,8 @@ export default function DepositDetail(props) {
 
         let query = {
             "startFrom": 0,
-            "length": 360
+            "length": 360,
+            "query": deposit?.assign_date
         }
 
         try {
@@ -135,7 +147,7 @@ export default function DepositDetail(props) {
             const data = await postJSON(`/data/penugasan/list`, query, props.authData.token);
 
             // Find the assignment by ID
-            const assignment = data.data?.find(item => item.schedule_assign_id === deposit.schedule_assign_id);
+            const assignment = data.data?.find(item => (item.schedule_assign_date === deposit.assign_date && item.traject_master_id === deposit.traject_master_id));
 
             _setAssignedData(assignment)
         } catch (error) {
@@ -153,6 +165,31 @@ export default function DepositDetail(props) {
             }
         })
     }
+
+    function _findOriginDestination(trajectId) {
+        let origins = "";
+        let destinations = "";
+
+        if (!_setoranData?.data?.ritase) return { origins: [], destinations: [] };
+
+        _setoranData.data.ritase.forEach(ritase => {
+            if (ritase.traject_id === trajectId && ritase.detail) {
+                ritase.detail.forEach(detail => {
+                    if (detail.origin_name){
+                        origins = detail.origin_name;
+                    } 
+
+                    if (detail.destination_name) {
+                        destinations = detail.destination_name;
+                    }
+                });
+            }
+        });
+
+        return origins + " - " + destinations
+       
+    }
+
 
     function _findMandoran(trajectId) {
         let totalPnpCount = 0;
@@ -176,8 +213,6 @@ export default function DepositDetail(props) {
 
         _setoranData.data.ritase.forEach(ritase => {
             if (ritase.traject_id === trajectId) {
-                console.log("karcis")
-                console.log(ritase)
                 totalPnpCount += parseInt(ritase.non_cash_pnp_count) + parseInt(ritase.cash_pnp_count);
             }
         });
@@ -212,7 +247,12 @@ export default function DepositDetail(props) {
     }
 
     function _calculateIncomeByPercentage() {
-        let total = 0;
+        let total = {
+            "incomeByPercentage": 0,
+            "notesDeposit": 0,
+            "fuel": 0,
+            "tol": 0
+        }
 
         if (!_setoranData?.data?.biaya?.[0]?.details) return total;
 
@@ -233,10 +273,26 @@ export default function DepositDetail(props) {
                     const difference = netIncome - min;
                     // Apply percentage to the difference
                     const percentageAmount = (difference * (parseInt(item.amount) || 0)) / 100;
-                    total += percentageAmount;
+
+                    item.percentageAmount = percentageAmount
+
+                    total.incomeByPercentage += percentageAmount;
                 }
             }
+
+            if (item.name == "Catatan Saku") {
+                total.notesDeposit += parseInt(item.amount)
+            }
         });
+
+        _setoranData.data.images.forEach(item => {
+            if (item.title == "Solar") {
+                total.fuel += parseInt(item.amount)
+
+            } else if (item.title == "Tol") {
+                total.tol += parseInt(item.amount)
+            }
+        })
 
         return total;
     }
@@ -342,7 +398,9 @@ export default function DepositDetail(props) {
                                             const getPnpCount = (originName, destinationName) => {
                                                 let data = {
                                                     passengerCount: 0,
-                                                    ticketPrice: 0
+                                                    ticketPrice: 0,
+                                                    origin: "",
+                                                    destination: ""
                                                 }
 
                                                 const detail = ritaseData.detail?.find(
@@ -350,8 +408,10 @@ export default function DepositDetail(props) {
                                                 );
 
                                                 if (detail) {
+                                                    data.origin = detail?.origin_name
+                                                    data.destination = detail?.destination_name
                                                     data.passengerCount += parseInt(detail?.pnp_count) || 0;
-                                                    data.ticketPrice = parseInt(detail?.payment_amount) / parseInt(detail?.pnp_count)
+                                                    data.ticketPrice += parseInt(detail?.payment_amount)
                                                 }
 
                                                 return data
@@ -396,32 +456,62 @@ export default function DepositDetail(props) {
                                                                 const columnTotals = Array.from({ length: trajectTrack.length - 1 }).map((_, colIndex) => {
                                                                     let summary = {
                                                                         passenger: 0,
-                                                                        amount: 0
+                                                                        amount: 0,
+                                                                        passengerMin: 0
                                                                     }
 
                                                                     trajectTrack.forEach((location, rowIndex) => {
                                                                         if (rowIndex > colIndex) {
+
+                                                                            let destinationBefore = ""
+
+                                                                            if(colIndex > 0){
+                                                                                destinationBefore = trajectTrack[colIndex - 1].pointName
+                                                                            }
+                                                                            
                                                                             const origin = trajectTrack[colIndex].pointName;
                                                                             const destination = location.pointName;
                                                                             const data = getPnpCount(origin, destination)
                                                                             const passenger = data.passengerCount;
                                                                             const ticketPrice = data.ticketPrice
 
-                                                                            summary.passenger += parseInt(passenger) || 0;
+                                                                            if(data.origin == destinationBefore){
+                                                                                let dataBefore = getPnpCount(data.origin, destinationBefore)
+                                                                                summary.passengerMin += parseInt(dataBefore.passengerCount) || 0
+                                                                            }
+
+                                                                            
+                                                                            
+                                                                            summary.passenger += (parseInt(passenger)) || 0;
                                                                             summary.amount += parseInt(ticketPrice) || 0;
+
+                                                                            
                                                                         }
                                                                     });
+
+                                                                    // if(colIndex > 0){
+                                                                    //    summary.passenger = columnTotals[colIndex - 1].passenger + summary.passenger
+                                                                    // }
 
                                                                     return summary;
                                                                 });
 
                                                                 return (
                                                                     <tr key={`summary-${index}`}>
-                                                                        {columnTotals.map((total, i) => (
-                                                                            <td key={`total-${i}`} style={{ ...cellStyle, backgroundColor: '#f0f0f0', textAlign: 'right', fontWeight: 'bold' }}>
-                                                                                {index === 0 ? total.passenger : currency(total.amount * total.passenger)}
-                                                                            </td>
-                                                                        ))}
+                                                                        {columnTotals.map((total, i) => {
+                                                                            
+                                                                            if(i > 0){
+                                                                                total.passenger = (columnTotals[i-1].passenger + total.passenger) - total.passengerMin
+                                                                            }
+
+                                                                            return (
+                                                                                <td key={`total-${i}`} style={{ ...cellStyle, backgroundColor: '#f0f0f0', textAlign: 'right', fontWeight: 'bold' }}>
+                                                                                    {
+                                                                                        index === 0 ? total.passenger : currency(total.amount)
+                                                                                    }
+                                                                                </td>
+                                                                            )
+                                                                        })}
                                                                         <td style={{ ...cellStyle, fontWeight: 'bold' }}>{row.label}</td>
                                                                     </tr>
                                                                 );
@@ -745,7 +835,7 @@ export default function DepositDetail(props) {
                                                     >
                                                         <Input
                                                             type="number"
-                                                            value={_totalIncomeByPercentage}
+                                                            value={item?.percentageAmount}
                                                             placeholder={`Rp`}
                                                         />
                                                     </Col>
@@ -848,12 +938,72 @@ export default function DepositDetail(props) {
                                     >
                                         <Input
                                             type="number"
-                                            value={0}
+                                            value={_manifestCost.notesDeposit + _manifestCost.tol + _manifestCost.fuel}
                                             placeholder={`Rp`}
                                         />
                                     </Col>
 
                                 </Row>
+
+                                <Row>
+                                    <Col
+                                        withPadding
+                                        alignEnd
+                                        justifyCenter
+                                        column={5}
+                                    >
+                                        <span>SETORAN SETELAH DIPOTONG SAKU</span>
+                                    </Col>
+
+
+                                    <Col
+                                        withPadding
+                                        column={1}
+                                    >
+                                        <Input
+                                            type="number"
+                                            value={_totalGrossAmount - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit + _manifestCost.tol + _manifestCost.fuel)}
+                                            placeholder={`Rp`}
+                                        />
+                                    </Col>
+
+                                </Row>
+
+                                <div
+                                    style={{
+                                        margin: "3rem 0rem"
+                                    }}
+                                >
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: '#f5f5f5' }}>
+                                                <th style={{ ...cellStyle, fontWeight: 'bold', textAlign: 'left' }}>No</th>
+                                                <th style={{ ...cellStyle, fontWeight: 'bold', textAlign: 'left' }}>Lokasi Naik/Jam</th>
+                                                <th style={{ ...cellStyle, fontWeight: 'bold', textAlign: 'left' }}>Arah</th>
+                                                <th style={{ ...cellStyle, fontWeight: 'bold', textAlign: 'right' }}>Jumlah Penumpang</th>
+                                                <th style={{ ...cellStyle, fontWeight: 'bold', textAlign: 'right' }}>Jumlah Uang</th>
+                                                <th style={{ ...cellStyle, fontWeight: 'bold', textAlign: 'center' }}>TTD Kondektur</th>
+                                                <th style={{ ...cellStyle, fontWeight: 'bold', textAlign: 'center' }}>Nama Kontrol</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {_setoranData.data.manifest
+                                                ?.filter(item => item.category === "CHECKER")
+                                                .map((checker, index) => (
+                                                    <tr key={checker.id} style={{ backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9' }}>
+                                                        <td style={cellStyle}>{index + 1}</td>
+                                                        <td style={cellStyle}>{dateFilter.getMonthDate(new Date(checker.date)) + " " + checker.time}</td>
+                                                        <td style={cellStyle}>{_findOriginDestination(checker.traject_id) || '-'}</td>
+                                                        <td style={{ ...cellStyle, textAlign: 'right' }}>{checker.pnp_count}</td>
+                                                        <td style={{ ...cellStyle, textAlign: 'right' }}>{currency(checker.cash_amount)}</td>
+                                                        <td style={{ ...cellStyle, textAlign: 'center' }}>{ }</td>
+                                                        <td style={{ ...cellStyle, textAlign: 'center' }}>{checker.name}</td>
+                                                    </tr>
+                                                ))}
+
+                                        </tbody>
+                                    </table>
+                                </div>
 
                                 <div
                                     style={{
