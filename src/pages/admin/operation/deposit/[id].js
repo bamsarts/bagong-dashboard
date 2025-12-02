@@ -29,7 +29,50 @@ export default function DepositDetail(props) {
         "gas": 0,
         "notesDeposit": 0
     })
+    const [_passengersOntheBus, _setPassengersOntheBus] = useState([])
+    const [_amountOntheBus, _setAmountOntheBus] = useState([])
+    const [_resultRitase, _setResultRitase] = useState([])
+    const [_editablePnp, _setEditablePnp] = useState({})
+    const [_form, _setForm] = useState({
+        "operan": {
+            "title": "OPERAN",
+            "value": 0,
+            "disabled": false
+        },
+        "refund": {
+            'title': "KEMBALI UANG",
+            "value": 0,
+            "disabled": false
+        },
+        "grossAmount": {
+            'title': "TOTAL PENDAPATAN KOTOR",
+            "value": 0,
+            "disabled": true
+        }
+    })
 
+    const [_formSubmit, _setFormSubmit] = useState({
+        "id": 0,
+        "busCrew1Id": 0,
+        "busCrew1Name": "",
+        "busCrew2Id": 0,
+        "busCrew2Name": "",
+        "busCrew3Id": 0,
+        "busCrew3Name": "",
+        "kmAwal": 0,
+        "kmAkhir": 0,
+        "updatableValue": [
+            {
+                "additionalProp1": 0,
+                "additionalProp2": 0,
+                "additionalProp3": 0
+            }
+        ],
+        "desc": "",
+        "totalPayment": 0
+    })
+    const [_formCost, _setFormCost] = useState([])
+  
     const summaryRows = [
         { label: 'Jumlah' },
         { label: 'Total (Ribuan)' }
@@ -48,7 +91,21 @@ export default function DepositDetail(props) {
         }
     }, [id])
 
+    useEffect(() => {
+        const operanValue = parseFloat(_form.operan.value) || 0;
+        const refundValue = parseFloat(_form.refund.value) || 0;
+        const newGrossAmount = _totalGrossAmount + operanValue - refundValue;
 
+        _updateQuery({
+            "grossAmount": {
+                "title": _form.grossAmount.title,
+                "value": newGrossAmount,
+                "disabled": true
+            }
+        });
+    }, [_form.operan.value, _form.refund.value, _totalGrossAmount])
+
+    
     useEffect(() => {
         const storedData = localStorage.getItem('operasional_deposit');
         if (storedData) {
@@ -64,6 +121,12 @@ export default function DepositDetail(props) {
     }, [_setoranData])
 
     useEffect(() => {
+        if (_setoranData?.data?.biaya) {
+            _setTotalExpenses(_calculateTotalExpenses(_setoranData.data.biaya))
+        }
+    }, [_editablePnp])
+
+    useEffect(() => {
         if (_setoranData?.data?.biaya && _totalGrossAmount > 0 && _totalExpenses >= 0) {
             let data = _calculateIncomeByPercentage()
             _setTotalIncomeByPercentage(data.incomeByPercentage)
@@ -72,6 +135,8 @@ export default function DepositDetail(props) {
                 "tol": data.tol,
                 "notesDeposit": data.notesDeposit
             })
+
+            generateTrack()
         }
     }, [_setoranData, _totalGrossAmount, _totalExpenses])
 
@@ -98,6 +163,13 @@ export default function DepositDetail(props) {
             }
 
             _setTotalGrossAmount(totalGross)
+
+            _updateQuery({
+                "grossAmount": {
+                    "title": _form.grossAmount.title,
+                    "value": totalGross
+                }
+            })
 
 
 
@@ -147,11 +219,16 @@ export default function DepositDetail(props) {
             const data = await postJSON(`/data/penugasan/list`, query, props.authData.token);
 
             // Find the assignment by ID
-            const assignment = data.data?.find(item => (item.schedule_assign_date === deposit.assign_date && item.traject_master_id === deposit.traject_master_id));
+            let assignment = {}
+
+            data.data.forEach(function(val, key){
+                if(val.assign_date === deposit.assign_date && val.traject_master_id === deposit.traject_master_id){
+                    assignment = val
+                }
+            })
 
             _setAssignedData(assignment)
         } catch (error) {
-            console.error('Error fetching assigned bus:', error);
             popAlert({ message: error.message });
             return null;
         }
@@ -159,6 +236,15 @@ export default function DepositDetail(props) {
 
     function _updateQuery(data = {}) {
         _setForm(oldQuery => {
+            return {
+                ...oldQuery,
+                ...data
+            }
+        })
+    }
+
+    function _updateFormSubmit(data = {}) {
+        _setFormSubmit(oldQuery => {
             return {
                 ...oldQuery,
                 ...data
@@ -175,9 +261,9 @@ export default function DepositDetail(props) {
         _setoranData.data.ritase.forEach(ritase => {
             if (ritase.traject_id === trajectId && ritase.detail) {
                 ritase.detail.forEach(detail => {
-                    if (detail.origin_name){
+                    if (detail.origin_name) {
                         origins = detail.origin_name;
-                    } 
+                    }
 
                     if (detail.destination_name) {
                         destinations = detail.destination_name;
@@ -187,7 +273,97 @@ export default function DepositDetail(props) {
         });
 
         return origins + " - " + destinations
-       
+
+    }
+
+    function generateTrack() {
+
+        let resultRitase = []
+
+
+        _setoranData.data.ritase.forEach(function (setoranData, key) {
+            let result = []
+            let naik = {}
+            let turun = {}
+            const points = _trajectTracks[setoranData.traject_id]
+
+
+            for (let i = 0; i < (points.length - 1); i++) {
+                let currentPointIndex = i
+                let origin = points[i]
+                let track = {
+                    ...origin,
+                    destinations: []
+                }
+
+
+                for (let j = currentPointIndex + 1; j < points.length; j++) {
+                    let destination = {
+                        ...points[j],
+                        pnp: 0
+                    }
+
+                    let passengers = setoranData.detail.filter(x => x.origin_id == origin.pointId && x.destination_id == destination.pointId)
+                   
+
+                    passengers.forEach(p => {
+                        destination.pnp = destination.pnp + parseInt(p.pnp_count)
+                        if (naik[origin.pointName]) {
+                            naik[origin.pointName].pnp = naik[origin.pointName].pnp + parseInt(p.pnp_count)
+                            naik[origin.pointName].amount = naik[origin.pointName].amount + parseInt(p.payment_amount)
+                        } else {
+                            naik[origin.pointName] = {
+                                pnp: parseInt(p.pnp_count),
+                                amount: parseInt(p.payment_amount)
+                            }
+                        }
+
+                        if (turun[destination.pointName]) {
+                            turun[destination.pointName].pnp = turun[destination.pointName].pnp + parseInt(p.pnp_count)
+                            turun[destination.pointName].amount = turun[destination.pointName].amount + parseInt(p.payment_amount)
+                        } else {
+                            turun[destination.pointName] = {
+                                pnp: parseInt(p.pnp_count),
+                                amount: parseInt(p.payment_amount)
+                            }
+                        }
+                    })
+
+                    track.destinations.push(destination)
+                }
+
+                result.push(track)
+            }
+
+            let passengersInTheBus = []
+            let amountOntheBus = []
+
+            let lastPassenger = 0
+            let lastAmount = 0
+
+            result.forEach((i, index) => {
+                let passengers = 0
+                let amounts = 0
+                if (index == 0) {
+                    passengers = naik[i.pointName]?.pnp - (turun[i.pointName]?.pnp || 0)
+                    amounts = naik[i.pointName]?.amount || 0
+                } else {
+                    passengers = lastPassenger + (naik[i.pointName]?.pnp || 0) - (turun[i.pointName]?.pnp || 0)
+                    amounts = lastAmount + (naik[i.pointName]?.amount || 0)
+                }
+                passengersInTheBus.push(passengers)
+                amountOntheBus.push(amounts)
+                lastPassenger = passengers
+                lastAmount = amounts
+            })
+
+            resultRitase.push({
+                "passenger": passengersInTheBus,
+                "amount": amountOntheBus
+            })
+        })
+
+        _setResultRitase(resultRitase)
     }
 
 
@@ -230,9 +406,10 @@ export default function DepositDetail(props) {
 
             // Calculate passenger count based on the expense type
             if (item.name === "PER KARCIS UNTUK KRU") {
-                passengerCount = _findCrewKarcis(item.traject_id);
+                // Use editable pnp if available, otherwise use calculated value
+                passengerCount = _editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findCrewKarcis(item.traject_id);
             } else if (item.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)") {
-                passengerCount = _findMandoran(item.traject_id);
+                passengerCount = _editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id);
             } else if (item.name === "Lain-lain") {
                 // For "Lain-lain", use amount directly without multiplying by passenger count
                 total += parseInt(item.amount) || 0;
@@ -273,10 +450,12 @@ export default function DepositDetail(props) {
                     const difference = netIncome - min;
                     // Apply percentage to the difference
                     const percentageAmount = (difference * (parseInt(item.amount) || 0)) / 100;
+                    // Round to nearest thousand
+                    const roundedAmount = Math.floor(percentageAmount / 1000) * 1000;
 
-                    item.percentageAmount = percentageAmount
+                    item.percentageAmount = roundedAmount
 
-                    total.incomeByPercentage += percentageAmount;
+                    total.incomeByPercentage += roundedAmount;
                 }
             }
 
@@ -328,15 +507,21 @@ export default function DepositDetail(props) {
                                     <Col
                                         className={styles.column}
                                     >
-                                        <div>
+                                        <div
+                                        className={styles.item}
+                                        >
                                             <span>Tanggal</span>
                                             <span> : {dateFilter.getMonthDate(new Date(_setoranData.data.setoran.transaction_date))}</span>
                                         </div>
-                                        <div>
+                                        <div
+                                        className={styles.item}
+                                        >
                                             <span>Nopol</span>
                                             <span> : {_assignedData?.bus_name}</span>
                                         </div>
-                                        <div>
+                                        <div
+                                        className={styles.item}
+                                        >
                                             <span>Ritase</span>
                                             <span> : {_setoranData.data.ritase.length}</span>
                                         </div>
@@ -344,15 +529,21 @@ export default function DepositDetail(props) {
                                     <Col
                                         className={styles.column}
                                     >
-                                        <div>
+                                        <div
+                                        className={styles.item}
+                                        >
                                             <span>Driver</span>
                                             <span> : {_assignedData?.bus_crew2_name}</span>
                                         </div>
-                                        <div>
+                                        <div
+                                        className={styles.item}
+                                        >
                                             <span>Kondektur</span>
                                             <span> : {_assignedData?.bus_crew1_name}</span>
                                         </div>
-                                        <div>
+                                        <div
+                                        className={styles.item}
+                                        >
                                             <span>Kenek</span>
                                             <span> : {_assignedData?.bus_crew3_name}</span>
                                         </div>
@@ -360,11 +551,15 @@ export default function DepositDetail(props) {
                                     <Col
                                         className={styles.column}
                                     >
-                                        <div>
+                                        <div
+                                        className={styles.item}
+                                        >
                                             <span>Tanggal Setoran</span>
                                             <span> : </span>
                                         </div>
-                                        <div>
+                                        <div
+                                        className={styles.item}
+                                        >
                                             <span>Waktu Setoran</span>
                                             <span> : </span>
                                         </div>
@@ -373,17 +568,43 @@ export default function DepositDetail(props) {
                                     <Col
                                         className={styles.column}
                                     >
-                                        <div>
+                                        <div
+                                        className={styles.item}
+                                        >
                                             <span>KM Awal</span>
-                                            <span> : </span>
+                                            <Input
+                                                type="number"
+                                                value={_formSubmit.kmAwal}
+                                                onChange={(value) => _updateFormSubmit(
+                                                    {
+                                                        "kmAwal": value
+                                                    }
+                                                )}
+                                                placeholder="0"
+                                            />
                                         </div>
-                                        <div>
+                                        
+                                        <div
+                                        className={styles.item}
+                                        >
                                             <span>KM Akhir</span>
-                                            <span> : </span>
+                                            <Input
+                                                type="number"
+                                                value={_formSubmit.kmAkhir}
+                                                onChange={(value) => _updateFormSubmit(
+                                                    {
+                                                        "kmAkhir": value
+                                                    }
+                                                )}
+                                                placeholder="0"
+                                            />
                                         </div>
-                                        <div>
+                                        
+                                        <div
+                                        className={styles.item}
+                                        >
                                             <span>KM</span>
-                                            <span> : </span>
+                                            <span> : {_formSubmit.kmAkhir - _formSubmit.kmAwal}</span>
                                         </div>
                                     </Col>
                                 </Row>
@@ -451,71 +672,36 @@ export default function DepositDetail(props) {
                                                                 )
                                                             })}
 
-                                                            {summaryRows.map((row, index) => {
-                                                                // Calculate column totals
-                                                                const columnTotals = Array.from({ length: trajectTrack.length - 1 }).map((_, colIndex) => {
-                                                                    let summary = {
-                                                                        passenger: 0,
-                                                                        amount: 0,
-                                                                        passengerMin: 0
-                                                                    }
+                                                            {
+                                                                _resultRitase.length > 0 && (
+                                                                    summaryRows.map((row, indexSummary) => {
+                                                                        return (
+                                                                            <>
+                                                                                <tr key={`summary-${indexSummary}`}>
 
-                                                                    trajectTrack.forEach((location, rowIndex) => {
-                                                                        if (rowIndex > colIndex) {
-
-                                                                            let destinationBefore = ""
-
-                                                                            if(colIndex > 0){
-                                                                                destinationBefore = trajectTrack[colIndex - 1].pointName
-                                                                            }
-                                                                            
-                                                                            const origin = trajectTrack[colIndex].pointName;
-                                                                            const destination = location.pointName;
-                                                                            const data = getPnpCount(origin, destination)
-                                                                            const passenger = data.passengerCount;
-                                                                            const ticketPrice = data.ticketPrice
-
-                                                                            if(data.origin == destinationBefore){
-                                                                                let dataBefore = getPnpCount(data.origin, destinationBefore)
-                                                                                summary.passengerMin += parseInt(dataBefore.passengerCount) || 0
-                                                                            }
-
-                                                                            
-                                                                            
-                                                                            summary.passenger += (parseInt(passenger)) || 0;
-                                                                            summary.amount += parseInt(ticketPrice) || 0;
-
-                                                                            
-                                                                        }
-                                                                    });
-
-                                                                    // if(colIndex > 0){
-                                                                    //    summary.passenger = columnTotals[colIndex - 1].passenger + summary.passenger
-                                                                    // }
-
-                                                                    return summary;
-                                                                });
-
-                                                                return (
-                                                                    <tr key={`summary-${index}`}>
-                                                                        {columnTotals.map((total, i) => {
-                                                                            
-                                                                            if(i > 0){
-                                                                                total.passenger = (columnTotals[i-1].passenger + total.passenger) - total.passengerMin
-                                                                            }
-
-                                                                            return (
-                                                                                <td key={`total-${i}`} style={{ ...cellStyle, backgroundColor: '#f0f0f0', textAlign: 'right', fontWeight: 'bold' }}>
                                                                                     {
-                                                                                        index === 0 ? total.passenger : currency(total.amount)
+                                                                                        _resultRitase[ritaseIndex].passenger.map((rowRitase, index) => {
+
+                                                                                            return (
+                                                                                                <td key={`total-${index}`} style={{ ...cellStyle, backgroundColor: '#f0f0f0', textAlign: 'right', fontWeight: 'bold' }}>
+                                                                                                    {indexSummary === 0 ? rowRitase : currency(_resultRitase[ritaseIndex].amount[index])}
+                                                                                                </td>
+                                                                                            )
+
+                                                                                        })
                                                                                     }
-                                                                                </td>
-                                                                            )
-                                                                        })}
-                                                                        <td style={{ ...cellStyle, fontWeight: 'bold' }}>{row.label}</td>
-                                                                    </tr>
-                                                                );
-                                                            })}
+
+                                                                                    <td style={{ ...cellStyle, fontWeight: 'bold' }}>{row.label}</td>
+
+                                                                                </tr>
+
+                                                                            </>
+                                                                        )
+                                                                    })
+                                                                )
+                                                            }
+
+
                                                         </tbody>
                                                     </table>
                                                 </Col>
@@ -568,33 +754,50 @@ export default function DepositDetail(props) {
                                         })
                                     }
 
-                                    <Row
-                                        flexEnd
-                                        style={{
-                                            gap: "1rem"
-                                        }}
-                                    >
-                                        <Col
-                                            withPadding
-                                            alignEnd
-                                            justifyCenter
-                                            column={2}
-                                        >
-                                            <span>TOTAL PENDAPATAN KOTOR</span>
-                                        </Col>
 
-                                        <Col
-                                            withPadding
-                                            column={1}
-                                        >
-                                            <Input
-                                                type="number"
-                                                value={_totalGrossAmount}
-                                                placeholder={`Rp`}
-                                            />
-                                        </Col>
+                                    {
+                                        Object.keys(_form).map((key) => {
+                                            const field = _form[key];
+                                            return (
+                                                <Row
+                                                    key={key}
+                                                    flexEnd
+                                                    style={{
+                                                        gap: "1rem"
+                                                    }}
+                                                >
+                                                    <Col
+                                                        withPadding
+                                                        alignEnd
+                                                        justifyCenter
+                                                        column={2}
+                                                    >
+                                                        <span>{field.title}</span>
+                                                    </Col>
 
-                                    </Row>
+                                                    <Col
+                                                        withPadding
+                                                        column={1}
+                                                    >
+                                                        <Input
+                                                            disabled={field.disabled}
+                                                            type="number"
+                                                            value={field.value}
+                                                            onChange={(value) => {
+                                                                _updateQuery({
+                                                                    [key]: {
+                                                                        ...field,
+                                                                        value: parseFloat(value) || 0
+                                                                    }
+                                                                });
+                                                            }}
+                                                            placeholder={`Rp`}
+                                                        />
+                                                    </Col>
+                                                </Row>
+                                            );
+                                        })
+                                    }
                                 </div>
 
                                 <div
@@ -609,7 +812,7 @@ export default function DepositDetail(props) {
                                             ?.filter(item => item.name === "PER KARCIS UNTUK KRU")
                                             .map((item, index) => {
 
-                                                let pnp = _findCrewKarcis(item.traject_id)
+                                                let pnp = _editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findCrewKarcis(item.traject_id)
 
                                                 return (
                                                     <Row
@@ -632,6 +835,12 @@ export default function DepositDetail(props) {
                                                             <Input
                                                                 type="number"
                                                                 value={pnp}
+                                                                onChange={(value) => {
+                                                                    _setEditablePnp(prev => ({
+                                                                        ...prev,
+                                                                        [item.id]: parseFloat(value) || 0
+                                                                    }))
+                                                                }}
                                                                 placeholder={`Rp`}
                                                             />
                                                         </Col>
@@ -674,7 +883,7 @@ export default function DepositDetail(props) {
                                             ?.filter(item => item.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)")
                                             .map((item, index) => {
 
-                                                let pnp = _findMandoran(item.traject_id)
+                                                let pnp = _editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id)
 
                                                 return (
                                                     <Row
@@ -696,6 +905,12 @@ export default function DepositDetail(props) {
                                                             <Input
                                                                 type="number"
                                                                 value={pnp}
+                                                                onChange={(value) => {
+                                                                    _setEditablePnp(prev => ({
+                                                                        ...prev,
+                                                                        [item.id]: parseFloat(value) || 0
+                                                                    }))
+                                                                }}
                                                                 placeholder={`Rp`}
                                                             />
                                                         </Col>
@@ -968,6 +1183,25 @@ export default function DepositDetail(props) {
                                     </Col>
 
                                 </Row>
+
+                                <div
+                                style={{
+                                    margin: "3rem 0rem"
+                                }}
+                                >
+                                    <Input
+                                        title={"Catatan"}
+                                        multiline={2}
+                                        type="text"
+                                        value={_formSubmit.desc}
+                                        onChange={(value) => {
+                                            _updateFormSubmit({
+                                                "desc": value
+                                            })
+                                        }}
+                                        placeholder={`Masukkan catatan`}
+                                    />
+                                </div>
 
                                 <div
                                     style={{
