@@ -797,7 +797,7 @@ export default function Transaction(props) {
             } else if(_activeIndex == "mpos"){
                 result = await get("/transaction/list?"+objectToParams(camelToSnakeCase(params)), props.authData.token)
             } else {
-                result = await get("/monitoring/transaction/list?" + objectToParams(params), props.authData.token)
+                result = await get("/data/laporan/monitoring/transactions?" + objectToParams(params), props.authData.token)
             }
 
 

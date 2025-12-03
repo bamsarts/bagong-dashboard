@@ -29,10 +29,11 @@ export default function Deposit(props) {
         },
         {
             title: 'Trayek',
-            field: 'traject_id',
+            field: 'traject_master',
+            textAlign: "left",
             customCell: (value, row) => {
-                const traject = _trajectRange.find(t => t.id === value)
-                return traject?.name || row.trajectMasterName || row.trajectName || '-'
+                
+                return value.name
             }
         },
         {
@@ -42,10 +43,6 @@ export default function Deposit(props) {
                 const bus = _busRange.find(t => t.id === value)
                 return bus?.name || bus?.code || '-'
             }
-        },
-        {
-            title: 'Ritase',
-            field: 'ritase'
         },
         {
             title: 'Penumpang',

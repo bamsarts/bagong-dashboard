@@ -47,7 +47,8 @@ const defaultProps = {
     error: "",
     checked: false,
     marginBottom: false,
-    onError: false
+    onError: false,
+    style: null
 }
 
 Input.defaultProps = defaultProps
@@ -236,6 +237,7 @@ export default function Input(props = defaultProps) {
                         (props.type === 'tel' && props.value && props.value.length >= 2) && `+`
                     }
                     <Component
+                    style={props.style}
                     id={props.id}
                     className={generateClasses([
                         styles.textinput,

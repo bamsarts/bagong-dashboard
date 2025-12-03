@@ -61,18 +61,13 @@ export default function DepositDetail(props) {
         "busCrew3Name": "",
         "kmAwal": 0,
         "kmAkhir": 0,
-        "updatableValue": [
-            {
-                "additionalProp1": 0,
-                "additionalProp2": 0,
-                "additionalProp3": 0
-            }
-        ],
+        "customValue": [],
         "desc": "",
         "totalPayment": 0
     })
     const [_formCost, _setFormCost] = useState([])
-  
+    const [_isProcessing, _setIsProcessing] = useState(false)
+
     const summaryRows = [
         { label: 'Jumlah' },
         { label: 'Total (Ribuan)' }
@@ -92,9 +87,9 @@ export default function DepositDetail(props) {
     }, [id])
 
     useEffect(() => {
-        const operanValue = parseFloat(_form.operan.value) || 0;
-        const refundValue = parseFloat(_form.refund.value) || 0;
-        const newGrossAmount = _totalGrossAmount + operanValue - refundValue;
+        const operanValue = parseFloat(String(_form.operan.value).replace(".","")) || 0;
+        const refundValue = parseFloat(String(_form.refund.value).replace(".","")) || 0;
+        const newGrossAmount = _totalGrossAmount - operanValue - refundValue;
 
         _updateQuery({
             "grossAmount": {
@@ -105,7 +100,7 @@ export default function DepositDetail(props) {
         });
     }, [_form.operan.value, _form.refund.value, _totalGrossAmount])
 
-    
+
     useEffect(() => {
         const storedData = localStorage.getItem('operasional_deposit');
         if (storedData) {
@@ -124,6 +119,8 @@ export default function DepositDetail(props) {
         if (_setoranData?.data?.biaya) {
             _setTotalExpenses(_calculateTotalExpenses(_setoranData.data.biaya))
         }
+
+        console.log(_editablePnp)
     }, [_editablePnp])
 
     useEffect(() => {
@@ -221,10 +218,19 @@ export default function DepositDetail(props) {
             // Find the assignment by ID
             let assignment = {}
 
-            data.data.forEach(function(val, key){
-                if(val.assign_date === deposit.assign_date && val.traject_master_id === deposit.traject_master_id){
+            data.data.forEach(function (val, key) {
+                if (val.assign_date === deposit.assign_date && val.traject_master_id === deposit.traject_master_id) {
                     assignment = val
                 }
+            })
+
+            _updateFormSubmit({
+                "busCrew1Id": assignment?.bus_crew1_id,
+                "busCrew1Name": assignment?.bus_crew1_name,
+                "busCrew2Id": assignment?.bus_crew2_id,
+                "busCrew2Name": assignment?.bus_crew2_name,
+                "busCrew3Id": assignment?.bus_crew3_id,
+                "busCrew3Name": assignment?.bus_crew3_name
             })
 
             _setAssignedData(assignment)
@@ -304,7 +310,7 @@ export default function DepositDetail(props) {
                     }
 
                     let passengers = setoranData.detail.filter(x => x.origin_id == origin.pointId && x.destination_id == destination.pointId)
-                   
+
 
                     passengers.forEach(p => {
                         destination.pnp = destination.pnp + parseInt(p.pnp_count)
@@ -476,6 +482,67 @@ export default function DepositDetail(props) {
         return total;
     }
 
+    async function _receivedDeposit() {
+        _setIsProcessing(true)
+        try {
+            let payload = {
+                ..._formSubmit,
+                id: parseInt(id),
+                totalPayment: _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit + _manifestCost.tol + _manifestCost.fuel),
+                customValue: []
+            }
+
+            // Loop through _editablePnp and match with biaya details
+            for (const key in _editablePnp) {
+                if (_editablePnp.hasOwnProperty(key)) {
+                    const matchingDetail = _setoranData.data.biaya[0].details.find(detail => detail.id == key);
+                    if (matchingDetail) {
+                        payload.customValue.push({
+                            id: matchingDetail.id,
+                            name: matchingDetail.name,
+                            desc: matchingDetail.desc,
+                            amount: matchingDetail.amount,
+                            count: _editablePnp[key]
+                        });
+                    }
+                }
+            }
+
+            for(const key in _form){
+                if(_form.hasOwnProperty(key)){
+                   if((key == "operan" || key == "refund") && _form[key].value > 0){
+                        payload.customValue.push([{
+                            id: 0,
+                            name: key,
+                            desc: _form[key].title,
+                            amount: _form[key].value,
+                            count: 0
+                        }]);
+                   }
+                }
+            }
+
+            console.log(payload)
+            // return false
+            const response = await postJSON('/data/setoran/update', payload, props.authData.token)
+
+            popAlert({
+                message: response.message || 'Setoran berhasil diterima',
+                type: 'success'
+            })
+
+            // Optionally redirect back or refresh data
+            router.back()
+        } catch (e) {
+            popAlert({
+                message: e.message || 'Gagal menerima setoran',
+                type: 'error'
+            })
+        } finally {
+            _setIsProcessing(false)
+        }
+    }
+
 
     return (
         <Main>
@@ -508,43 +575,43 @@ export default function DepositDetail(props) {
                                         className={styles.column}
                                     >
                                         <div
-                                        className={styles.item}
+                                            className={styles.item}
                                         >
                                             <span>Tanggal</span>
                                             <span> : {dateFilter.getMonthDate(new Date(_setoranData.data.setoran.transaction_date))}</span>
                                         </div>
                                         <div
-                                        className={styles.item}
+                                            className={styles.item}
                                         >
                                             <span>Nopol</span>
                                             <span> : {_assignedData?.bus_name}</span>
                                         </div>
                                         <div
-                                        className={styles.item}
+                                            className={styles.item}
                                         >
                                             <span>Ritase</span>
-                                            <span> : {_setoranData.data.ritase.length}</span>
+                                            <span> : {_setoranData.data.ritase.map((r, i) => r.ritase).join(', ')}</span>
                                         </div>
                                     </Col>
                                     <Col
                                         className={styles.column}
                                     >
                                         <div
-                                        className={styles.item}
+                                            className={styles.item}
                                         >
                                             <span>Driver</span>
                                             <span> : {_assignedData?.bus_crew2_name}</span>
                                         </div>
                                         <div
-                                        className={styles.item}
+                                            className={styles.item}
                                         >
                                             <span>Kondektur</span>
                                             <span> : {_assignedData?.bus_crew1_name}</span>
                                         </div>
                                         <div
-                                        className={styles.item}
+                                            className={styles.item}
                                         >
-                                            <span>Kenek</span>
+                                            <span>Kernet</span>
                                             <span> : {_assignedData?.bus_crew3_name}</span>
                                         </div>
                                     </Col>
@@ -552,13 +619,13 @@ export default function DepositDetail(props) {
                                         className={styles.column}
                                     >
                                         <div
-                                        className={styles.item}
+                                            className={styles.item}
                                         >
                                             <span>Tanggal Setoran</span>
                                             <span> : </span>
                                         </div>
                                         <div
-                                        className={styles.item}
+                                            className={styles.item}
                                         >
                                             <span>Waktu Setoran</span>
                                             <span> : </span>
@@ -569,7 +636,7 @@ export default function DepositDetail(props) {
                                         className={styles.column}
                                     >
                                         <div
-                                        className={styles.item}
+                                            className={styles.item}
                                         >
                                             <span>KM Awal</span>
                                             <Input
@@ -583,9 +650,9 @@ export default function DepositDetail(props) {
                                                 placeholder="0"
                                             />
                                         </div>
-                                        
+
                                         <div
-                                        className={styles.item}
+                                            className={styles.item}
                                         >
                                             <span>KM Akhir</span>
                                             <Input
@@ -599,9 +666,9 @@ export default function DepositDetail(props) {
                                                 placeholder="0"
                                             />
                                         </div>
-                                        
+
                                         <div
-                                        className={styles.item}
+                                            className={styles.item}
                                         >
                                             <span>KM</span>
                                             <span> : {_formSubmit.kmAkhir - _formSubmit.kmAwal}</span>
@@ -704,6 +771,29 @@ export default function DepositDetail(props) {
 
                                                         </tbody>
                                                     </table>
+
+
+                                                    <table style={{ marginTop: "1rem", width: '100%', borderCollapse: 'collapse' }}>
+                                                        <thead>
+                                                            <tr>
+                                                                <th style={{ ...cellStyle, backgroundColor: '#f0f0f0', textAlign: 'left' }}>Jenis Pembayaran</th>
+                                                                <th style={{ ...cellStyle, backgroundColor: '#f0f0f0', textAlign: 'right' }}>Jumlah</th>
+                                                                <th style={{ ...cellStyle, backgroundColor: '#f0f0f0', textAlign: 'right' }}>Penumpang</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style={cellStyle}>Tunai</td>
+                                                                <td style={{ ...cellStyle, textAlign: 'right' }}>{currency(ritaseData.cash_payment_amount)}</td>
+                                                                <td style={{ ...cellStyle, textAlign: 'right' }}>{ritaseData.cash_pnp_count}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style={cellStyle}>Non-Tunai</td>
+                                                                <td style={{ ...cellStyle, textAlign: 'right' }}>{currency(ritaseData.non_cash_payment_amount)}</td>
+                                                                <td style={{ ...cellStyle, textAlign: 'right' }}>{ritaseData.non_cash_pnp_count}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
                                                 </Col>
                                             )
 
@@ -742,8 +832,11 @@ export default function DepositDetail(props) {
                                                             column={1}
                                                         >
                                                             <Input
-                                                                type="number"
-                                                                value={val.cash_payment_amount + val.non_cash_payment_amount}
+                                                                style={{
+                                                                    textAlign: "right"
+                                                                }}
+                                                                type="currency"
+                                                                value={currency(val.cash_payment_amount + val.non_cash_payment_amount)}
                                                                 placeholder={`Rp`}
                                                             />
                                                         </Col>
@@ -780,14 +873,17 @@ export default function DepositDetail(props) {
                                                         column={1}
                                                     >
                                                         <Input
+                                                            style={{
+                                                                textAlign: "right"
+                                                            }}
                                                             disabled={field.disabled}
-                                                            type="number"
-                                                            value={field.value}
+                                                            type="currency"
+                                                            value={currency(field.value)}
                                                             onChange={(value) => {
                                                                 _updateQuery({
                                                                     [key]: {
                                                                         ...field,
-                                                                        value: parseFloat(value) || 0
+                                                                        value: parseFloat(String(value).replace(".","")) || 0
                                                                     }
                                                                 });
                                                             }}
@@ -833,13 +929,16 @@ export default function DepositDetail(props) {
                                                             column={1}
                                                         >
                                                             <Input
-                                                                type="number"
-                                                                value={pnp}
+                                                                type="currency"
+                                                                value={currency(pnp)}
                                                                 onChange={(value) => {
                                                                     _setEditablePnp(prev => ({
                                                                         ...prev,
-                                                                        [item.id]: parseFloat(value) || 0
+                                                                        [item.id]: parseFloat(String(value).replace(".","")) || 0
                                                                     }))
+                                                                }}
+                                                                style={{
+                                                                    textAlign: "right"
                                                                 }}
                                                                 placeholder={`Rp`}
                                                             />
@@ -850,8 +949,11 @@ export default function DepositDetail(props) {
                                                         >
                                                             <Input
                                                                 type="number"
-                                                                value={item.amount}
+                                                                value={currency(item.amount)}
                                                                 placeholder={`Rp`}
+                                                                style={{
+                                                                    textAlign: "right"
+                                                                }}
                                                             />
                                                         </Col>
                                                         <Col
@@ -859,8 +961,11 @@ export default function DepositDetail(props) {
                                                             column={1}
                                                         >
                                                             <Input
+                                                                style={{
+                                                                    textAlign: "right"
+                                                                }}
                                                                 type="number"
-                                                                value={pnp * item.amount}
+                                                                value={currency(pnp * item.amount)}
                                                                 placeholder={`Rp`}
                                                             />
                                                         </Col>
@@ -911,6 +1016,9 @@ export default function DepositDetail(props) {
                                                                         [item.id]: parseFloat(value) || 0
                                                                     }))
                                                                 }}
+                                                                style={{
+                                                                    textAlign: "right"
+                                                                }}
                                                                 placeholder={`Rp`}
                                                             />
                                                         </Col>
@@ -919,6 +1027,9 @@ export default function DepositDetail(props) {
                                                             column={1}
                                                         >
                                                             <Input
+                                                                style={{
+                                                                    textAlign: "right"
+                                                                }}
                                                                 type="number"
                                                                 value={item.amount}
                                                                 placeholder={`Rp`}
@@ -929,8 +1040,11 @@ export default function DepositDetail(props) {
                                                             column={1}
                                                         >
                                                             <Input
+                                                                style={{
+                                                                    textAlign: "right"
+                                                                }}
                                                                 type="number"
-                                                                value={pnp * item.amount}
+                                                                value={currency(pnp * item.amount)}
                                                                 placeholder={`Rp`}
                                                             />
                                                         </Col>
@@ -964,8 +1078,11 @@ export default function DepositDetail(props) {
                                                         column={1}
                                                     >
                                                         <Input
+                                                            style={{
+                                                                textAlign: "right"
+                                                            }}
                                                             type="number"
-                                                            value={item.amount}
+                                                            value={currency(item.amount)}
                                                             placeholder={`Rp`}
                                                         />
                                                     </Col>
@@ -992,8 +1109,11 @@ export default function DepositDetail(props) {
                                         >
                                             <Input
                                                 type="number"
-                                                value={_totalExpenses}
+                                                value={currency(_totalExpenses)}
                                                 placeholder={`Rp`}
+                                                style={{
+                                                    textAlign: "right"
+                                                }}
                                             />
                                         </Col>
 
@@ -1016,8 +1136,11 @@ export default function DepositDetail(props) {
                                         >
                                             <Input
                                                 type="number"
-                                                value={_totalGrossAmount - _totalExpenses}
+                                                value={currency(_form['grossAmount'].value - _totalExpenses)}
                                                 placeholder={`Rp`}
+                                                style={{
+                                                    textAlign: "right"
+                                                }}
                                             />
                                         </Col>
 
@@ -1050,8 +1173,11 @@ export default function DepositDetail(props) {
                                                     >
                                                         <Input
                                                             type="number"
-                                                            value={item?.percentageAmount}
+                                                            value={currency(item?.percentageAmount)}
                                                             placeholder={`Rp`}
+                                                            style={{
+                                                                textAlign: "right"
+                                                            }}
                                                         />
                                                     </Col>
 
@@ -1077,8 +1203,11 @@ export default function DepositDetail(props) {
                                         >
                                             <Input
                                                 type="number"
-                                                value={_totalGrossAmount - _totalExpenses - _totalIncomeByPercentage}
+                                                value={currency(_form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage)}
                                                 placeholder={`Rp`}
+                                                style={{
+                                                    textAlign: "right"
+                                                }}
                                             />
                                         </Col>
 
@@ -1105,9 +1234,18 @@ export default function DepositDetail(props) {
                                                     </Col>
                                                     <Col column={1} withPadding>
                                                         <Input
-                                                            type="number"
-                                                            value={item.amount}
+                                                            type="currency"
+                                                            value={currency(item.amount)}
                                                             placeholder={`Masukkan ${item.desc}`}
+                                                            style={{
+                                                                textAlign: "right"
+                                                            }}
+                                                            onChange={(value) => {
+                                                                _setEditablePnp(prev => ({
+                                                                    ...prev,
+                                                                    [item.id]: parseFloat(String(value).replace(".","")) || 0
+                                                                }))
+                                                            }}
                                                         />
                                                     </Col>
                                                 </Row>
@@ -1124,8 +1262,11 @@ export default function DepositDetail(props) {
                                                 <Col key={item.id} column={1} withPadding>
                                                     <Input
                                                         type="number"
-                                                        value={item.amount}
+                                                        value={currency(item.amount)}
                                                         placeholder={`Masukkan ${item.desc}`}
+                                                        style={{
+                                                            textAlign: "right"
+                                                        }}
                                                     />
                                                 </Col>
                                             </Row>
@@ -1153,8 +1294,11 @@ export default function DepositDetail(props) {
                                     >
                                         <Input
                                             type="number"
-                                            value={_manifestCost.notesDeposit + _manifestCost.tol + _manifestCost.fuel}
+                                            value={currency(_manifestCost.notesDeposit + _manifestCost.tol + _manifestCost.fuel)}
                                             placeholder={`Rp`}
+                                            style={{
+                                                textAlign: "right"
+                                            }}
                                         />
                                     </Col>
 
@@ -1177,17 +1321,20 @@ export default function DepositDetail(props) {
                                     >
                                         <Input
                                             type="number"
-                                            value={_totalGrossAmount - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit + _manifestCost.tol + _manifestCost.fuel)}
+                                            value={currency(_form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit + _manifestCost.tol + _manifestCost.fuel))}
                                             placeholder={`Rp`}
+                                            style={{
+                                                textAlign: "right"
+                                            }}
                                         />
                                     </Col>
 
                                 </Row>
 
                                 <div
-                                style={{
-                                    margin: "3rem 0rem"
-                                }}
+                                    style={{
+                                        margin: "3rem 0rem"
+                                    }}
                                 >
                                     <Input
                                         title={"Catatan"}
@@ -1352,6 +1499,18 @@ export default function DepositDetail(props) {
                                         ))}
                                     </Row>
                                 </div>
+
+                                <Row>
+                                    <Col>
+                                        <Button
+                                            title={'Terima Setoran'}
+                                            styles={Button.primary}
+                                            onClick={_receivedDeposit}
+                                            onProcess={_isProcessing}
+                                        />
+
+                                    </Col>
+                                </Row>
 
                                 {selectedImage && (
                                     <div
