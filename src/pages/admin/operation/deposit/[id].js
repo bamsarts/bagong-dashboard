@@ -419,9 +419,9 @@ export default function DepositDetail(props) {
             // Calculate passenger count based on the expense type
             if (item.name === "PER KARCIS UNTUK KRU") {
                 // Use editable pnp if available, otherwise use calculated value
-                passengerCount = _editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findCrewKarcis(item.traject_id);
+                passengerCount = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findCrewKarcis(item.traject_id));
             } else if (item.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)") {
-                passengerCount = _editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id);
+                passengerCount = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id));
             } else if (item.name === "Lain-lain") {
                 // For "Lain-lain", use amount directly without multiplying by passenger count
                 total += parseInt(item.amount) || 0;
