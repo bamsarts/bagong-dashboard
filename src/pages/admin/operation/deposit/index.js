@@ -10,7 +10,7 @@ import { Col } from '../../../../components/Layout'
 import Button from '../../../../components/Button'
 import SetoranModal from '../../../../components/SetoranModal'
 import ConfirmationModal from '../../../../components/ConfirmationModal'
-import { dateFilter } from '../../../../utils/filters'
+import { currency, dateFilter } from '../../../../utils/filters'
 
 export default function Deposit(props) {
     const router = useRouter()
@@ -54,8 +54,9 @@ export default function Deposit(props) {
         {
             title: 'Jumlah Setoran (Rp)',
             field: 'setoran',
+            textAlign: "right",
             customCell: (value, row) => {
-                return value.payment_amount
+                return currency(value.payment_amount)
             }
         },
         {
@@ -65,9 +66,9 @@ export default function Deposit(props) {
             customCell: (value, row) => {
                 return (
                     <Button
-                        title={"Setoran"}
-                        icon={<BsCash />}
-                        styles={Button.primary}
+                        title={value.status == "CREATED" ? "Setoran" : "Rincian"}
+                        icon={value.status == "CREATED" ? <BsCash /> : ''}
+                        styles={value.status == "CREATED" ? Button.secondary : Button.primary}
                         onClick={() => {
                             localStorage.setItem("operasional_deposit", JSON.stringify(row))
                             router.push(`/admin/operation/deposit/${value.id}`)

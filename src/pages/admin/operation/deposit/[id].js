@@ -168,6 +168,12 @@ export default function DepositDetail(props) {
                 }
             })
 
+            _updateFormSubmit({
+                "kmAwal": data.data.setoran.km_awal,
+                "kmAkhir": data.data.setoran.km_akhir,
+                "desc": data.data.setoran.desc
+            })
+
 
 
         } catch (e) {
@@ -568,7 +574,6 @@ export default function DepositDetail(props) {
                                     overflow: "auto"
                                 }}
                             >
-                                <h2>{_setoranData.data.setoran?.desc}</h2>
 
                                 <Row>
                                     <Col
@@ -622,13 +627,13 @@ export default function DepositDetail(props) {
                                             className={styles.item}
                                         >
                                             <span>Tanggal Setoran</span>
-                                            <span> : </span>
+                                            <span> : {dateFilter.convertISO(_setoranData?.data?.setoran?.last_modified_at, "date")}</span>
                                         </div>
                                         <div
                                             className={styles.item}
                                         >
                                             <span>Waktu Setoran</span>
-                                            <span> : </span>
+                                            <span> : {dateFilter.convertISO(_setoranData?.data?.setoran?.last_modified_at, "time")}</span>
                                         </div>
 
                                     </Col>
@@ -824,7 +829,7 @@ export default function DepositDetail(props) {
                                                             justifyCenter
                                                             column={2}
                                                         >
-                                                            <span>{val.detail[0].traject_name}</span>
+                                                            <span>{val.detail[0]?.traject_name || val.traject_name}</span>
                                                         </Col>
 
                                                         <Col
@@ -908,7 +913,7 @@ export default function DepositDetail(props) {
                                             ?.filter(item => item.name === "PER KARCIS UNTUK KRU")
                                             .map((item, index) => {
 
-                                                let pnp = _editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findCrewKarcis(item.traject_id)
+                                                let pnp = item?.count ||  (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findCrewKarcis(item.traject_id))
 
                                                 return (
                                                     <Row
@@ -988,7 +993,7 @@ export default function DepositDetail(props) {
                                             ?.filter(item => item.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)")
                                             .map((item, index) => {
 
-                                                let pnp = _editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id)
+                                                let pnp = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id))
 
                                                 return (
                                                     <Row
@@ -1499,18 +1504,23 @@ export default function DepositDetail(props) {
                                         ))}
                                     </Row>
                                 </div>
+                                
+                                {
+                                    _setoranData?.data.setoran.status == "CREATED" && (
+                                        <Row>
+                                            <Col>
+                                                <Button
+                                                    title={'Terima Setoran'}
+                                                    styles={Button.primary}
+                                                    onClick={_receivedDeposit}
+                                                    onProcess={_isProcessing}
+                                                />
 
-                                <Row>
-                                    <Col>
-                                        <Button
-                                            title={'Terima Setoran'}
-                                            styles={Button.primary}
-                                            onClick={_receivedDeposit}
-                                            onProcess={_isProcessing}
-                                        />
-
-                                    </Col>
-                                </Row>
+                                            </Col>
+                                        </Row>
+                                    )
+                                }
+                                
 
                                 {selectedImage && (
                                     <div
