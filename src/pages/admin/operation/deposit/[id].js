@@ -883,12 +883,12 @@ export default function DepositDetail(props) {
                                                             }}
                                                             disabled={field.disabled}
                                                             type="currency"
-                                                            value={currency(field.value)}
+                                                            value={currency(String(field.value).replace(/\./g, ''))}
                                                             onChange={(value) => {
                                                                 _updateQuery({
                                                                     [key]: {
                                                                         ...field,
-                                                                        value: parseFloat(String(value).replace(".","")) || 0
+                                                                        value: parseFloat(String(value).replace(/\./g, '')) || 0
                                                                     }
                                                                 });
                                                             }}
@@ -935,11 +935,11 @@ export default function DepositDetail(props) {
                                                         >
                                                             <Input
                                                                 type="currency"
-                                                                value={currency(pnp)}
+                                                                value={currency(String(pnp).replace(/\./g, ''))}
                                                                 onChange={(value) => {
                                                                     _setEditablePnp(prev => ({
                                                                         ...prev,
-                                                                        [item.id]: parseFloat(String(value).replace(".","")) || 0
+                                                                        [item.id]: parseFloat(String(value).replace(/\./g, '')) || 0
                                                                     }))
                                                                 }}
                                                                 style={{
