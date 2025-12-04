@@ -10,6 +10,7 @@ import Input from '../../../../components/Input'
 import styles from './Deposit.module.scss'
 import Image from 'next/image'
 import { currency, dateFilter } from '../../../../utils/filters'
+import { AiFillCaretDown, AiFillCaretUp, AiOutlineUser, AiFillPushpin  } from 'react-icons/ai'
 
 export default function DepositDetail(props) {
     const router = useRouter()
@@ -87,8 +88,8 @@ export default function DepositDetail(props) {
     }, [id])
 
     useEffect(() => {
-        const operanValue = parseFloat(String(_form.operan.value).replace(".","")) || 0;
-        const refundValue = parseFloat(String(_form.refund.value).replace(".","")) || 0;
+        const operanValue = parseFloat(String(_form.operan.value).replace(".", "")) || 0;
+        const refundValue = parseFloat(String(_form.refund.value).replace(".", "")) || 0;
         const newGrossAmount = _totalGrossAmount - operanValue - refundValue;
 
         _updateQuery({
@@ -378,7 +379,6 @@ export default function DepositDetail(props) {
         _setResultRitase(resultRitase)
     }
 
-
     function _findMandoran(trajectId) {
         let totalPnpCount = 0;
 
@@ -514,9 +514,9 @@ export default function DepositDetail(props) {
                 }
             }
 
-            for(const key in _form){
-                if(_form.hasOwnProperty(key)){
-                   if((key == "operan" || key == "refund") && _form[key].value > 0){
+            for (const key in _form) {
+                if (_form.hasOwnProperty(key)) {
+                    if ((key == "operan" || key == "refund") && _form[key].value > 0) {
                         payload.customValue.push([{
                             id: 0,
                             name: key,
@@ -524,7 +524,7 @@ export default function DepositDetail(props) {
                             amount: _form[key].value,
                             count: 0
                         }]);
-                   }
+                    }
                 }
             }
 
@@ -633,7 +633,7 @@ export default function DepositDetail(props) {
                                             className={styles.item}
                                         >
                                             <span>Waktu Setoran</span>
-                                            <span> : {dateFilter.convertISO(_setoranData?.data?.setoran?.last_modified_at, "time")}</span>
+                                            <span> : {dateFilter.convertISO(_setoranData?.data?.setoran?.last_modified_at, "time", true)}</span>
                                         </div>
 
                                     </Col>
@@ -913,7 +913,7 @@ export default function DepositDetail(props) {
                                             ?.filter(item => item.name === "PER KARCIS UNTUK KRU")
                                             .map((item, index) => {
 
-                                                let pnp = item?.count ||  (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findCrewKarcis(item.traject_id))
+                                                let pnp = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findCrewKarcis(item.traject_id))
 
                                                 return (
                                                     <Row
@@ -1248,7 +1248,7 @@ export default function DepositDetail(props) {
                                                             onChange={(value) => {
                                                                 _setEditablePnp(prev => ({
                                                                     ...prev,
-                                                                    [item.id]: parseFloat(String(value).replace(".","")) || 0
+                                                                    [item.id]: parseFloat(String(value).replace(".", "")) || 0
                                                                 }))
                                                             }}
                                                         />
@@ -1433,6 +1433,7 @@ export default function DepositDetail(props) {
                                                             </div>
                                                             <h5 style={{ margin: '8px 0 4px 0' }}>{image.title}</h5>
                                                             <p style={{ margin: '4px 0', fontSize: '12px', color: '#666' }}>{image.desc}</p>
+
                                                             <p style={{ margin: '8px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>
                                                                 Rp {image.amount.toLocaleString('id-ID')}
                                                             </p>
@@ -1493,18 +1494,29 @@ export default function DepositDetail(props) {
 
                                                     <h5 style={{ margin: '8px 0 4px 0' }}>{image.name}</h5>
                                                     <p style={{ margin: '4px 0', fontSize: '12px', color: '#666' }}>{image.category}</p>
-                                                    <p style={{ margin: '8px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>
-                                                        Penumpang {image.pnp_count} ({image.cash_amount.toLocaleString('id-ID')})
-                                                    </p>
+                                                    
+                                                    <div style={{ margin: '4px 0', fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: ".5rem" }}>
+                                                        <AiOutlineUser />
+                                                        <span>{image.pnp_count + " Penumpang"}</span>
+                                                    </div>
+                                                     <div style={{ margin: '4px 0', fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: ".5rem" }}>
+                                                        <AiFillPushpin  />
+                                                        <span>{image.location}</span>
+                                                    </div>
+                                                     <div style={{ margin: '4px 0', fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: ".5rem" }}>
+                                                        Rp
+                                                        <span>{currency(image.cash_amount)}</span>
+                                                    </div>
+
                                                     <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#999' }}>
-                                                        {image.date} {image.time}
+                                                        {dateFilter.getMonthDate(new Date(image.date))} {image.time}
                                                     </p>
                                                 </div>
                                             </Col>
                                         ))}
                                     </Row>
                                 </div>
-                                
+
                                 {
                                     _setoranData?.data.setoran.status == "CREATED" && (
                                         <Row>
@@ -1520,7 +1532,7 @@ export default function DepositDetail(props) {
                                         </Row>
                                     )
                                 }
-                                
+
 
                                 {selectedImage && (
                                     <div

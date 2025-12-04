@@ -1,20 +1,20 @@
 export const dateConfig = {
-  monthNames : [
+  monthNames: [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
   ],
-  monthNamesShort : [
+  monthNamesShort: [
     'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
   ],
-  monthNamesShortEn : [
+  monthNamesShortEn: [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ],
-  dayNames : [
+  dayNames: [
     'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jum\'at', 'Sabtu'
   ],
-  dayNamesShort : [
+  dayNamesShort: [
     'Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'
   ],
-  dayNamesShortEn : [
+  dayNamesShortEn: [
     'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
   ]
 }
@@ -27,32 +27,32 @@ const getTimezone = () => {
   const now = today
   const offset = now.getTimezoneOffset()
 
-  const H = offset > 0 ? Math.floor(offset/60) : Math.round(offset/60)
-  const hh = H > 0 
-    ? H < 10 ? '-0' + H : '-' + H 
+  const H = offset > 0 ? Math.floor(offset / 60) : Math.round(offset / 60)
+  const hh = H > 0
+    ? H < 10 ? '-0' + H : '-' + H
     : (H * -1) < 10 ? '+0' + (H * -1) : '+' + (H * -1)
-  
+
   const M = offset > 0 ? offset % 60 : offset % 60 * -1
   const mm = M < 10 ? '0' + M : M
-  
+
   let timezone
-  
+
   switch (now.getHours() - now.getUTCHours()) {
-    case 7 :
+    case 7:
       timezone = 'WIB'
       break;
-      case 8 :
+    case 8:
       timezone = 'WITA'
       break;
-      case 9 :
+    case 9:
       timezone = 'WIT'
-      default:
+    default:
       timezone = ' '
       break;
   }
 
   return {
-    isoTimezone : `${hh}:${mm}`,
+    isoTimezone: `${hh}:${mm}`,
     timezone
   }
 
@@ -63,7 +63,7 @@ const getFullDate = (date) => {
   const dd = date.getDate() < 10 ? '0' + date.getDate() : date.getDate()
   const mm = dateConfig.monthNames[date.getMonth()]
   const yyyy = date.getFullYear()
-  
+
   return `${day}, ${dd} ${mm} ${yyyy}`
 }
 
@@ -72,7 +72,7 @@ const getMonthDate = (date) => {
   const dd = date.getDate() < 10 ? '0' + date.getDate() : date.getDate()
   const mm = dateConfig.monthNames[date.getMonth()]
   const yyyy = date.getFullYear()
-  
+
   return `${dd} ${mm} ${yyyy}`
 }
 
@@ -89,50 +89,74 @@ const basicDate = (date, separator = "-") => {
   const yyyy = date.getFullYear()
 
   return {
-    noSpace : `${yyyy}${mm}${dd}`,
-    normal : `${yyyy}${separator}${mm}${separator}${dd}`,
+    noSpace: `${yyyy}${mm}${dd}`,
+    normal: `${yyyy}${separator}${mm}${separator}${dd}`,
     id: `${dd}${separator}${mm}${separator}${yyyy}`,
-    normalId:  `${dd}/${mm}/${yyyy}`
+    normalId: `${dd}/${mm}/${yyyy}`
   }
 }
 
 const parseShortDate = (date) => {
   return {
-    day : dateConfig.dayNamesShortEn[date.getDay()],
-    date : date.getDate(),
-    month : dateConfig.monthNamesShortEn[date.getMonth()],
-    monthNumber : date.getMonth(),
-    year : date.getFullYear()
+    day: dateConfig.dayNamesShortEn[date.getDay()],
+    date: date.getDate(),
+    month: dateConfig.monthNamesShortEn[date.getMonth()],
+    monthNumber: date.getMonth(),
+    year: date.getFullYear()
   }
 }
 
-const setDate = (date = today, numOfDays)  => {
+const setDate = (date = today, numOfDays) => {
   date.setDate(date.getDate() + numOfDays)
   return date
 }
 
 const thisMonthDateRange = (month = thisMonth) => {
   return {
-    startDate : basicDate(new Date(thisYear, month, 1)).normal,
-    endDate : basicDate(new Date(thisYear, month + 1, 0)).normal
+    startDate: basicDate(new Date(thisYear, month, 1)).normal,
+    endDate: basicDate(new Date(thisYear, month + 1, 0)).normal
   }
 }
 
 const thisYearDateRange = (year = thisYear) => {
   return {
-    startDate : basicDate(new Date(year, 0, 1)).normal,
-    endDate : basicDate(new Date(year, 11, 31)).normal
+    startDate: basicDate(new Date(year, 0, 1)).normal,
+    endDate: basicDate(new Date(year, 11, 31)).normal
   }
 }
 
-const convertISO = (date, type = "fulldate") => {
+const convertISO = (date, type = "fulldate", useUTC = false) => {
   let fullDate = new Date(date)
 
-  if(type == "fulldate"){
-    return getMonthDate(fullDate)+" "+getTime(fullDate)
-  }else if(type == "date"){
+  if (useUTC) {
+    // Use UTC time instead of local time
+    const getUTCTime = (date) => {
+      const hh = date.getUTCHours() < 10 ? '0' + date.getUTCHours() : date.getUTCHours()
+      const MM = date.getUTCMinutes() < 10 ? '0' + date.getUTCMinutes() : date.getUTCMinutes()
+      return `${hh}:${MM}`
+    }
+
+    const getUTCMonthDate = (date) => {
+      const dd = date.getUTCDate() < 10 ? '0' + date.getUTCDate() : date.getUTCDate()
+      const mm = dateConfig.monthNames[date.getUTCMonth()]
+      const yyyy = date.getUTCFullYear()
+      return `${dd} ${mm} ${yyyy}`
+    }
+
+    if (type == "fulldate") {
+      return getUTCMonthDate(fullDate) + " " + getUTCTime(fullDate)
+    } else if (type == "date") {
+      return getUTCMonthDate(fullDate)
+    } else {
+      return getUTCTime(fullDate)
+    }
+  }
+
+  if (type == "fulldate") {
+    return getMonthDate(fullDate) + " " + getTime(fullDate)
+  } else if (type == "date") {
     return getMonthDate(fullDate)
-  }else{
+  } else {
     return getTime(fullDate)
   }
 }
@@ -150,16 +174,16 @@ const minToDays = (totalMinutes) => {
   const minutes = totalMinutes % 60;
 
   return {
-      "Day": days,
-      "Hour": hours,
-      "Minute": minutes
+    "Day": days,
+    "Hour": hours,
+    "Minute": minutes
   }
 }
 
 // Convert time in H[:mm[:ss]] format to seconds
 function timeToSecs(time) {
   let [h, m, s] = time.split(':');
-  return h*3600 + (m|0)*60 + (s|0)*1;
+  return h * 3600 + (m | 0) * 60 + (s | 0) * 1;
 }
 
 // Convert seconds to time in H:mm:ss format
