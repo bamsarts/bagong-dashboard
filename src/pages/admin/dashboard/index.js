@@ -581,7 +581,7 @@ export default function Dashboard(props) {
 
     function _updateChart() {
 
-        const result = _updateSelectChart
+        const result = _updateSelectChart?.data
         const resultPassenger = _chartPassenger
 
         let labels = []
@@ -605,8 +605,8 @@ export default function Dashboard(props) {
             "ADULT-MALE": "Pria"
         }
 
-        if (result.transaction?.length > 0) {
-            result.transaction.forEach(function (val, key) {
+        if (result.transactions?.length > 0) {
+            result.transactions.forEach(function (val, key) {
 
                 if (_interval.value == "weekly") {
                     const date = val.dateTransaction.split(" - ")
@@ -618,30 +618,34 @@ export default function Dashboard(props) {
                     labels.push(dateFilter.getMonthDate(new Date(val.dateTransaction)))
                 }
 
-                data.push(_selectSales == "pnp" ? val.totalPnp : (val.totalAmountWithoutInsurance + val.totalDiscount))
+                console.log("sf")
+                console.log(val.totalPnp)
+
+                data.push(_selectSales == "pnp" ? parseInt(val.totalPnp) : (parseInt(val.totalAmountWithoutInsurance) + (parseInt(val?.totalDiscount || 0)) ))
             })
         }
 
-        if (result.payment?.length > 0) {
+        if (result.paymentMethods?.length > 0) {
             let totalPnp = 0
             let totalAmount = 0
 
-            result.payment.forEach(function (val, key) {
-                totalPnp += val.totalPnp
-                totalAmount += (val.totalAmountWithoutInsurance + val.totalDiscount)
+            result.paymentMethods.forEach(function (val, key) {
+                totalPnp += parseInt(val.totalPnp)
+                totalAmount += (parseInt(val.totalAmountWithoutInsurance) + parseInt(val.totalDiscount))
             })
 
-            result.payment.forEach(function (val, key) {
+            result.paymentMethods.forEach(function (val, key) {
                 if (val.pembayaran != null) {
-                    labelPayment.push(val.pembayaran.replace("Virtual Account", "VA") + " " + (_selectPayment == "pnp" ? ((val.totalPnp / totalPnp) * 100).toFixed(2) + " %" : ((val.totalAmountWithoutInsurance / totalAmount) * 100).toFixed(2) + " %"))
+                    labelPayment.push(val.pembayaran.replace("Virtual Account", "VA") + " " + (_selectPayment == "pnp" ? ((val.totalPnp / totalPnp) * 100).toFixed(2) + " %" : ((parseInt(val.totalAmountWithoutInsurance) / totalAmount) * 100).toFixed(2) + " %"))
                     dataPayment.push(_selectPayment == "pnp" ? val.totalPnp : (val.totalAmountWithoutInsurance + val.totalDiscount))
 
                     if (val.pembayaran == "Cash") {
                         pnpCash += val.totalPnp
-                        amountCash += (val.totalAmountWithoutInsurance + val.totalDiscount)
+                        amountCash += (parseInt(val.totalAmountWithoutInsurance) + parseInt(val?.totalDiscount || 0))
                     } else {
+                       
                         pnpNonCash += val.totalPnp
-                        amountNonCash += (val.totalAmountWithoutInsurance + val.totalDiscount)
+                        amountNonCash += (parseInt(val.totalAmountWithoutInsurance) + parseInt(val?.totalDiscount || 0))
                     }
                 }
             })
@@ -666,6 +670,9 @@ export default function Dashboard(props) {
         })
 
         _setSummary(summary)
+
+        console.log("sumamr")
+        console.log(data)
 
         _setLineChartData({
             data,

@@ -35,7 +35,10 @@ export default function AssignTaskModal(props = defaultProps) {
         "items": [
             {
                 "scheduleAssignId": "",
-                "ritase": ""
+                "ritase": "",
+                "scheduleSelected": {
+                    "title": ""
+                }
             }
         ],
         "bus": {},
@@ -103,6 +106,7 @@ export default function AssignTaskModal(props = defaultProps) {
         _getCrewList(19) //kondektur
         _getCrewList(17) //driver
         _getScheduleList()
+        _getScheduleByQuery()
     }, [])
 
     async function _getBusList() {
@@ -143,7 +147,7 @@ export default function AssignTaskModal(props = defaultProps) {
             result.data.forEach(function (val) {
                 crewRange.push({
                     "title": val.name,
-                    "value": val.id,
+                    "value": val.idUser,
                 })
             })
 
@@ -182,6 +186,31 @@ export default function AssignTaskModal(props = defaultProps) {
         }
     }
 
+    async function _getScheduleByQuery() {
+        const params = {
+            "startFrom": 0,
+            "length": 60,
+            "scheduleType": "INTERCITY",
+            "sortMode": "desc",
+            "orderBy": "id"
+        }
+
+        try {
+            const result = await postJSON(`/masterData/jadwal/master/list`, params, appContext.authData.token)
+            let scheduleRange = []
+            result.data.forEach(function (val) {
+                scheduleRange.push({
+                    "title": val.id + " | Traject " + val.trajectId + " | " + val.trajectMasterName,
+                    "value": val.id,
+                    "data": val
+                })
+            })
+            _setScheduleRanges(scheduleRange)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     function _addScheduleItem() {
         let items = [..._form.items]
         items.push({
@@ -201,46 +230,6 @@ export default function AssignTaskModal(props = defaultProps) {
         let items = [..._form.items]
         items[index][field] = value
         _updateQuery({ items })
-    }
-
-    async function _scheduleMaster() {
-        const params = {
-            "startFrom": 0,
-            "length": 100,
-            "sortMode": "desc",
-            "scheduleType": "INTERCITY",
-            "orderBy": "id"
-        }
-
-        try {
-            const result = await postJSON(`/masterData/jadwal/master/list`, params, appContext.authData.token)
-            _setScheduleMasterData(result.data || [])
-
-            // Pre-select currently assigned schedules
-            const currentScheduleIds = _form.items.map(item => item.scheduleAssignId).filter(id => id)
-            _setSelectedSchedules(currentScheduleIds)
-
-            _setShowScheduleTable(true)
-        } catch (e) {
-            console.log(e)
-            popAlert({ message: "Gagal memuat data jadwal" })
-        }
-    }
-
-    function _handleScheduleSelection(selectedIds) {
-        _setSelectedSchedules(selectedIds)
-    }
-
-    function _applyScheduleSelection() {
-        const newItems = _selectedSchedules.map(scheduleId => {
-            const existingItem = _form.items.find(item => item.scheduleAssignId === scheduleId)
-            return existingItem || {
-                "scheduleAssignId": scheduleId,
-                "ritase": ""
-            }
-        })
-        _updateQuery({ items: newItems })
-        _setShowScheduleTable(false)
     }
 
     useEffect(() => {
@@ -270,16 +259,12 @@ export default function AssignTaskModal(props = defaultProps) {
             "crew2_id": _form.crew2_id,
             "crew3_id": _form.crew3_id,
             "items": _form.items
-        }   
-
-        for(var i=0; i < 3; i++){
-            
         }
 
-        query.items.forEach(function(val, key){
-            val.ritase = key + 1
+        query.items.forEach(function (val, key) {
+            delete val.scheduleSelected
         })
-        
+
         _setIsProcessing(true)
 
         try {
@@ -345,174 +330,142 @@ export default function AssignTaskModal(props = defaultProps) {
                         }}
                     />
 
-                    <Input
-                        withMargin
-                        title={"Kondektur"}
-                        placeholder={'Pilih Kondektur'}
-                        value={_form.crew1.title}
-                        suggestions={_kondekturRanges}
-                        suggestionField={'title'}
-                        onSuggestionSelect={(data) => {
-                            _updateQuery({
-                                "crew1_id": data.value,
-                                "crew1": data
-                            })
-                        }}
-                    />
+                    <Row>
+                        <Col>
+                            <Input
+                                withMargin
+                                title={"Kondektur"}
+                                placeholder={'Pilih Kondektur'}
+                                value={_form.crew1.title}
+                                suggestions={_kondekturRanges}
+                                suggestionField={'title'}
+                                onSuggestionSelect={(data) => {
+                                    _updateQuery({
+                                        "crew1_id": data.value,
+                                        "crew1": data
+                                    })
+                                }}
+                            />
+                        </Col>
 
-                    <Input
-                        withMargin
-                        title={"Driver"}
-                        placeholder={'Pilih Driver'}
-                        value={_form.crew2.title}
-                        suggestions={_driverRanges}
-                        suggestionField={'title'}
-                        onSuggestionSelect={(data) => {
-                            _updateQuery({
-                                "crew2_id": data.value,
-                                "crew2": data
-                            })
-                        }}
-                    />
+                        <Col>
+                            <Input
+                                withMargin
+                                title={"Driver"}
+                                placeholder={'Pilih Driver'}
+                                value={_form.crew2.title}
+                                suggestions={_driverRanges}
+                                suggestionField={'title'}
+                                onSuggestionSelect={(data) => {
+                                    _updateQuery({
+                                        "crew2_id": data.value,
+                                        "crew2": data
+                                    })
+                                }}
+                            />
+                        </Col>
 
-                    <Input
-                        withMargin
-                        title={"Kernet"}
-                        placeholder={'Pilih Kernet'}
-                        value={_form.crew3.title}
-                        suggestions={_kernetRanges}
-                        suggestionField={'title'}
-                        onSuggestionSelect={(data) => {
-                            _updateQuery({
-                                "crew3_id": data.value,
-                                "crew3": data
-                            })
-                        }}
-                    />
+                        <Col>
+                            <Input
+                                withMargin
+                                title={"Kernet"}
+                                placeholder={'Pilih Kernet'}
+                                value={_form.crew3.title}
+                                suggestions={_kernetRanges}
+                                suggestionField={'title'}
+                                onSuggestionSelect={(data) => {
+                                    _updateQuery({
+                                        "crew3_id": data.value,
+                                        "crew3": data
+                                    })
+                                }}
+                            />
+                        </Col>
+                    </Row>
 
-                    <div style={{ marginTop: "1rem", marginBottom: "0.5rem" }}>
+                    <div style={
+                        { 
+                            marginTop: "1rem", 
+                            marginBottom: "0.5rem",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "1rem" 
+                        }
+                    }>
                         <strong>Jadwal Assign</strong>
+
+                        <Button
+                            small
+                            title={"Tambah Jadwal"}
+                            styles={Button.primary}
+                            onClick={_addScheduleItem}
+                        />
                     </div>
 
-                    {!_showScheduleTable ? (
-                        <>
-                            {_form.items.map((item, index) => (
-                                <Row
-                                    key={index}
-                                    style={{
-                                        border: "1px solid #ddd",
-                                        padding: "1rem",
-                                        marginBottom: "1rem",
-                                        borderRadius: "4px"
-                                    }}>
+                    {_form.items.map((item, index) => (
+                        <Row
+                            verticalEnd
+                            key={index}
+                            style={{
+                                border: "1px solid #ddd",
+                                padding: "1rem",
+                                marginBottom: "1rem",
+                                borderRadius: "4px"
+                            }}>
 
-                                    <Col>
-                                        <div style={{ marginBottom: "0.5rem" }}>
-                                            <strong>
-                                                {_scheduleRanges.find(s => s.value === item.scheduleAssignId)?.title || 'Jadwal tidak ditemukan'}
-                                            </strong>
-                                        </div>
-                                    </Col>
+                            <Col
+                            column={3}
+                            withPadding
+                            >
+                                <Input
+                                    title={"Jadwal"}
+                                    placeholder={'Cari jadwal...'}
+                                    value={item.scheduleSelected?.title || ''}
+                                    suggestions={_scheduleRanges}
+                                    suggestionField={'title'}
+                                    onChange={(value) => {
+                                        
+                                    }}
+                                    onSuggestionSelect={(value) => {
+                                        _updateScheduleItem(index, "scheduleAssignId", value.value)
+                                        _updateScheduleItem(index, "scheduleSelected", value)
+                                    }}
+                                />
+                            </Col>
 
-                                    <Col>
-                                        <Input
-                                            withMargin
-                                            title={"Ritase"}
-                                            placeholder={'Masukkan Ritase'}
-                                            value={item.ritase}
-                                            onChange={(value) => {
-                                                _updateScheduleItem(index, "ritase", value)
-                                            }}
+                            <Col
+                            column={1}
+                            withPadding
+                            >
+                                <Input
+                                    title={"Ritase"}
+                                    placeholder={'Masukkan Ritase'}
+                                    value={item.ritase}
+                                    onChange={(value) => {
+                                        _updateScheduleItem(index, "ritase", value)
+                                    }}
+                                />
+                            </Col>
+
+                            <Col
+                            alignEnd
+                            >
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                                    {_form.items.length > 1 && (
+                                        <Button
+                                            small
+                                            title={'Hapus'}
+                                            styles={Button.error}
+                                            onClick={() => _removeScheduleItem(index)}
                                         />
-                                    </Col>
+                                    )}
+                                </div>
+                            </Col>
 
-                                    <Col>
-                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                                            {_form.items.length > 1 && (
-                                                <Button
-                                                    title={'Remove'}
-                                                    styles={Button.danger}
-                                                    onClick={() => _removeScheduleItem(index)}
-                                                />
-                                            )}
-                                        </div>
-                                    </Col>
+                        </Row>
+                    ))}
 
-                                </Row>
-                            ))}
-
-                            <div style={{ marginBottom: "1rem" }}>
-                                <Button
-                                    title={'Pilih Jadwal'}
-                                    styles={Button.primary}
-                                    onClick={_scheduleMaster}
-                                />
-                            </div>
-                        </>
-                    ) : (
-                        <div style={{ marginBottom: "1rem" }}>
-                            <Table
-                                columns={[
-                                    {
-                                        checkbox: true,
-                                        field: 'id',
-                                        disabled: () => false
-                                    },
-                                    {
-                                        title: 'Kode',
-                                        field: 'code',
-                                        minWidth: '150px'
-                                    },
-                                    {
-                                        title: 'Jadwal',
-                                        field: 'departureDate',
-                                        minWidth: '200px'
-                                    },
-                                    {
-                                        title: 'Trayek',
-                                        field: 'trajectMasterName',
-                                        minWidth: '200px'
-                                    },
-                                    {
-                                        title: 'Ritase',
-                                        field: 'id',
-                                        minWidth: '100px',
-                                        customCell: (value, row) => {
-                                            return (
-                                                <Input
-                                                    withMargin
-                                                    title={"Ritase"}
-                                                    placeholder={'Masukkan Ritase'}
-                                                    value={row.ritase}
-                                                    onChange={(value) => {
-                                                        // _updateScheduleItem(index, "ritase", value)
-                                                    }}
-                                                />
-                                            )
-                                        }
-                                    }
-                                ]}
-                                records={_scheduleMasterData}
-                                onSelectionChange={_handleScheduleSelection}
-                                selectionDataFilter={() => true}
-                            />
-                            <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem" }}>
-                                <Button
-                                    title={'Terapkan'}
-                                    styles={Button.secondary}
-                                    onClick={_applyScheduleSelection}
-                                    disabled={_selectedSchedules.length === 0}
-                                />
-                                <Button
-                                    title={'Batal'}
-                                    styles={Button.danger}
-                                    onClick={() => _setShowScheduleTable(false)}
-                                />
-                            </div>
-                        </div>
-                    )}
-
-                    <div style={{ marginTop: "1rem" }}>
+                    <div style={{ marginTop: "3rem" }}>
                         <Button
                             // disabled={_isComplete}
                             title={'Simpan'}

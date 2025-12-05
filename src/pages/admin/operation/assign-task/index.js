@@ -10,6 +10,7 @@ import { Col } from '../../../../components/Layout'
 import Button from '../../../../components/Button'
 import AssignTaskModal from '../../../../components/AssignTaskModal'
 import ConfirmationModal from '../../../../components/ConfirmationModal'
+import { dateFilter } from '../../../../utils/filters'
 
 export default function AssignTask(props) {
     const router = useRouter()
@@ -18,7 +19,10 @@ export default function AssignTask(props) {
         {
             title: 'Tanggal Penugasan',
             field: 'assign_date',
-            textAlign: "left"
+            textAlign: "left",
+            customCell: (value, row) => {
+                return dateFilter.getMonthDate(new Date(value))
+            }
         },
         {
             title: 'Segmentasi',

@@ -254,7 +254,7 @@ export default function SetoranModal(props = defaultProps) {
             desc = "Pendapatan Rp" + currency(min) + " s.d Rp" + currency(max) + " selisihnya dikalikan"
         } else if (min > 0 && max === 0) {
             desc = "Pendapatan Rp" + currency(min) + " ke atas selisihnya dikalikan"
-        }else{
+        } else {
             desc = item?.desc || ""
         }
 
@@ -465,7 +465,7 @@ export default function SetoranModal(props = defaultProps) {
                     setoranDefaultId: setoranDefaultId,
                     name: item.name || "PER KARCIS UNTUK KRU",
                     desc: item.desc || "",
-                    amount: parseInt(String(item.amount).replace(".","")) || 0,
+                    amount: parseInt(String(item.amount).replace(".", "")) || 0,
                     isDefault: item.is_default || true,
                     allowUpdate: item.allow_update || true,
                     formatAmount: item.format_amount || 'NOMINAL',
@@ -567,11 +567,11 @@ export default function SetoranModal(props = defaultProps) {
             const itemsToUpdate = allDetails.filter(detail => {
                 if (!detail.id) return false
                 // Only update if there are changes
-                const hasChanges = detail.amount !== detail.originalAmount || detail.desc !== detail.originalDesc || detail?.min !== detail?.originalMin || detail?.max !== detail?.originalMax || detail?.trajectId !== detail?.originalTrajectId 
+                const hasChanges = detail.amount !== detail.originalAmount || detail.desc !== detail.originalDesc || detail?.min !== detail?.originalMin || detail?.max !== detail?.originalMax || detail?.trajectId !== detail?.originalTrajectId
                 return hasChanges
             })
 
-           
+
 
             // Add new items (without id)
             if (itemsToAdd.length > 0) {
@@ -939,7 +939,7 @@ export default function SetoranModal(props = defaultProps) {
                                                         />
                                                     </Col>
 
-                                        
+
                                                 </Row>
                                             )
                                         })
@@ -1075,6 +1075,49 @@ export default function SetoranModal(props = defaultProps) {
                                         _depositNotes.map(function (val, key) {
                                             return (
                                                 <Row key={key}>
+
+                                                    <Col
+                                                    justifyCenter
+                                                    style={{
+                                                        flexDirection: "row",
+                                                        gap: "0.5rem"
+                                                    }}
+                                                    alignEnd
+                                                    withPadding
+                                                    column={1}
+                                                    >
+                                                        <Button
+                                                            small
+                                                            title={"↑"}
+                                                            styles={Button.success}
+                                                            disabled={key === 0}
+                                                            onClick={() => {
+                                                                if (key > 0) {
+                                                                    const updatedList = [..._depositNotes];
+                                                                    // Swap with previous item
+                                                                    [updatedList[key - 1], updatedList[key]] = [updatedList[key], updatedList[key - 1]];
+                                                                    _setDepositNotes(updatedList);
+                                                                }
+                                                            }}
+                                                            className={styles.incrementBtn}
+                                                        />
+                                                        <Button
+                                                            small
+                                                            title={"↓"}
+                                                            styles={Button.secondary}
+                                                            disabled={key === _depositNotes.length - 1}
+                                                            onClick={() => {
+                                                                if (key < _depositNotes.length - 1) {
+                                                                    const updatedList = [..._depositNotes];
+                                                                    // Swap with next item
+                                                                    [updatedList[key], updatedList[key + 1]] = [updatedList[key + 1], updatedList[key]];
+                                                                    _setDepositNotes(updatedList);
+                                                                }
+                                                            }}
+                                                            className={styles.incrementBtn}
+                                                        />
+                                                    </Col>
+
                                                     <Col
                                                         withPadding
                                                         column={3}
@@ -1112,10 +1155,11 @@ export default function SetoranModal(props = defaultProps) {
                                                         withPadding
                                                         style={{
                                                             flexDirection: "row",
-                                                            gap: "1rem"
+                                                            gap: "0.5rem"
                                                         }}
                                                         alignEnd
                                                     >
+                                                        
                                                         <Button
                                                             small
                                                             title={"-"}
@@ -1209,8 +1253,8 @@ export default function SetoranModal(props = defaultProps) {
                                                             }}
                                                         />
                                                     </Col>
-                                                    
-                                                     {/* <Col
+
+                                                    {/* <Col
                                                         column={1}
                                                         withPadding
                                                         style={{
