@@ -460,7 +460,9 @@ export default function Dashboard(props) {
     const [_routeLowest, _setRouteLowest] = useState([])
 
     useEffect(() => {
-        _updateChart()
+        if(_updateSelectChart?.data){
+            _updateChart()
+        }
     }, [_updateSelectChart, _selectSales, _selectPayment, _selectPassenger])
 
     useEffect(() => {
@@ -617,9 +619,6 @@ export default function Dashboard(props) {
                 else {
                     labels.push(dateFilter.getMonthDate(new Date(val.dateTransaction)))
                 }
-
-                console.log("sf")
-                console.log(val.totalPnp)
 
                 data.push(_selectSales == "pnp" ? parseInt(val.totalPnp) : (parseInt(val.totalAmountWithoutInsurance) + (parseInt(val?.totalDiscount || 0)) ))
             })
