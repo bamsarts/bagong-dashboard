@@ -503,12 +503,21 @@ export default function DepositDetail(props) {
                 if (_editablePnp.hasOwnProperty(key)) {
                     const matchingDetail = _setoranData.data.biaya[0].details.find(detail => detail.id == key);
                     if (matchingDetail) {
+
+                        let count = _editablePnp[key]
+                        let amount = matchingDetail.amount
+
+                        if(matchingDetail.name == "Catatan Saku"){
+                            count = 0
+                            amount = _editablePnp[key]
+                        }
+
                         payload.customValue.push({
                             id: matchingDetail.id,
                             name: matchingDetail.name,
                             desc: matchingDetail.desc,
-                            amount: matchingDetail.amount,
-                            count: _editablePnp[key]
+                            amount: amount,
+                            count: count
                         });
                     }
                 }
@@ -528,8 +537,6 @@ export default function DepositDetail(props) {
                 }
             }
 
-            console.log(payload)
-            // return false
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
             popAlert({
@@ -1229,32 +1236,48 @@ export default function DepositDetail(props) {
                                     {
 
                                         _setoranData.data.biaya[0]?.details
-                                            ?.filter(item => item.name === "Catatan Saku")
-                                            .map((item, index) => (
-                                                <Row
-                                                    key={item.id}
-                                                >
-                                                    <Col column={2} withPadding justifyCenter>
-                                                        <span>{item.desc}</span>
-                                                    </Col>
-                                                    <Col column={1} withPadding>
-                                                        <Input
-                                                            type="currency"
-                                                            value={currency(item.amount)}
-                                                            placeholder={`Masukkan ${item.desc}`}
-                                                            style={{
-                                                                textAlign: "right"
-                                                            }}
-                                                            onChange={(value) => {
-                                                                _setEditablePnp(prev => ({
-                                                                    ...prev,
-                                                                    [item.id]: parseFloat(String(value).replace(".", "")) || 0
-                                                                }))
-                                                            }}
-                                                        />
-                                                    </Col>
-                                                </Row>
-                                            ))
+                                            ?.filter(item => (item.name === "Catatan Saku" || item.name == "SOLAR"))
+                                            .map((item, index) => {
+
+                                                let amountDefault = item?.amount
+
+                                                if(_setoranData.data.setoran.status == "CREATED"){
+                                                    _setoranData.data.images.forEach(function(val, key){
+                                                        if(val.title.toUpperCase() == item.name){
+                                                            amountDefault = val.amount
+                                                        }
+                                                    })
+                                                }
+
+                                                let amount = _editablePnp[item.id] !== undefined ? _editablePnp[item.id] :  amountDefault
+
+                                                return (
+                                                    <Row
+                                                        key={item.id}
+                                                    >
+                                                        <Col column={2} withPadding justifyCenter>
+                                                            <span>{item.desc}</span>
+                                                        </Col>
+                                                        <Col column={1} withPadding>
+                                                            <Input
+                                                                type="currency"
+                                                                value={currency(String(amount).replace(/\./g, ''))}
+                                                                placeholder={`Masukkan ${item.desc}`}
+                                                                style={{
+                                                                    textAlign: "right"
+                                                                }}
+                                                                onChange={(value) => {
+                                                                    _setEditablePnp(prev => ({
+                                                                        ...prev,
+                                                                        [item.id]: parseFloat(String(value).replace(/\./g, '')) || 0
+                                                                    }))
+                                                                }}
+                                                            />
+                                                        </Col>
+                                                    </Row>
+                                                )
+                                                
+                                            })
                                     }
 
                                     {_setoranData.data.images

@@ -104,6 +104,7 @@ export default function SetoranModal(props = defaultProps) {
             min: 1,
             max: 1,
             traject_id: null,
+            sequence: 1
         },
         {
             desc: "Gaji Kondektur",
@@ -115,6 +116,7 @@ export default function SetoranModal(props = defaultProps) {
             min: 1,
             max: 1,
             traject_id: null,
+            sequence: 2
         },
         {
             desc: "Gaji Kernet",
@@ -126,6 +128,7 @@ export default function SetoranModal(props = defaultProps) {
             min: 1,
             max: 1,
             traject_id: null,
+            sequence: 3
         },
         {
             desc: "UM KRU (3 Orang)",
@@ -137,17 +140,7 @@ export default function SetoranModal(props = defaultProps) {
             min: 1,
             max: 1,
             traject_id: null,
-        },
-        {
-            desc: "Tol Waru Gunung - Kertosono 2 Rit",
-            name: "Catatan Saku",
-            amount: 195000,
-            is_default: true,
-            allow_update: true,
-            format_amount: "NOMINAL",
-            min: 1,
-            max: 1,
-            traject_id: null,
+            sequence: 4
         },
     ])
 
@@ -155,13 +148,24 @@ export default function SetoranModal(props = defaultProps) {
         {
             desc: "SOLAR",
             name: "SOLAR",
-            amount: 1,
+            amount: 0,
             is_default: true,
             allow_update: true,
             format_amount: "NOMINAL",
             min: 1,
             max: 1
         },
+        {
+            desc: "TOL",
+            name: "TOL",
+            amount: 0,
+            is_default: true,
+            allow_update: true,
+            format_amount: "NOMINAL",
+            min: 1,
+            max: 1,
+            traject_id: null,
+        }
     ])
 
     const [_others, _setOthers] = useState([
@@ -189,15 +193,20 @@ export default function SetoranModal(props = defaultProps) {
                         note => note.desc === `Mandoran ${brokerPoint.desc}`
                     );
 
+                    const maxSequence = Math.max(...updatedDepositNotes.map(note => note.sequence || 0));
                     const newNote = {
                         desc: `Mandoran ${brokerPoint.desc}`,
                         name: "Catatan Saku",
-                        amount: 10000
+                        amount: 10000,
+                        sequence: maxSequence + 1
                     };
 
                     if (existingNoteIndex >= 0) {
-                        // Update existing note
-                        updatedDepositNotes[existingNoteIndex] = newNote;
+                        // Update existing note but keep sequence
+                        updatedDepositNotes[existingNoteIndex] = {
+                            ...newNote,
+                            sequence: updatedDepositNotes[existingNoteIndex].sequence
+                        };
                     } else {
                         // Add new note
                         updatedDepositNotes.push(newNote);
@@ -239,6 +248,17 @@ export default function SetoranModal(props = defaultProps) {
                 ...data
             }
         })
+    }
+
+    function _findTrajectName(trajectId) {
+        if (!trajectId || !_trajectTripList.length) return "";
+
+        const traject = _trajectTripList.find(item => item.idTraject === trajectId);
+
+        console.log("find")
+        console.log(trajectId)
+        console.log(_trajectTripList)
+        return traject ? traject.name : "";
     }
 
     function _clearForm() {
@@ -415,14 +435,22 @@ export default function SetoranModal(props = defaultProps) {
                         originalDesc: val.desc || "",
                         originalAmount: val.amount || 0,
                         originalMin: val.min || 0,
-                        originalMax: val.max || 0
+                        originalMax: val.max || 0,
+                        sequence: val.sequence || ""
                     }
 
                     // Match by name and group accordingly
                     if (val.name === "PER KARCIS UNTUK KRU") {
                         groupedData.crewTraject.push(item)
                     } else if (val.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)") {
-                        groupedData.brokerPoint.push(item)
+
+                        let brokerItem = {
+                            ...item,
+                            "traject_name": _findTrajectName(val.traject_id)
+                        }
+
+                        groupedData.brokerPoint.push(brokerItem)
+
                     } else if (val.name === "Bonus Kru") {
                         groupedData.rewardCrew.push(item)
                     } else if (val.name === "Catatan Saku") {
@@ -438,7 +466,14 @@ export default function SetoranModal(props = defaultProps) {
                 if (groupedData.crewTraject.length > 0) _setCrewTraject(groupedData.crewTraject)
                 if (groupedData.brokerPoint.length > 0) _setBrokerPoint(groupedData.brokerPoint)
                 if (groupedData.rewardCrew.length > 0) _setRewardCrew(groupedData.rewardCrew)
-                if (groupedData.depositNotes.length > 0) _setDepositNotes(groupedData.depositNotes)
+                if (groupedData.depositNotes.length > 0) {
+                    // Ensure all items have sequence values
+                    const depositNotesWithSequence = groupedData.depositNotes.map((item, index) => ({
+                        ...item,
+                        sequence: item.sequence || (index + 1)
+                    }));
+                    _setDepositNotes(depositNotesWithSequence);
+                }
                 if (groupedData.gas.length > 0) _setGas(groupedData.gas)
                 if (groupedData.others.length > 0) _setOthers(groupedData.others)
             }
@@ -539,6 +574,8 @@ export default function SetoranModal(props = defaultProps) {
                     formatAmount: item.format_amount || 'NOMINAL',
                     min: String(item.min || 0).replace(/\./g, ''),
                     max: String(item.max || 0).replace(/\./g, ''),
+                    sequence: item.sequence || 0,
+                    originalSequence: item.originalSequence,
                     originalAmount: item.originalAmount,
                     originalDesc: item.originalDesc,
                     originalMin: item.originalMin,
@@ -567,16 +604,14 @@ export default function SetoranModal(props = defaultProps) {
             const itemsToUpdate = allDetails.filter(detail => {
                 if (!detail.id) return false
                 // Only update if there are changes
-                const hasChanges = detail.amount !== detail.originalAmount || detail.desc !== detail.originalDesc || detail?.min !== detail?.originalMin || detail?.max !== detail?.originalMax || detail?.trajectId !== detail?.originalTrajectId
+                const hasChanges = detail.amount !== detail.originalAmount || detail.desc !== detail.originalDesc || detail?.min !== detail?.originalMin || detail?.max !== detail?.originalMax || detail?.trajectId !== detail?.originalTrajectId || detail?.sequence !== detail?.originalSequence
                 return hasChanges
             })
-
-
 
             // Add new items (without id)
             if (itemsToAdd.length > 0) {
                 const promisesAdd = itemsToAdd.map(detail => {
-                    const { originalAmount, originalDesc, originalMax, originalMin, originalTrajectId, ...detailToAdd } = detail
+                    const { originalAmount, originalDesc, originalMax, originalMin, originalTrajectId, originalSequence, ...detailToAdd } = detail
                     return postJSON('/masterData/setoranDefaultDetail/add', detailToAdd, appContext.authData.token)
                 })
                 await Promise.all(promisesAdd)
@@ -585,7 +620,7 @@ export default function SetoranModal(props = defaultProps) {
             // Update existing items (with id and changes)
             if (itemsToUpdate.length > 0) {
                 const promisesUpdate = itemsToUpdate.map(detail => {
-                    const { originalAmount, originalDesc, originalMax, originalMin, originalTrajectId, ...detailToUpdate } = detail
+                    const { originalAmount, originalDesc, originalMax, originalMin, originalTrajectId, originalSequence, ...detailToUpdate } = detail
                     return postJSON('/masterData/setoranDefaultDetail/update', detailToUpdate, appContext.authData.token)
                 })
                 await Promise.all(promisesUpdate)
@@ -785,6 +820,9 @@ export default function SetoranModal(props = defaultProps) {
 
                                     {
                                         _brokerPoint.map(function (val, key) {
+                                            
+                
+
                                             return (
                                                 <Row>
                                                     <Col
@@ -797,7 +835,7 @@ export default function SetoranModal(props = defaultProps) {
                                                             placeholder={'Pilih rute'}
                                                             suggestions={_trajectTripList}
                                                             suggestionsField={"title"}
-                                                            value={val.traject_name || ""}
+                                                            value={val.traject_name}
                                                             onSuggestionSelect={(value) => {
                                                                 const updatedList = [..._brokerPoint];
                                                                 updatedList[key].traject_id = value.idTraject
@@ -1072,150 +1110,175 @@ export default function SetoranModal(props = defaultProps) {
                                     <h4>{_depositNotes[0].name}</h4>
 
                                     {
-                                        _depositNotes.map(function (val, key) {
-                                            return (
-                                                <Row key={key}>
+                                        _depositNotes
+                                            .sort((a, b) => (a.sequence || 0) - (b.sequence || 0))
+                                            .map(function (val, key) {
+                                                const sortedList = _depositNotes.sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
+                                                const currentIndex = sortedList.findIndex(item => item === val);
 
-                                                    <Col
-                                                    justifyCenter
-                                                    style={{
-                                                        flexDirection: "row",
-                                                        gap: "0.5rem"
-                                                    }}
-                                                    alignEnd
-                                                    withPadding
-                                                    column={1}
-                                                    >
-                                                        <Button
-                                                            small
-                                                            title={"↑"}
-                                                            styles={Button.success}
-                                                            disabled={key === 0}
-                                                            onClick={() => {
-                                                                if (key > 0) {
-                                                                    const updatedList = [..._depositNotes];
-                                                                    // Swap with previous item
-                                                                    [updatedList[key - 1], updatedList[key]] = [updatedList[key], updatedList[key - 1]];
-                                                                    _setDepositNotes(updatedList);
-                                                                }
+                                                return (
+                                                    <Row key={val.id || key}>
+
+                                                        <Col
+                                                            justifyCenter
+                                                            style={{
+                                                                flexDirection: "row",
+                                                                gap: "0.5rem"
                                                             }}
-                                                            className={styles.incrementBtn}
-                                                        />
-                                                        <Button
-                                                            small
-                                                            title={"↓"}
-                                                            styles={Button.secondary}
-                                                            disabled={key === _depositNotes.length - 1}
-                                                            onClick={() => {
-                                                                if (key < _depositNotes.length - 1) {
-                                                                    const updatedList = [..._depositNotes];
-                                                                    // Swap with next item
-                                                                    [updatedList[key], updatedList[key + 1]] = [updatedList[key + 1], updatedList[key]];
-                                                                    _setDepositNotes(updatedList);
-                                                                }
-                                                            }}
-                                                            className={styles.incrementBtn}
-                                                        />
-                                                    </Col>
-
-                                                    <Col
-                                                        withPadding
-                                                        column={3}
-                                                    >
-                                                        <Input
-
-                                                            placeholder={'Masukkan catatan'}
-                                                            value={val.desc || ""}
-                                                            onChange={(value) => {
-                                                                const updatedList = [..._depositNotes];
-                                                                updatedList[key].desc = value
-                                                                _setDepositNotes(updatedList);
-                                                            }}
-                                                        />
-                                                    </Col>
-
-                                                    <Col
-                                                        withPadding
-                                                        column={1}
-                                                    >
-                                                        <Input
-
-                                                            type={"number"}
-                                                            placeholder={'Rp'}
-                                                            value={val.amount || ""}
-                                                            onChange={(value) => {
-                                                                const updatedList = [..._depositNotes];
-                                                                updatedList[key].amount = value
-                                                                _setDepositNotes(updatedList);
-                                                            }}
-                                                        />
-                                                    </Col>
-                                                    <Col
-                                                        column={1}
-                                                        withPadding
-                                                        style={{
-                                                            flexDirection: "row",
-                                                            gap: "0.5rem"
-                                                        }}
-                                                        alignEnd
-                                                    >
-                                                        
-                                                        <Button
-                                                            small
-                                                            title={"-"}
-                                                            styles={Button.error}
-                                                            disabled={_depositNotes.length <= 1}
-                                                            onClick={async () => {
-                                                                if (_depositNotes.length > 1) {
-                                                                    // Remove the last split
-
-                                                                    // If the item has an id, delete it from the API
-                                                                    if (val?.id) {
-                                                                        await _deleteFormat(val.id);
-                                                                    }
-
-                                                                    const updatedList = _depositNotes.slice(0, -1);
-                                                                    _setDepositNotes(updatedList);
-                                                                }
-                                                            }}
-                                                            className={styles.incrementBtn}
-                                                        />
-                                                        {key === _depositNotes.length - 1 && (
+                                                            alignEnd
+                                                            withPadding
+                                                            column={1}
+                                                        >
                                                             <Button
                                                                 small
-                                                                title={"+"}
-                                                                styles={Button.primary}
+                                                                title={"↑"}
+                                                                styles={Button.success}
+                                                                disabled={currentIndex === 0}
                                                                 onClick={() => {
-                                                                    // Add a new split with default values
-                                                                    if (_depositNotes.length > 0) {
-                                                                        // Clone the last split as a template, but clear payment info and id
-                                                                        const last = _depositNotes[_depositNotes.length - 1];
-                                                                        const newSplit = {
-                                                                            ...last,
-                                                                            desc: "",
-                                                                            amount: 0,
-                                                                        };
+                                                                    if (currentIndex > 0) {
+                                                                        const updatedList = [..._depositNotes];
+                                                                        const currentItem = updatedList.find(item => item === val);
+                                                                        const previousItem = sortedList[currentIndex - 1];
+                                                                        const prevItemInList = updatedList.find(item => item === previousItem);
 
-                                                                        delete newSplit.id
+                                                                        // Swap sequence values
+                                                                        const tempSequence = currentItem.sequence;
+                                                                        currentItem.sequence = prevItemInList.sequence;
+                                                                        prevItemInList.sequence = tempSequence;
 
-                                                                        const updatedList = [..._depositNotes, newSplit];
+                                                                        _setDepositNotes(updatedList);
+                                                                    }
+                                                                }}
+                                                            />
+                                                            <Button
+                                                                small
+                                                                title={"↓"}
+                                                                styles={Button.secondary}
+                                                                disabled={currentIndex === sortedList.length - 1}
+                                                                onClick={() => {
+                                                                    if (currentIndex < sortedList.length - 1) {
+                                                                        const updatedList = [..._depositNotes];
+                                                                        const currentItem = updatedList.find(item => item === val);
+                                                                        const nextItem = sortedList[currentIndex + 1];
+                                                                        const nextItemInList = updatedList.find(item => item === nextItem);
+
+                                                                        // Swap sequence values
+                                                                        const tempSequence = currentItem.sequence;
+                                                                        currentItem.sequence = nextItemInList.sequence;
+                                                                        nextItemInList.sequence = tempSequence;
+
+                                                                        _setDepositNotes(updatedList);
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </Col>
+
+                                                        <Col
+                                                            withPadding
+                                                            column={3}
+                                                        >
+                                                            <Input
+
+                                                                placeholder={'Masukkan catatan'}
+                                                                value={val.desc || ""}
+                                                                onChange={(value) => {
+                                                                    const updatedList = [..._depositNotes];
+                                                                    const itemIndex = updatedList.findIndex(item => item === val);
+                                                                    if (itemIndex !== -1) {
+                                                                        updatedList[itemIndex].desc = value;
+                                                                    }
+                                                                    _setDepositNotes(updatedList);
+                                                                }}
+                                                            />
+                                                        </Col>
+
+                                                        <Col
+                                                            withPadding
+                                                            column={1}
+                                                        >
+                                                            <Input
+
+                                                                type={"number"}
+                                                                placeholder={'Rp'}
+                                                                value={val.amount || ""}
+                                                                onChange={(value) => {
+                                                                    const updatedList = [..._depositNotes];
+                                                                    const itemIndex = updatedList.findIndex(item => item === val);
+                                                                    if (itemIndex !== -1) {
+                                                                        updatedList[itemIndex].amount = value;
+                                                                    }
+                                                                    _setDepositNotes(updatedList);
+                                                                }}
+                                                            />
+                                                        </Col>
+                                                        <Col
+                                                            column={1}
+                                                            withPadding
+                                                            style={{
+                                                                flexDirection: "row",
+                                                                gap: "0.5rem"
+                                                            }}
+                                                            alignEnd
+                                                        >
+
+                                                            <Button
+                                                                small
+                                                                title={"-"}
+                                                                styles={Button.error}
+                                                                disabled={_depositNotes.length <= 1}
+                                                                onClick={async () => {
+                                                                    if (_depositNotes.length > 1) {
+                                                                        // Remove the last split
+
+                                                                        // If the item has an id, delete it from the API
+                                                                        if (val?.id) {
+                                                                            await _deleteFormat(val.id);
+                                                                        }
+
+                                                                        const updatedList = _depositNotes.slice(0, -1);
                                                                         _setDepositNotes(updatedList);
                                                                     }
                                                                 }}
                                                                 className={styles.incrementBtn}
                                                             />
-                                                        )}
-                                                    </Col>
-                                                </Row>
-                                            )
-                                        })
+                                                            {key === _depositNotes.length - 1 && (
+                                                                <Button
+                                                                    small
+                                                                    title={"+"}
+                                                                    styles={Button.primary}
+                                                                    onClick={() => {
+                                                                        // Add a new split with default values
+                                                                        if (_depositNotes.length > 0) {
+                                                                            // Clone the last split as a template, but clear payment info and id
+                                                                            const last = _depositNotes[_depositNotes.length - 1];
+                                                                            const maxSequence = Math.max(..._depositNotes.map(note => note.sequence || 0));
+                                                                            const newSplit = {
+                                                                                ...last,
+                                                                                desc: "",
+                                                                                amount: 0,
+                                                                                sequence: maxSequence + 1
+                                                                            };
+
+                                                                            delete newSplit.id
+
+                                                                            const updatedList = [..._depositNotes, newSplit];
+                                                                            _setDepositNotes(updatedList);
+                                                                        }
+                                                                    }}
+                                                                    className={styles.incrementBtn}
+                                                                />
+                                                            )}
+                                                        </Col>
+                                                    </Row>
+                                                )
+                                            })
 
                                     }
 
                                 </div>
 
                                 <div className={styles.perKarcisSection}>
-                                    <h4>Bahan Bakar</h4>
+                                    <h4>Bahan Bakar & Tol</h4>
 
                                     {
                                         _gas.map(function (val, key) {

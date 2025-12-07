@@ -8,6 +8,7 @@ import Card from '../../../../components/Card'
 import Table from '../../../../components/Table'
 import { Col } from '../../../../components/Layout'
 import Button from '../../../../components/Button'
+import Input from '../../../../components/Input'
 import SetoranModal from '../../../../components/SetoranModal'
 import ConfirmationModal from '../../../../components/ConfirmationModal'
 import { currency, dateFilter } from '../../../../utils/filters'
@@ -32,7 +33,7 @@ export default function Deposit(props) {
             field: 'traject_master',
             textAlign: "left",
             customCell: (value, row) => {
-                
+
                 return value.name
             }
         },
@@ -95,6 +96,7 @@ export default function Deposit(props) {
     const [_selectedData, _setSelectedData] = useState({})
     const [_formDelete, _setFormDelete] = useState({})
     const [_isProcessing, _setIsProcessing] = useState(false)
+    const [_assignDateFilter, _setAssignDateFilter] = useState('')
 
     useEffect(() => {
         _getTraject()
@@ -118,6 +120,7 @@ export default function Deposit(props) {
     async function _getData(pagination = _page) {
         const params = {
             ...pagination,
+            // assignDate: _assignDateFilter
         }
 
         try {
@@ -220,7 +223,16 @@ export default function Deposit(props) {
                                 column={2}
                                 withPadding
                             >
-
+                                {/* <Input
+                                    title="Filter Tanggal Penugasan"
+                                    type="date"
+                                    value={_assignDateFilter}
+                                    onChange={(value) => {
+                                        _setAssignDateFilter(value)
+                                        _getData({ ..._page, startFrom: 0 })
+                                    }}
+                                    placeholder="Pilih tanggal penugasan"
+                                /> */}
                             </Col>
                         )}
                         columns={__COLUMNS}
