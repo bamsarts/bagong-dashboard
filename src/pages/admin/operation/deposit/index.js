@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, forwardRef } from 'react'
 import { useRouter } from 'next/router'
 import { postJSON } from '../../../../api/utils'
 import { BsCash } from 'react-icons/bs'
@@ -12,6 +12,8 @@ import Input from '../../../../components/Input'
 import SetoranModal from '../../../../components/SetoranModal'
 import ConfirmationModal from '../../../../components/ConfirmationModal'
 import { currency, dateFilter } from '../../../../utils/filters'
+import DatePicker from 'react-datepicker'
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function Deposit(props) {
     const router = useRouter()
@@ -91,16 +93,39 @@ export default function Deposit(props) {
     const [_page, _setPage] = useState({
         length: Table.defaultProps.recordsPerPageValues[0],
         startFrom: 0,
+        orderBy: "id",
+        sortMode: "desc"
     })
     const [_modalVisible, _setModalVisible] = useState(false)
     const [_selectedData, _setSelectedData] = useState({})
     const [_formDelete, _setFormDelete] = useState({})
     const [_isProcessing, _setIsProcessing] = useState(false)
-    const [_assignDateFilter, _setAssignDateFilter] = useState('')
+    const [_assignDate, _setAssignDate] = useState(new Date())
+
+    const CustomDatePicker = forwardRef(({ value, onClick }, ref) => (
+        <Col
+            justifyCenter
+        >
+            <Input
+                withMargin
+                title={"Tanggal Penugasan"}
+                onClick={onClick}
+                ref={ref}
+                value={_assignDate == "" ? "" : dateFilter.getMonthDate(_assignDate)}
+                onChange={(value) => {
+
+                }}
+            />
+        </Col>
+    ));
 
     useEffect(() => {
         _getTraject()
     }, [])
+
+    useEffect(() => {
+        _getData()
+    }, [_assignDate])
 
     function _toggleModal(visible, data = {}) {
         _setModalVisible(visible)
@@ -120,7 +145,7 @@ export default function Deposit(props) {
     async function _getData(pagination = _page) {
         const params = {
             ...pagination,
-            // assignDate: _assignDateFilter
+            assignDate: dateFilter.basicDate(new Date(_assignDate)).normal
         }
 
         try {
@@ -224,7 +249,7 @@ export default function Deposit(props) {
                                 withPadding
                             >
                                 {/* <Input
-                                    title="Filter Tanggal Penugasan"
+                                    title="Tanggal Penugasan"
                                     type="date"
                                     value={_assignDateFilter}
                                     onChange={(value) => {
@@ -233,6 +258,17 @@ export default function Deposit(props) {
                                     }}
                                     placeholder="Pilih tanggal penugasan"
                                 /> */}
+
+                                <DatePicker
+                                style={{
+                                    width: "100%"
+                                }}
+                                selected={_assignDate}
+                                onChange={(date) => {
+                                    _setAssignDate(date)
+                                }}
+                                customInput={<CustomDatePicker/>}
+                                />
                             </Col>
                         )}
                         columns={__COLUMNS}

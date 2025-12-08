@@ -42,15 +42,15 @@ export default function AssignTask(props) {
             field: 'ritase'
         },
         {
-            title: 'Driver',
+            title: 'Kondektur',
             field: 'bus_crew1_name',
             textAlign: "left",
             customCell: (value, row) => {
-                return value + " " +row.schedule_assign_id
+                return value
             }
         },
         {
-            title: 'Kondektur',
+            title: 'Driver',
             field: 'bus_crew2_name',
             textAlign: "left",
             customCell: (value) => {
@@ -76,7 +76,7 @@ export default function AssignTask(props) {
     })
     const [_page, _setPage] = useState({
         length: Table.defaultProps.recordsPerPageValues[0],
-        startFrom: 0,
+        startFrom: 0,     
     })
     const [_modalVisible, _setModalVisible] = useState(false)
     const [_selectedData, _setSelectedData] = useState({})

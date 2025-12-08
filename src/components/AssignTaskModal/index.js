@@ -261,6 +261,8 @@ export default function AssignTaskModal(props = defaultProps) {
             "items": _form.items
         }
 
+        if(query.crew3_id == "") query.crew3_id = null
+
         query.items.forEach(function (val, key) {
             delete val.scheduleSelected
         })
