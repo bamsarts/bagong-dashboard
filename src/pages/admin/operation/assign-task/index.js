@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, forwardRef } from 'react'
 import { useRouter } from 'next/router'
 import { postJSON } from '../../../../api/utils'
 import { BsCash } from 'react-icons/bs'
@@ -6,11 +6,14 @@ import Main, { popAlert } from '../../../../components/Main'
 import AdminLayout from '../../../../components/AdminLayout'
 import Card from '../../../../components/Card'
 import Table from '../../../../components/Table'
-import { Col } from '../../../../components/Layout'
+import { Col, Row } from '../../../../components/Layout'
 import Button from '../../../../components/Button'
 import AssignTaskModal from '../../../../components/AssignTaskModal'
 import ConfirmationModal from '../../../../components/ConfirmationModal'
 import { dateFilter } from '../../../../utils/filters'
+import DatePicker from 'react-datepicker'
+import "react-datepicker/dist/react-datepicker.css";
+import Input from '../../../../components/Input'
 
 export default function AssignTask(props) {
     const router = useRouter()
@@ -76,16 +79,52 @@ export default function AssignTask(props) {
     })
     const [_page, _setPage] = useState({
         length: Table.defaultProps.recordsPerPageValues[0],
-        startFrom: 0,     
+        startFrom: 0,
+        orderBy: "id",
+        sortMode: "desc"     
     })
     const [_modalVisible, _setModalVisible] = useState(false)
     const [_selectedData, _setSelectedData] = useState({})
     const [_formDelete, _setFormDelete] = useState({})
     const [_isProcessing, _setIsProcessing] = useState(false)
+    const [_assignDate, _setAssignDate] = useState(new Date())
+    const [_assignEndDate, _setAssignEndDate] = useState(new Date())
+
+    const CustomDatePicker = forwardRef(({ value, onClick }, ref) => (
+        <Col
+            justifyCenter
+        >
+            <Input
+                title={"Tanggal Penugasan Awal"}
+                onClick={onClick}
+                ref={ref}
+                value={_assignDate == "" ? "" : dateFilter.getMonthDate(_assignDate)}
+                onChange={(value) => {
+
+                }}
+            />
+        </Col>
+    ));
+
+        const CustomEndDatePicker = forwardRef(({ value, onClick }, ref) => (
+        <Col
+            justifyCenter
+        >
+            <Input
+                title={"Tanggal Penugasan Akhir"}
+                onClick={onClick}
+                ref={ref}
+                value={_assignEndDate == "" ? "" : dateFilter.getMonthDate(_assignEndDate)}
+                onChange={(value) => {
+
+                }}
+            />
+        </Col>
+    ));
 
     useEffect(() => {
         _getData(_page)
-    }, [])
+    }, [_assignDate, _assignEndDate])
 
     function _toggleModal(visible, data = {}) {
         _setModalVisible(visible)
@@ -105,6 +144,8 @@ export default function AssignTask(props) {
     async function _getData(pagination = _page) {
         const params = {
             ...pagination,
+            "startDate": dateFilter.basicDate(new Date(_assignDate)).normal,
+            "endDate": dateFilter.basicDate(new Date(_assignEndDate)).normal
         }
 
         try {
@@ -162,18 +203,56 @@ export default function AssignTask(props) {
 
                     <Table
                         headerContent={(
-                            <Col
-                                column={2}
-                                withPadding
+
+                            <Row
+                            verticalEnd
                             >
-                                <Button
-                                    title={'Tambah Penugasan'}
-                                    styles={Button.secondary}
-                                    onClick={() => {
-                                        _setModalVisible(true)
-                                    }}
-                                />
-                            </Col>
+                                <Col
+                                    column={2}
+                                    withPadding
+                                >
+                                    <Button
+                                        title={'Tambah Penugasan'}
+                                        styles={Button.secondary}
+                                        onClick={() => {
+                                            _setModalVisible(true)
+                                        }}
+                                    />
+                                </Col>
+
+                                 <Col
+                                    column={2}
+                                    withPadding
+                                >
+                                    <DatePicker
+                                        style={{
+                                            width: "100%"
+                                        }}
+                                        selected={_assignDate}
+                                        onChange={(date) => {
+                                            _setAssignDate(date)
+                                        }}
+                                        customInput={<CustomDatePicker />}
+                                    />
+                                </Col>
+
+                                <Col
+                                    column={2}
+                                    withPadding
+                                >
+                                    <DatePicker
+                                        style={{
+                                            width: "100%"
+                                        }}
+                                        selected={_assignEndDate}
+                                        onChange={(date) => {
+                                            _setAssignEndDate(date)
+                                        }}
+                                        customInput={<CustomEndDatePicker />}
+                                    />
+                                </Col>
+                            </Row>
+                           
                         )}
                         columns={__COLUMNS}
                         records={_assignLists.data}

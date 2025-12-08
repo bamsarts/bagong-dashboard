@@ -214,7 +214,10 @@ export default function DepositDetail(props) {
         let query = {
             "startFrom": 0,
             "length": 360,
-            "query": deposit?.assign_date
+            "startDate": deposit?.assign_date,
+            "endDate": deposit?.assign_date,
+            "orderBy": "id",
+            "sortMode": "desc"
         }
 
         try {
