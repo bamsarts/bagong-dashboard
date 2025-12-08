@@ -10,7 +10,7 @@ import Input from '../../../../components/Input'
 import styles from './Deposit.module.scss'
 import Image from 'next/image'
 import { currency, dateFilter } from '../../../../utils/filters'
-import { AiFillCaretDown, AiFillCaretUp, AiOutlineUser, AiFillPushpin  } from 'react-icons/ai'
+import { AiFillCaretDown, AiFillCaretUp, AiOutlineUser, AiFillPushpin } from 'react-icons/ai'
 
 export default function DepositDetail(props) {
     const router = useRouter()
@@ -139,10 +139,18 @@ export default function DepositDetail(props) {
     }, [_setoranData, _totalGrossAmount, _totalExpenses])
 
     async function _fetchSetoranDetail() {
+
+        let query = {
+            "id" : id
+        }
+
         _setIsLoading(true)
+
         try {
-            const data = await get(`/data/setoran/setoranById/${id}`, props.authData.token)
+            const data = await postJSON(`/data/setoran/setoranById/list`, query, props.authData.token)
             let totalGross = 0
+            let startKm = data.data.setoran.km_awal
+            let endKm = data.data.setoran.km_akhir
 
             _setSetoranData(data)
 
@@ -160,6 +168,16 @@ export default function DepositDetail(props) {
                 _setTrajectTracks(tracks)
             }
 
+            if(data.data.setoran.status == "CREATED"){
+                data.data.images.forEach(function(val, key){
+                    if(val.title.toLowerCase() == "odometer awal"){
+                        startKm = val.amount
+                    }else if(val.title.toLowerCase() == "odometer akhir"){
+                        endKm = val.amount
+                    }
+                })
+            }
+
             _setTotalGrossAmount(totalGross)
 
             _updateQuery({
@@ -170,8 +188,8 @@ export default function DepositDetail(props) {
             })
 
             _updateFormSubmit({
-                "kmAwal": data.data.setoran.km_awal,
-                "kmAkhir": data.data.setoran.km_akhir,
+                "kmAwal": startKm,
+                "kmAkhir": endKm, 
                 "desc": data.data.setoran.desc
             })
 
@@ -229,7 +247,10 @@ export default function DepositDetail(props) {
             let assignment = {}
 
             data.data.forEach(function (val, key) {
-                if (val.assign_date === deposit.assign_date && val.traject_master_id === deposit.traject_master_id) {
+                if (val.assign_date === deposit.assign_date
+                    && val.traject_master_id === deposit.traject_master_id
+                    && val.bus_crew1_id === deposit.bus_crew1_id
+                    && val.bus_id === deposit.bus_id) {
                     assignment = val
                 }
             })
@@ -510,7 +531,7 @@ export default function DepositDetail(props) {
                         let count = _editablePnp[key]
                         let amount = matchingDetail.amount
 
-                        if(matchingDetail.name == "Catatan Saku"){
+                        if (matchingDetail.name == "Catatan Saku") {
                             count = 0
                             amount = _editablePnp[key]
                         }
@@ -1244,15 +1265,15 @@ export default function DepositDetail(props) {
 
                                                 let amountDefault = item?.amount
 
-                                                if(_setoranData.data.setoran.status == "CREATED"){
-                                                    _setoranData.data.images.forEach(function(val, key){
-                                                        if(val.title.toUpperCase() == item.name){
+                                                if (_setoranData.data.setoran.status == "CREATED") {
+                                                    _setoranData.data.images.forEach(function (val, key) {
+                                                        if (val.title.toUpperCase() == item.name) {
                                                             amountDefault = val.amount
                                                         }
                                                     })
                                                 }
 
-                                                let amount = _editablePnp[item.id] !== undefined ? _editablePnp[item.id] :  amountDefault
+                                                let amount = _editablePnp[item.id] !== undefined ? _editablePnp[item.id] : amountDefault
 
                                                 return (
                                                     <Row
@@ -1279,7 +1300,7 @@ export default function DepositDetail(props) {
                                                         </Col>
                                                     </Row>
                                                 )
-                                                
+
                                             })
                                     }
 
@@ -1461,8 +1482,10 @@ export default function DepositDetail(props) {
                                                             <p style={{ margin: '4px 0', fontSize: '12px', color: '#666' }}>{image.desc}</p>
 
                                                             <p style={{ margin: '8px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>
-                                                                Rp {image.amount.toLocaleString('id-ID')}
+                                                                {currency(image.amount, image.title === "Odometer Awal" || image.title === "Odometer Akhir" ? "KM " : "Rp ")}
                                                             </p>
+
+
                                                             <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#999' }}>
                                                                 {image.date} {image.time}
                                                             </p>
@@ -1520,16 +1543,16 @@ export default function DepositDetail(props) {
 
                                                     <h5 style={{ margin: '8px 0 4px 0' }}>{image.name}</h5>
                                                     <p style={{ margin: '4px 0', fontSize: '12px', color: '#666' }}>{image.category}</p>
-                                                    
+
                                                     <div style={{ margin: '4px 0', fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: ".5rem" }}>
                                                         <AiOutlineUser />
                                                         <span>{image.pnp_count + " Penumpang"}</span>
                                                     </div>
-                                                     <div style={{ margin: '4px 0', fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: ".5rem" }}>
-                                                        <AiFillPushpin  />
+                                                    <div style={{ margin: '4px 0', fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: ".5rem" }}>
+                                                        <AiFillPushpin />
                                                         <span>{image.location}</span>
                                                     </div>
-                                                     <div style={{ margin: '4px 0', fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: ".5rem" }}>
+                                                    <div style={{ margin: '4px 0', fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: ".5rem" }}>
                                                         Rp
                                                         <span>{currency(image.cash_amount)}</span>
                                                     </div>

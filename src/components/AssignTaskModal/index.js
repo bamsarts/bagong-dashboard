@@ -62,12 +62,6 @@ export default function AssignTaskModal(props = defaultProps) {
     const [_selectedSchedules, _setSelectedSchedules] = useState([])
     const [_showScheduleTable, _setShowScheduleTable] = useState(false)
 
-    const onChangeDate = (dates) => {
-        _setStartDate(dates);
-        _updateQuery({
-            "assignDate": dateFilter.basicDate(dates).normal
-        })
-    };
 
     const DatepickerAssign = forwardRef(({ value, onClick }, ref) => (
         <Col
@@ -252,7 +246,7 @@ export default function AssignTaskModal(props = defaultProps) {
 
     async function _submitData() {
         let query = {
-            "assignDate": _form.assignDate,
+            "assignDate": dateFilter.basicDate(new Date(_startDate)).normal,
             "companyId": _form.companyId,
             "busId": _form.busId,
             "crew1_id": _form.crew1_id,
@@ -310,6 +304,7 @@ export default function AssignTaskModal(props = defaultProps) {
                         <DatePicker
                             onChange={(date) => {
                                 _setStartDate(date)
+                                console.log(date)
                             }}
                             minDate={new Date()}
                             selected={_startDate}

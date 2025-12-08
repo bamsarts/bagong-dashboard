@@ -192,7 +192,7 @@ export default function AssignTask(props) {
                 visible={_modalVisible}
                 closeModal={() => _toggleModal(false)}
                 data={_selectedData}
-                refresh={() => _getData(_page)}
+                onSuccess={() => _getData(_page)}
             />
 
             <AdminLayout>
@@ -257,7 +257,7 @@ export default function AssignTask(props) {
                         columns={__COLUMNS}
                         records={_assignLists.data}
                         config={_paginationConfig}
-                        onRecordsPerPageChange={perPage => _setPagination({ length: perPage, startFrom: 0 })}
+                        onRecordsPerPageChange={perPage => _setPagination({ ..._page, length: perPage, startFrom: 0 })}
                         onPageChange={page => _setPagination({ ..._page, startFrom: (page - 1) * _page.length })}
                     />
                 </Card>

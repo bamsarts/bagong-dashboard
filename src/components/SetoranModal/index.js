@@ -406,9 +406,14 @@ export default function SetoranModal(props = defaultProps) {
     }
 
     async function _getDepositByTraject() {
+        
+        let query = {
+            "trajectId": props.data?.master_traject_id
+        }
+
         try {
 
-            const result = await get('/masterData/setoranDefaultByTraject/' + props.data?.master_traject_id, appContext.authData.token)
+            const result = await postJSON('/masterData/setoranDefaultByTraject/list', query,  appContext.authData.token)
 
             if (result) {
                 // Group data by name to match state variables
