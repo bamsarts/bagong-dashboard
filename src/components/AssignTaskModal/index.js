@@ -194,7 +194,7 @@ export default function AssignTaskModal(props = defaultProps) {
             let scheduleRange = []
             result.data.forEach(function (val) {
                 scheduleRange.push({
-                    "title": val.id + " | Traject " + val.trajectId + " | " + val.trajectMasterName,
+                    "title": val.code + " | Traject " + val.trajectId + " | " + val.trajectMasterName,
                     "value": val.id,
                     "data": val
                 })

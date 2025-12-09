@@ -302,7 +302,7 @@ export default function Deposit(props) {
                         columns={__COLUMNS}
                         records={_depositLists.data}
                         config={_paginationConfig}
-                        onRecordsPerPageChange={perPage => _setPagination({ length: perPage, startFrom: 0 })}
+                        onRecordsPerPageChange={perPage => _setPagination({..._page, length: perPage, startFrom: 0 })}
                         onPageChange={page => _setPagination({ ..._page, startFrom: (page - 1) * _page.length })}
                     />
                 </Card>

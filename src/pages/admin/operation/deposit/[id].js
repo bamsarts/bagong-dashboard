@@ -7,6 +7,7 @@ import Card from '../../../../components/Card'
 import Button from '../../../../components/Button'
 import { Row, Col } from '../../../../components/Layout'
 import Input from '../../../../components/Input'
+import Modal, { ModalContent } from '../../../../components/Modal'
 import styles from './Deposit.module.scss'
 import Image from 'next/image'
 import { currency, dateFilter } from '../../../../utils/filters'
@@ -68,6 +69,7 @@ export default function DepositDetail(props) {
     })
     const [_formCost, _setFormCost] = useState([])
     const [_isProcessing, _setIsProcessing] = useState(false)
+    const [_showConfirmModal, _setShowConfirmModal] = useState(false)
 
     const summaryRows = [
         { label: 'Jumlah' },
@@ -121,7 +123,6 @@ export default function DepositDetail(props) {
             _setTotalExpenses(_calculateTotalExpenses(_setoranData.data.biaya))
         }
 
-        console.log(_editablePnp)
     }, [_editablePnp])
 
     useEffect(() => {
@@ -141,7 +142,7 @@ export default function DepositDetail(props) {
     async function _fetchSetoranDetail() {
 
         let query = {
-            "id" : id
+            "id": id
         }
 
         _setIsLoading(true)
@@ -168,11 +169,11 @@ export default function DepositDetail(props) {
                 _setTrajectTracks(tracks)
             }
 
-            if(data.data.setoran.status == "CREATED"){
-                data.data.images.forEach(function(val, key){
-                    if(val.title.toLowerCase() == "odometer awal"){
+            if (data.data.setoran.status == "CREATED") {
+                data.data.images.forEach(function (val, key) {
+                    if (val.title.toLowerCase() == "odometer awal") {
                         startKm = val.amount
-                    }else if(val.title.toLowerCase() == "odometer akhir"){
+                    } else if (val.title.toLowerCase() == "odometer akhir") {
                         endKm = val.amount
                     }
                 })
@@ -189,7 +190,7 @@ export default function DepositDetail(props) {
 
             _updateFormSubmit({
                 "kmAwal": startKm,
-                "kmAkhir": endKm, 
+                "kmAkhir": endKm,
                 "desc": data.data.setoran.desc
             })
 
@@ -495,7 +496,17 @@ export default function DepositDetail(props) {
                 }
             }
 
-            if (item.name == "Catatan Saku") {
+            if(_setoranData?.data?.setoran?.status == "CREATED"){
+                if(item.name == "SOLAR" || item.name == "TOL"){
+                    _setoranData.data.images.forEach(i => {
+                        if (i.title.toUpperCase() == item.name) {
+                            item.amount = parseInt(i.amount)
+                        } 
+                    })
+                }
+            }
+
+            if (item.name == "Catatan Saku" || item.name == "SOLAR" || item.name == "TOL") {
                 total.notesDeposit += parseInt(item.amount)
             }
         });
@@ -512,7 +523,18 @@ export default function DepositDetail(props) {
         return total;
     }
 
-    async function _receivedDeposit() {
+    function _getFinalAmount() {
+        let finalAmount = _setoranData?.data?.setoran?.payment_amount
+
+        if (_setoranData?.data?.setoran?.status == "CREATED") {
+            finalAmount = _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit)
+        }
+
+        return currency(finalAmount)
+    }
+
+    async function _confirmReceiveDeposit() {
+        _setShowConfirmModal(false)
         _setIsProcessing(true)
         try {
             let payload = {
@@ -1304,7 +1326,7 @@ export default function DepositDetail(props) {
                                             })
                                     }
 
-                                    {_setoranData.data.images
+                                    {/* {_setoranData.data.images
                                         ?.filter(item => (item.title === "Solar" || item.title == "Tol"))
                                         .map((item, index) => (
                                             <Row>
@@ -1324,7 +1346,7 @@ export default function DepositDetail(props) {
                                             </Row>
 
                                         ))
-                                    }
+                                    } */}
 
 
                                 </div>
@@ -1346,7 +1368,7 @@ export default function DepositDetail(props) {
                                     >
                                         <Input
                                             type="number"
-                                            value={currency(_manifestCost.notesDeposit + _manifestCost.tol + _manifestCost.fuel)}
+                                            value={currency(_manifestCost.notesDeposit)}
                                             placeholder={`Rp`}
                                             style={{
                                                 textAlign: "right"
@@ -1373,7 +1395,7 @@ export default function DepositDetail(props) {
                                     >
                                         <Input
                                             type="number"
-                                            value={currency(_form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit + _manifestCost.tol + _manifestCost.fuel))}
+                                            value={_getFinalAmount()}
                                             placeholder={`Rp`}
                                             style={{
                                                 textAlign: "right"
@@ -1447,7 +1469,7 @@ export default function DepositDetail(props) {
                                     <Row>
                                         {_setoranData.data.images?.map((image) => {
                                             return (
-                                                image.full_url && (
+                                                parseInt(image.amount) > 0 && (
                                                     <Col key={image.id} column={1} withPadding mobileFullWidth>
                                                         <div style={{
                                                             border: '1px solid #ddd',
@@ -1460,24 +1482,30 @@ export default function DepositDetail(props) {
                                                             onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
                                                             onClick={() => setSelectedImage(image)}
                                                         >
-                                                            <div style={{
-                                                                position: 'relative',
-                                                                width: '100%',
-                                                                height: '200px',
-                                                                marginBottom: '8px',
-                                                                borderRadius: '4px',
-                                                                overflow: 'hidden'
-                                                            }}>
-                                                                <img
-                                                                    src={image.full_url}
-                                                                    alt={image.title}
-                                                                    style={{
-                                                                        width: '100%',
-                                                                        height: '100%',
-                                                                        objectFit: 'cover'
-                                                                    }}
-                                                                />
-                                                            </div>
+
+                                                            {
+                                                                image.full_url && (
+                                                                <div style={{
+                                                                    position: 'relative',
+                                                                    width: '100%',
+                                                                    height: '200px',
+                                                                    marginBottom: '8px',
+                                                                    borderRadius: '4px',
+                                                                    overflow: 'hidden'
+                                                                }}>
+                                                                    <img
+                                                                        src={image.full_url}
+                                                                        alt={image.title}
+                                                                        style={{
+                                                                            width: '100%',
+                                                                            height: '100%',
+                                                                            objectFit: 'cover'
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                )
+                                                            }
+                                                            
                                                             <h5 style={{ margin: '8px 0 4px 0' }}>{image.title}</h5>
                                                             <p style={{ margin: '4px 0', fontSize: '12px', color: '#666' }}>{image.desc}</p>
 
@@ -1573,7 +1601,7 @@ export default function DepositDetail(props) {
                                                 <Button
                                                     title={'Terima Setoran'}
                                                     styles={Button.primary}
-                                                    onClick={_receivedDeposit}
+                                                    onClick={() => _setShowConfirmModal(true)}
                                                     onProcess={_isProcessing}
                                                 />
 
@@ -1654,6 +1682,57 @@ export default function DepositDetail(props) {
                         )}
                     </Col>
                 </Card>
+
+                <Modal
+                    visible={_showConfirmModal}
+                    centeredContent
+                >
+                    <ModalContent
+                        header={{
+                            title: "Konfirmasi Terima Setoran",
+                            closeModal: () => _setShowConfirmModal(false)
+                        }}
+                    >
+                        <div style={{ padding: '20px 0' }}>
+                            <p style={{ marginBottom: '20px', fontSize: '14px' }}>
+                                Apakah Anda yakin ingin menerima setoran ini?
+                            </p>
+                            <div style={{ marginBottom: '15px', fontSize: '13px', color: '#666' }}>
+                                <div style={{ marginBottom: '8px' }}>
+                                    <strong>Total Setoran:</strong> {_getFinalAmount()}
+                                </div>
+                                <div style={{ marginBottom: '8px' }}>
+                                    <strong>Nopol:</strong> {_assignedData?.bus_name}
+                                </div>
+                                <div>
+                                    <strong>Kondektur:</strong> {_assignedData?.bus_crew1_name}
+                                </div>
+                            </div>
+                        </div>
+                        <Row
+                        spaceBetween
+                        >
+                            <Col>
+                                <Button
+                                    title="Batal"
+                                    styles={Button.secondary}
+                                    onClick={() => _setShowConfirmModal(false)}
+                                    disabled={_isProcessing}
+                                />
+                            </Col>
+                            <Col
+                            alignEnd
+                            >
+                                <Button
+                                    title="Ya, Terima"
+                                    styles={Button.primary}
+                                    onClick={_confirmReceiveDeposit}
+                                    onProcess={_isProcessing}
+                                />
+                            </Col>
+                        </Row>
+                    </ModalContent>
+                </Modal>
             </AdminLayout>
         </Main>
     )
