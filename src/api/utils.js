@@ -2,27 +2,22 @@ import FormData from 'form-data'
 
 export const API_ENDPOINT = {
     development: 'https://uat.damri.bisku.id:8080',
-    // development2 : 'http://103.172.24.140:3000',
-    // production : 'http://103.172.24.140:3030',
     development2: 'http://103.132.239.124:3000',
     developmentBackup: 'http://139.59.223.142:3030',
     production: 'https://api-damri-dashboard.bisku.id',
     productionBackup: 'https://api2-damri-dashboard.bisku.id', //production backup
     local: 'http://192.168.70.70:8080',
     ticketOrder: 'http://uat.damri.bisku.id:8585', //dev
-    //ticketOrderProd: "https://api-karcis-damri-dashboard.bisku.id",
     ticketOrderProd: "https://api3-dashboard.damri.bisku.id",
     settlement: 'http://uat.damri.bisku.id:8484', //dev
     settlementProd: 'http://karcis.damri.bisku.id', //live
-    // ticketOrder: 'https://api-damri-dashboard.bisku.id:2443', //live
-    // ticketOrder : 'http://project-damri-redirect-to-localhost.loca.lt',
     productionApps: 'http://api.damri.bisku.id',
     productionAppsCk: 'https://api.damri.ck.bisku.top',
     devCk: 'https://app.damri.bisku.id:3030',
     staging: 'https://app.damri.bisku.id:5000',
     cache_all: ['http://103.217.227.11:6262', 'http://103.217.227.11:7272', 'http://103.217.227.11:8282'],
     web_damri_dev: "http://103.158.252.98:1038",
-    web_damri_prod: "https://damri.co.id",
+    bagong_prod: "https://bagong.bisku.id",
     bucket: "https://cdn.bisku.net/damri",
     dev_coreticket: "https://core-ticketing.bisku.id"
 }
