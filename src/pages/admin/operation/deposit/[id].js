@@ -29,7 +29,8 @@ export default function DepositDetail(props) {
     const [_manifestCost, _setManifestCost] = useState({
         "fuel": 0,
         "gas": 0,
-        "notesDeposit": 0
+        "notesDeposit": 0,
+        "others": 0
     })
     const [_passengersOntheBus, _setPassengersOntheBus] = useState([])
     const [_amountOntheBus, _setAmountOntheBus] = useState([])
@@ -65,7 +66,7 @@ export default function DepositDetail(props) {
         "kmAkhir": 0,
         "customValue": [],
         "desc": "",
-        "totalPayment": 0
+        "totalSetoran": 0
     })
     const [_formCost, _setFormCost] = useState([])
     const [_isProcessing, _setIsProcessing] = useState(false)
@@ -132,12 +133,18 @@ export default function DepositDetail(props) {
             _setManifestCost({
                 "fuel": data.fuel,
                 "tol": data.tol,
-                "notesDeposit": data.notesDeposit
+                "notesDeposit": data.notesDeposit,
+                "others": data.others
             })
 
             generateTrack()
         }
     }, [_setoranData, _totalGrossAmount, _totalExpenses])
+
+    useEffect(() => {
+        console.log("mfa")
+        console.log(_manifestCost)
+    }, [_manifestCost.tol, _manifestCost.others])
 
     async function _fetchSetoranDetail() {
 
@@ -465,7 +472,8 @@ export default function DepositDetail(props) {
             "incomeByPercentage": 0,
             "notesDeposit": 0,
             "fuel": 0,
-            "tol": 0
+            "tol": 0,
+            "others": 0
         }
 
         if (!_setoranData?.data?.biaya?.[0]?.details) return total;
@@ -496,30 +504,38 @@ export default function DepositDetail(props) {
                 }
             }
 
-            if(_setoranData?.data?.setoran?.status == "CREATED"){
-                if(item.name == "SOLAR" || item.name == "TOL"){
+            if (_setoranData?.data?.setoran?.status == "CREATED") {
+                if (item.name == "SOLAR" || item.name == "TOL") {
                     _setoranData.data.images.forEach(i => {
                         if (i.title.toUpperCase() == item.name) {
                             item.amount = parseInt(i.amount)
-                        } 
+                        }
                     })
                 }
             }
 
-            if (item.name == "Catatan Saku" || item.name == "SOLAR" || item.name == "TOL") {
+            if (item.name == "Catatan Saku" || item.name == "SOLAR" || item.name == "Tol" || item.name == "Lainnya") {
                 total.notesDeposit += parseInt(item.amount)
             }
         });
 
-        _setoranData.data.images.forEach(item => {
-            if (item.title == "Solar") {
-                total.fuel += parseInt(item.amount)
+        if(_setoranData?.data?.setoran?.status == "CREATED"){
+            _setoranData.data.images.forEach(item => {
+                if (item.title == "Solar") {
+                    total.fuel += parseInt(item.amount)
 
-            } else if (item.title == "Tol") {
-                total.tol += parseInt(item.amount)
-            }
-        })
+                } else if (item.title == "Tol") {
+                    total.tol += parseInt(item.amount)
+                    
+                } else if (item.title.toLowerCase() == "lainnya") {
 
+                    total.others += parseInt(item.amount)
+                   
+                }
+            })
+        }
+
+        
         return total;
     }
 
@@ -527,7 +543,7 @@ export default function DepositDetail(props) {
         let finalAmount = _setoranData?.data?.setoran?.payment_amount
 
         if (_setoranData?.data?.setoran?.status == "CREATED") {
-            finalAmount = _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit)
+            finalAmount = _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit - _manifestCost.tol - _manifestCost.others)
         }
 
         return currency(finalAmount)
@@ -540,7 +556,7 @@ export default function DepositDetail(props) {
             let payload = {
                 ..._formSubmit,
                 id: parseInt(id),
-                totalPayment: _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit + _manifestCost.tol + _manifestCost.fuel),
+                totalSetoran: parseInt(_getFinalAmount().replace(/\./g, '')),
                 customValue: []
             }
 
@@ -572,16 +588,33 @@ export default function DepositDetail(props) {
             for (const key in _form) {
                 if (_form.hasOwnProperty(key)) {
                     if ((key == "operan" || key == "refund") && _form[key].value > 0) {
-                        payload.customValue.push([{
+                        payload.customValue.push({
                             id: 0,
                             name: key,
                             desc: _form[key].title,
                             amount: _form[key].value,
                             count: 0
-                        }]);
+                        });
                     }
                 }
             }
+
+            payload.customValue.push(
+                {
+                    id: 0,
+                    name: "Tol",
+                    desc: "Tol",
+                    amount: _manifestCost.tol,
+                    count: 0
+                },
+                {
+                    id: 0,
+                    name: "Lainnya",
+                    desc: "Lainnya",
+                    amount: _manifestCost.others,
+                    count: 0
+                }
+            );
 
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
@@ -1282,7 +1315,7 @@ export default function DepositDetail(props) {
                                     {
 
                                         _setoranData.data.biaya[0]?.details
-                                            ?.filter(item => (item.name === "Catatan Saku" || item.name == "SOLAR"))
+                                            ?.filter(item => (item.name === "Catatan Saku" || item.name == "SOLAR" || item.name == "Tol" || item.name == "Lainnya"))
                                             .map((item, index) => {
 
                                                 let amountDefault = item?.amount
@@ -1297,10 +1330,12 @@ export default function DepositDetail(props) {
 
                                                 let amount = _editablePnp[item.id] !== undefined ? _editablePnp[item.id] : amountDefault
 
+                                                
                                                 return (
                                                     <Row
                                                         key={item.id}
                                                     >
+                                                       
                                                         <Col column={2} withPadding justifyCenter>
                                                             <span>{item.desc}</span>
                                                         </Col>
@@ -1326,27 +1361,57 @@ export default function DepositDetail(props) {
                                             })
                                     }
 
-                                    {/* {_setoranData.data.images
-                                        ?.filter(item => (item.title === "Solar" || item.title == "Tol"))
-                                        .map((item, index) => (
-                                            <Row>
-                                                <Col column={2} withPadding justifyCenter>
-                                                    <span>{item.desc}</span>
-                                                </Col>
-                                                <Col key={item.id} column={1} withPadding>
-                                                    <Input
-                                                        type="number"
-                                                        value={currency(item.amount)}
-                                                        placeholder={`Masukkan ${item.desc}`}
-                                                        style={{
-                                                            textAlign: "right"
-                                                        }}
-                                                    />
-                                                </Col>
-                                            </Row>
+                                    {
+                                        _setoranData?.data?.setoran?.status == "CREATED" && (
+                                            <>
+                                                <Row>
+                                                    <Col column={2} withPadding justifyCenter>
+                                                        <span>Tol</span>
+                                                    </Col>
+                                                    <Col column={1} withPadding>
+                                                        <Input
+                                                            type="number"
+                                                            value={currency(_manifestCost.tol)}
+                                                            onChange={(value) => _setManifestCost(prev => ({
+                                                                ...prev,
+                                                                tol: parseFloat(String(value).replace(/[.,]/g, '')) || 0
+                                                            }))}
+                                                            placeholder={`Masukkan nilai lainnya`}
+                                                            style={{
+                                                                textAlign: "right"
+                                                            }}
+                                                        />
+                                                    </Col>
+                                                </Row>
 
-                                        ))
-                                    } */}
+                                                <Row>
+                                                    <Col column={2} withPadding justifyCenter>
+                                                        <span>Lainnya</span>
+                                                    </Col>
+                                                    <Col column={1} withPadding>
+                                                        <Input
+                                                            type="number"
+                                                            value={currency(_manifestCost.others)}
+                                                            onChange={(value) => _setManifestCost(prev => ({
+                                                                ...prev,
+                                                                others: parseFloat(String(value).replace(/[.,]/g, '')) || 0
+                                                            }))}
+                                                            placeholder={`Masukkan nilai lainnya`}
+                                                            style={{
+                                                                textAlign: "right"
+                                                            }}
+                                                        />
+                                                    </Col>
+                                                </Row>
+                                            </>
+                                        )
+                                    }
+
+                                    
+
+
+
+
 
 
                                 </div>
@@ -1368,7 +1433,7 @@ export default function DepositDetail(props) {
                                     >
                                         <Input
                                             type="number"
-                                            value={currency(_manifestCost.notesDeposit)}
+                                            value={currency(_manifestCost.notesDeposit - _manifestCost.tol - _manifestCost.others)}
                                             placeholder={`Rp`}
                                             style={{
                                                 textAlign: "right"
@@ -1485,27 +1550,27 @@ export default function DepositDetail(props) {
 
                                                             {
                                                                 image.full_url && (
-                                                                <div style={{
-                                                                    position: 'relative',
-                                                                    width: '100%',
-                                                                    height: '200px',
-                                                                    marginBottom: '8px',
-                                                                    borderRadius: '4px',
-                                                                    overflow: 'hidden'
-                                                                }}>
-                                                                    <img
-                                                                        src={image.full_url}
-                                                                        alt={image.title}
-                                                                        style={{
-                                                                            width: '100%',
-                                                                            height: '100%',
-                                                                            objectFit: 'cover'
-                                                                        }}
-                                                                    />
-                                                                </div>
+                                                                    <div style={{
+                                                                        position: 'relative',
+                                                                        width: '100%',
+                                                                        height: '200px',
+                                                                        marginBottom: '8px',
+                                                                        borderRadius: '4px',
+                                                                        overflow: 'hidden'
+                                                                    }}>
+                                                                        <img
+                                                                            src={image.full_url}
+                                                                            alt={image.title}
+                                                                            style={{
+                                                                                width: '100%',
+                                                                                height: '100%',
+                                                                                objectFit: 'cover'
+                                                                            }}
+                                                                        />
+                                                                    </div>
                                                                 )
                                                             }
-                                                            
+
                                                             <h5 style={{ margin: '8px 0 4px 0' }}>{image.title}</h5>
                                                             <p style={{ margin: '4px 0', fontSize: '12px', color: '#666' }}>{image.desc}</p>
 
@@ -1710,7 +1775,7 @@ export default function DepositDetail(props) {
                             </div>
                         </div>
                         <Row
-                        spaceBetween
+                            spaceBetween
                         >
                             <Col>
                                 <Button
@@ -1721,7 +1786,7 @@ export default function DepositDetail(props) {
                                 />
                             </Col>
                             <Col
-                            alignEnd
+                                alignEnd
                             >
                                 <Button
                                     title="Ya, Terima"
