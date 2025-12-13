@@ -143,7 +143,7 @@ export default function Transaction(props) {
 
                 if (value === "web.damri.bisku.id") channel = "Web Reservasi"
 
-                return channel
+                return "MPOS"
 
             }
         },
@@ -174,33 +174,33 @@ export default function Transaction(props) {
 
             }
         },
-        {
-            title: 'Status DAMRI',
-            field: 'isPaidInDamri',
-            textAlign: 'center',
-            minWidth: '100px',
-            customCell: (value, row) => {
+        // {
+        //     title: 'Status DAMRI',
+        //     field: 'isPaidInDamri',
+        //     textAlign: 'center',
+        //     minWidth: '100px',
+        //     customCell: (value, row) => {
 
-                return (
-                    <Row
-                        verticalCenter
-                    >
+        //         return (
+        //             <Row
+        //                 verticalCenter
+        //             >
 
-                        <Label
-                            activeIndex={true}
-                            labels={[
-                                {
-                                    "class": _statusPayment(value ? "PAID" : "PENDING"),
-                                    "title": value ? "PAID" : "PENDING",
-                                    "value": true
-                                }
-                            ]}
-                        />
-                    </Row>
-                )
+        //                 <Label
+        //                     activeIndex={true}
+        //                     labels={[
+        //                         {
+        //                             "class": _statusPayment(value ? "PAID" : "PENDING"),
+        //                             "title": value ? "PAID" : "PENDING",
+        //                             "value": true
+        //                         }
+        //                     ]}
+        //                 />
+        //             </Row>
+        //         )
 
-            }
-        },
+        //     }
+        // },
         {
             title: 'Penumpang',
             field: 'nama_penumpang',
@@ -271,7 +271,7 @@ export default function Transaction(props) {
                 return (
                     <Col>
                         {
-                            row.discount == 0 && (
+                            (row.discount == 0 || !row.discount) && (
                                 <span>{currency(row.harga)}</span>
                             )
                         }

@@ -71,6 +71,10 @@ export default function DepositDetail(props) {
     const [_formCost, _setFormCost] = useState([])
     const [_isProcessing, _setIsProcessing] = useState(false)
     const [_showConfirmModal, _setShowConfirmModal] = useState(false)
+    const [_typePaymentAmount, _setTypePaymentAmount] = useState({
+        "cash": 0,
+        "nonCash": 0
+    })
 
     const summaryRows = [
         { label: 'Jumlah' },
@@ -117,6 +121,10 @@ export default function DepositDetail(props) {
         if (_setoranData?.data?.setoran) {
             _setTotalExpenses(_calculateTotalExpenses(_setoranData.data.biaya))
         }
+
+        if(_setoranData?.data?.ritase){
+            _getPaymentAmountTotal()
+        }
     }, [_setoranData])
 
     useEffect(() => {
@@ -138,13 +146,32 @@ export default function DepositDetail(props) {
             })
 
             generateTrack()
+
         }
-    }, [_setoranData, _totalGrossAmount, _totalExpenses])
+    }, [_setoranData, _totalGrossAmount, _totalExpenses, _editablePnp])
 
     useEffect(() => {
         console.log("mfa")
         console.log(_manifestCost)
     }, [_manifestCost.tol, _manifestCost.others])
+
+    function _getPaymentAmountTotal(){
+
+        let cash = 0
+        let nonCash = 0
+        
+        
+        _setoranData.data.ritase.forEach(function(val, key){
+            cash += val.cash_payment_amount
+            nonCash += val.non_cash_payment_amount
+        })
+
+        _setTypePaymentAmount({
+            "cash": cash,
+            "nonCash": nonCash
+        })
+        
+    }
 
     async function _fetchSetoranDetail() {
 
@@ -515,27 +542,32 @@ export default function DepositDetail(props) {
             }
 
             if (item.name == "Catatan Saku" || item.name == "SOLAR" || item.name == "Tol" || item.name == "Lainnya") {
+                // Use editable value if available, otherwise use original amount
+                if (_editablePnp[item.id] !== undefined) {
+                    item.amount = _editablePnp[item.id]
+                }
+
                 total.notesDeposit += parseInt(item.amount)
             }
         });
 
-        if(_setoranData?.data?.setoran?.status == "CREATED"){
+        if (_setoranData?.data?.setoran?.status == "CREATED") {
             _setoranData.data.images.forEach(item => {
                 if (item.title == "Solar") {
                     total.fuel += parseInt(item.amount)
 
                 } else if (item.title == "Tol") {
                     total.tol += parseInt(item.amount)
-                    
+
                 } else if (item.title.toLowerCase() == "lainnya") {
 
                     total.others += parseInt(item.amount)
-                   
+
                 }
             })
         }
 
-        
+
         return total;
     }
 
@@ -546,7 +578,7 @@ export default function DepositDetail(props) {
             finalAmount = _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit - _manifestCost.tol - _manifestCost.others)
         }
 
-        return currency(finalAmount)
+        return finalAmount
     }
 
     async function _confirmReceiveDeposit() {
@@ -556,7 +588,7 @@ export default function DepositDetail(props) {
             let payload = {
                 ..._formSubmit,
                 id: parseInt(id),
-                totalSetoran: parseInt(_getFinalAmount().replace(/\./g, '')),
+                totalSetoran: (parseInt(String(_getFinalAmount()).replace(/\./g, '')) - _typePaymentAmount.nonCash),
                 customValue: []
             }
 
@@ -1330,12 +1362,12 @@ export default function DepositDetail(props) {
 
                                                 let amount = _editablePnp[item.id] !== undefined ? _editablePnp[item.id] : amountDefault
 
-                                                
+
                                                 return (
                                                     <Row
                                                         key={item.id}
                                                     >
-                                                       
+
                                                         <Col column={2} withPadding justifyCenter>
                                                             <span>{item.desc}</span>
                                                         </Col>
@@ -1407,13 +1439,6 @@ export default function DepositDetail(props) {
                                         )
                                     }
 
-                                    
-
-
-
-
-
-
                                 </div>
 
                                 <Row>
@@ -1460,7 +1485,61 @@ export default function DepositDetail(props) {
                                     >
                                         <Input
                                             type="number"
-                                            value={_getFinalAmount()}
+                                            value={currency(_getFinalAmount())}
+                                            placeholder={`Rp`}
+                                            style={{
+                                                textAlign: "right"
+                                            }}
+                                        />
+                                    </Col>
+
+                                </Row>
+
+                                <Row>
+                                    <Col
+                                        withPadding
+                                        alignEnd
+                                        justifyCenter
+                                        column={5}
+                                    >
+                                        <span>TOTAL NON TUNAI</span>
+                                    </Col>
+
+
+                                    <Col
+                                        withPadding
+                                        column={1}
+                                    >
+                                        <Input
+                                            type="number"
+                                            value={currency(_typePaymentAmount.nonCash)}
+                                            placeholder={`Rp`}
+                                            style={{
+                                                textAlign: "right"
+                                            }}
+                                        />
+                                    </Col>
+
+                                </Row>
+
+                                <Row>
+                                    <Col
+                                        withPadding
+                                        alignEnd
+                                        justifyCenter
+                                        column={5}
+                                    >
+                                        <span>SETOR TUNAI</span>
+                                    </Col>
+
+
+                                    <Col
+                                        withPadding
+                                        column={1}
+                                    >
+                                        <Input
+                                            type="number"
+                                            value={currency(_getFinalAmount() - _typePaymentAmount.nonCash)}
                                             placeholder={`Rp`}
                                             style={{
                                                 textAlign: "right"
@@ -1764,7 +1843,7 @@ export default function DepositDetail(props) {
                             </p>
                             <div style={{ marginBottom: '15px', fontSize: '13px', color: '#666' }}>
                                 <div style={{ marginBottom: '8px' }}>
-                                    <strong>Total Setoran:</strong> {_getFinalAmount()}
+                                    <strong>Total Setoran:</strong> {currency(_getFinalAmount() - _typePaymentAmount.nonCash)}
                                 </div>
                                 <div style={{ marginBottom: '8px' }}>
                                     <strong>Nopol:</strong> {_assignedData?.bus_name}
