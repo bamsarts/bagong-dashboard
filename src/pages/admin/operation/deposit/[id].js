@@ -132,7 +132,7 @@ export default function DepositDetail(props) {
         if (_setoranData?.data?.setoran) {
             _setTotalExpenses(_calculateTotalExpenses(_setoranData.data.biaya))
         }
-        
+
     }, [_othersForm])
 
     // Initialize _othersForm with default value from biaya details where name == "Lainnya"
@@ -140,7 +140,7 @@ export default function DepositDetail(props) {
         if (_setoranData?.data?.biaya?.[0]?.details) {
             let lainnyaItem = _setoranData.data.biaya[0].details.find(item => item.name === "Lainnya");
 
-            if(_setoranData?.data?.setoran?.status == "CREATED"){
+            if (_setoranData?.data?.setoran?.status == "CREATED") {
                 lainnyaItem = _setoranData.data.images.find(item => item.title === "Lainnya")
             }
 
@@ -769,7 +769,7 @@ export default function DepositDetail(props) {
                                             className={styles.item}
                                         >
                                             <span>Tanggal Setoran</span>
-                                            <span> : {dateFilter.convertISO(_setoranData?.data?.setoran?.last_modified_at, "date")}</span>
+                                            <span> : {dateFilter.convertISO(_setoranData?.data?.setoran?.last_modified_at, "date", true)}</span>
                                         </div>
                                         <div
                                             className={styles.item}
