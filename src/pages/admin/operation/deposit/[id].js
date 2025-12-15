@@ -75,6 +75,7 @@ export default function DepositDetail(props) {
         "cash": 0,
         "nonCash": 0
     })
+    const [_othersForm, _setOthersForm] = useState(0)
 
     const summaryRows = [
         { label: 'Jumlah' },
@@ -122,8 +123,30 @@ export default function DepositDetail(props) {
             _setTotalExpenses(_calculateTotalExpenses(_setoranData.data.biaya))
         }
 
-        if(_setoranData?.data?.ritase){
+        if (_setoranData?.data?.ritase) {
             _getPaymentAmountTotal()
+        }
+    }, [_setoranData])
+
+    useEffect(() => {
+        if (_setoranData?.data?.setoran) {
+            _setTotalExpenses(_calculateTotalExpenses(_setoranData.data.biaya))
+        }
+        
+    }, [_othersForm])
+
+    // Initialize _othersForm with default value from biaya details where name == "Lainnya"
+    useEffect(() => {
+        if (_setoranData?.data?.biaya?.[0]?.details) {
+            let lainnyaItem = _setoranData.data.biaya[0].details.find(item => item.name === "Lainnya");
+
+            if(_setoranData?.data?.setoran?.status == "CREATED"){
+                lainnyaItem = _setoranData.data.images.find(item => item.title === "Lainnya")
+            }
+
+            if (lainnyaItem && _othersForm === 0) {
+                _setOthersForm(parseInt(lainnyaItem.amount) || 0);
+            }
         }
     }, [_setoranData])
 
@@ -155,13 +178,13 @@ export default function DepositDetail(props) {
         console.log(_manifestCost)
     }, [_manifestCost.tol, _manifestCost.others])
 
-    function _getPaymentAmountTotal(){
+    function _getPaymentAmountTotal() {
 
         let cash = 0
         let nonCash = 0
-        
-        
-        _setoranData.data.ritase.forEach(function(val, key){
+
+
+        _setoranData.data.ritase.forEach(function (val, key) {
             cash += val.cash_payment_amount
             nonCash += val.non_cash_payment_amount
         })
@@ -170,7 +193,7 @@ export default function DepositDetail(props) {
             "cash": cash,
             "nonCash": nonCash
         })
-        
+
     }
 
     async function _fetchSetoranDetail() {
@@ -481,17 +504,13 @@ export default function DepositDetail(props) {
                 passengerCount = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findCrewKarcis(item.traject_id));
             } else if (item.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)") {
                 passengerCount = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id));
-            } else if (item.name === "Lain-lain") {
-                // For "Lain-lain", use amount directly without multiplying by passenger count
-                total += parseInt(item.amount) || 0;
-                return;
             }
 
             // Calculate total for items that need passenger count multiplication
             total += passengerCount * (parseInt(item.amount) || 0);
         });
 
-        return total;
+        return total + parseInt(_othersForm);
     }
 
     function _calculateIncomeByPercentage() {
@@ -531,11 +550,16 @@ export default function DepositDetail(props) {
                 }
             }
 
+
             if (_setoranData?.data?.setoran?.status == "CREATED") {
-                if (item.name == "SOLAR" || item.name == "TOL") {
+                if (item.name == "SOLAR" || item.name == "TOL" || item.name == "Lainnya") {
                     _setoranData.data.images.forEach(i => {
                         if (i.title.toUpperCase() == item.name) {
                             item.amount = parseInt(i.amount)
+
+                            if (i.title == "Lainnya") {
+                                _setOthersForm(item.amount)
+                            }
                         }
                     })
                 }
@@ -547,7 +571,13 @@ export default function DepositDetail(props) {
                     item.amount = _editablePnp[item.id]
                 }
 
-                total.notesDeposit += parseInt(item.amount)
+                // For "Lainnya", use _othersForm value
+                if (item.name === "Lainnya") {
+                    item.amount = _othersForm;
+                    total.others = _othersForm;
+                } else {
+                    total.notesDeposit += parseInt(item.amount)
+                }
             }
         });
 
@@ -559,15 +589,9 @@ export default function DepositDetail(props) {
                 } else if (item.title == "Tol") {
                     total.tol += parseInt(item.amount)
 
-                } else if (item.title.toLowerCase() == "lainnya") {
-
-                    total.others += parseInt(item.amount)
-
                 }
             })
         }
-
-
         return total;
     }
 
@@ -575,7 +599,7 @@ export default function DepositDetail(props) {
         let finalAmount = _setoranData?.data?.setoran?.payment_amount
 
         if (_setoranData?.data?.setoran?.status == "CREATED") {
-            finalAmount = _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit - _manifestCost.tol - _manifestCost.others)
+            finalAmount = _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit - _manifestCost.tol)
         }
 
         return finalAmount
@@ -643,7 +667,7 @@ export default function DepositDetail(props) {
                     id: 0,
                     name: "Lainnya",
                     desc: "Lainnya",
-                    amount: _manifestCost.others,
+                    amount: _othersForm,
                     count: 0
                 }
             );
@@ -701,7 +725,7 @@ export default function DepositDetail(props) {
                                             className={styles.item}
                                         >
                                             <span>Tanggal</span>
-                                            <span> : {dateFilter.getMonthDate(new Date(_setoranData.data.setoran.transaction_date))}</span>
+                                            <span> : {dateFilter.getMonthDate(new Date(_assignedData?.assign_date))}</span>
                                         </div>
                                         <div
                                             className={styles.item}
@@ -1176,7 +1200,37 @@ export default function DepositDetail(props) {
                                             })
                                     }
 
-                                    {
+                                    {/* {
+                                        _setoranData.data.biaya[0].details
+                                        ?.filter(item => item.name === "Lainnya")
+                                        .map((item, index) => (
+                                            
+                                        ))
+                                    } */}
+
+                                    <Row>
+                                        <Col
+                                            column={4}
+                                            withPadding
+                                            justifyCenter
+                                            alignEnd
+                                        >
+                                            <span>Lainnya</span>
+                                        </Col>
+                                        <Col column={1} withPadding>
+                                            <Input
+                                                type="number"
+                                                value={currency(String(_othersForm).replace(/\./g, ''))}
+                                                onChange={(value) => _setOthersForm(parseFloat(String(value).replace(/\./g, '')))}
+                                                placeholder={`Masukkan nilai lainnya`}
+                                                style={{
+                                                    textAlign: "right"
+                                                }}
+                                            />
+                                        </Col>
+                                    </Row>
+
+                                    {/* {
                                         _setoranData.data.biaya[0].details
                                             ?.filter(item => item.name === "Lain-lain")
                                             .map((item, index) => (
@@ -1213,7 +1267,7 @@ export default function DepositDetail(props) {
                                                 </Row>
 
                                             ))
-                                    }
+                                    } */}
 
                                     <Row>
                                         <Col
@@ -1347,7 +1401,7 @@ export default function DepositDetail(props) {
                                     {
 
                                         _setoranData.data.biaya[0]?.details
-                                            ?.filter(item => (item.name === "Catatan Saku" || item.name == "SOLAR" || item.name == "Tol" || item.name == "Lainnya"))
+                                            ?.filter(item => (item.name === "Catatan Saku" || item.name == "SOLAR" || item.name == "Tol"))
                                             .map((item, index) => {
 
                                                 let amountDefault = item?.amount
@@ -1416,25 +1470,7 @@ export default function DepositDetail(props) {
                                                     </Col>
                                                 </Row>
 
-                                                <Row>
-                                                    <Col column={2} withPadding justifyCenter>
-                                                        <span>Lainnya</span>
-                                                    </Col>
-                                                    <Col column={1} withPadding>
-                                                        <Input
-                                                            type="number"
-                                                            value={currency(_manifestCost.others)}
-                                                            onChange={(value) => _setManifestCost(prev => ({
-                                                                ...prev,
-                                                                others: parseFloat(String(value).replace(/[.,]/g, '')) || 0
-                                                            }))}
-                                                            placeholder={`Masukkan nilai lainnya`}
-                                                            style={{
-                                                                textAlign: "right"
-                                                            }}
-                                                        />
-                                                    </Col>
-                                                </Row>
+
                                             </>
                                         )
                                     }
