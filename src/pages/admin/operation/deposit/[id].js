@@ -66,7 +66,8 @@ export default function DepositDetail(props) {
         "kmAkhir": 0,
         "customValue": [],
         "desc": "",
-        "totalSetoran": 0
+        "totalSetoran": 0,
+        "status": "APPROVED"
     })
     const [_formCost, _setFormCost] = useState([])
     const [_isProcessing, _setIsProcessing] = useState(false)
