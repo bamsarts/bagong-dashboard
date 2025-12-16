@@ -120,7 +120,10 @@ export default function DepositDetail(props) {
 
     useEffect(() => {
         if (_setoranData?.data?.setoran) {
-            _setTotalExpenses(_calculateTotalExpenses(_setoranData.data.biaya))
+          
+            const calculatedExpenses = _calculateTotalExpenses(_setoranData.data.biaya);
+          
+            _setTotalExpenses(isNaN(calculatedExpenses) ? 0 : calculatedExpenses)
         }
 
         if (_setoranData?.data?.ritase) {
@@ -130,7 +133,9 @@ export default function DepositDetail(props) {
 
     useEffect(() => {
         if (_setoranData?.data?.setoran) {
-            _setTotalExpenses(_calculateTotalExpenses(_setoranData.data.biaya))
+            
+            const calculatedExpenses = _calculateTotalExpenses(_setoranData.data.biaya);
+            _setTotalExpenses(isNaN(calculatedExpenses) ? 0 : calculatedExpenses)
         }
 
     }, [_othersForm])
@@ -152,7 +157,8 @@ export default function DepositDetail(props) {
 
     useEffect(() => {
         if (_setoranData?.data?.biaya) {
-            _setTotalExpenses(_calculateTotalExpenses(_setoranData.data.biaya))
+            const calculatedExpenses = _calculateTotalExpenses(_setoranData.data.biaya);
+            _setTotalExpenses(isNaN(calculatedExpenses) ? 0 : calculatedExpenses)
         }
 
     }, [_editablePnp])
@@ -506,11 +512,19 @@ export default function DepositDetail(props) {
                 passengerCount = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id));
             }
 
+            // Validate passengerCount to prevent NaN
+            if (isNaN(passengerCount)) {
+                passengerCount = 0;
+            }
+
             // Calculate total for items that need passenger count multiplication
-            total += passengerCount * (parseInt(item.amount) || 0);
+            const itemAmount = parseInt(item.amount) || 0;
+            total += passengerCount * itemAmount;
         });
 
-        return total + parseInt(_othersForm);
+        // Validate _othersForm to prevent NaN
+        const othersAmount = parseInt(_othersForm) || 0;
+        return total + othersAmount;
     }
 
     function _calculateIncomeByPercentage() {
@@ -599,10 +613,14 @@ export default function DepositDetail(props) {
         let finalAmount = _setoranData?.data?.setoran?.payment_amount
 
         if (_setoranData?.data?.setoran?.status == "CREATED") {
-            finalAmount = _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit - _manifestCost.tol)
+            finalAmount = _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit - _manifestCost.tol) -  _typePaymentAmount.nonCash
         }
 
         return finalAmount
+    }
+
+    function _getAmountNetIncome(){
+        return _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit - _manifestCost.tol)
     }
 
     async function _confirmReceiveDeposit() {
@@ -1051,7 +1069,7 @@ export default function DepositDetail(props) {
                                     <h4>PER KARCIS UNTUK KRU</h4>
 
                                     {
-                                        _setoranData.data.biaya[0].details
+                                        _setoranData.data.biaya && _setoranData.data.biaya.length > 0 && _setoranData.data.biaya[0].details
                                             ?.filter(item => item.name === "PER KARCIS UNTUK KRU")
                                             .map((item, index) => {
 
@@ -1131,7 +1149,7 @@ export default function DepositDetail(props) {
                                     <h4>PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)</h4>
 
                                     {
-                                        _setoranData.data.biaya[0].details
+                                        _setoranData.data.biaya && _setoranData.data.biaya.length > 0 && _setoranData.data.biaya[0].details
                                             ?.filter(item => item.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)")
                                             .map((item, index) => {
 
@@ -1200,13 +1218,7 @@ export default function DepositDetail(props) {
                                             })
                                     }
 
-                                    {/* {
-                                        _setoranData.data.biaya[0].details
-                                        ?.filter(item => item.name === "Lainnya")
-                                        .map((item, index) => (
-                                            
-                                        ))
-                                    } */}
+
 
                                     <Row>
                                         <Col
@@ -1325,7 +1337,7 @@ export default function DepositDetail(props) {
 
 
                                     {
-                                        _setoranData.data.biaya[0].details
+                                        _setoranData.data.biaya && _setoranData.data.biaya.length > 0 && _setoranData.data.biaya[0].details
                                             ?.filter(item => item.name === "Bonus Kru")
                                             .map((item, index) => (
 
@@ -1458,10 +1470,20 @@ export default function DepositDetail(props) {
                                                         <Input
                                                             type="number"
                                                             value={currency(_manifestCost.tol)}
-                                                            onChange={(value) => _setManifestCost(prev => ({
-                                                                ...prev,
-                                                                tol: parseFloat(String(value).replace(/[.,]/g, '')) || 0
-                                                            }))}
+                                                            onChange={(value) => {
+                                                                const stringValue = String(value).trim();
+                                                                if (stringValue === '') {
+                                                                    _setManifestCost(prev => ({
+                                                                        ...prev,
+                                                                        tol: 0
+                                                                    }));
+                                                                } else {
+                                                                    _setManifestCost(prev => ({
+                                                                        ...prev,
+                                                                        tol: parseFloat(stringValue.replace(/[.,]/g, '')) || 0
+                                                                    }));
+                                                                }
+                                                            }}
                                                             placeholder={`Masukkan nilai lainnya`}
                                                             style={{
                                                                 textAlign: "right"
@@ -1521,7 +1543,7 @@ export default function DepositDetail(props) {
                                     >
                                         <Input
                                             type="number"
-                                            value={currency(_getFinalAmount())}
+                                            value={currency(_getAmountNetIncome())}
                                             placeholder={`Rp`}
                                             style={{
                                                 textAlign: "right"
@@ -1575,7 +1597,7 @@ export default function DepositDetail(props) {
                                     >
                                         <Input
                                             type="number"
-                                            value={currency(_getFinalAmount() - _typePaymentAmount.nonCash)}
+                                            value={currency(_getFinalAmount())}
                                             placeholder={`Rp`}
                                             style={{
                                                 textAlign: "right"
