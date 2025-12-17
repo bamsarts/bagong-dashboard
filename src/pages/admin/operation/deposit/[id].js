@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { get, postJSON } from '../../../../api/utils'
+import { get, postFormData, postJSON } from '../../../../api/utils'
 import Main, { popAlert } from '../../../../components/Main'
 import AdminLayout from '../../../../components/AdminLayout'
 import Card from '../../../../components/Card'
@@ -23,6 +23,14 @@ export default function DepositDetail(props) {
     const [depositData, setDepositData] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const [_assignedData, _setAssignedData] = useState({})
+    const [_showUpdateModal, _setShowUpdateModal] = useState(false)
+    const [_updateForm, _setUpdateForm] = useState({
+        id: null,
+        title: '',
+        amount: '',
+        image: null
+    })
+    const [_isUpdating, _setIsUpdating] = useState(false)
     const [_totalExpenses, _setTotalExpenses] = useState(0)
     const [_totalGrossAmount, _setTotalGrossAmount] = useState(0)
     const [_totalIncomeByPercentage, _setTotalIncomeByPercentage] = useState(0)
@@ -625,6 +633,54 @@ export default function DepositDetail(props) {
 
     function _getAmountNetIncome(){
         return _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit - _manifestCost.tol)
+    }
+
+    function _openUpdateModal(image) {
+        _setUpdateForm({
+            id: image.id,
+            title: image.title,
+            amount: image.amount,
+            image: null
+        })
+        _setShowUpdateModal(true)
+    }
+
+    function _updateFormField(field, value) {
+        _setUpdateForm(prev => ({
+            ...prev,
+            [field]: value
+        }))
+    }
+
+    async function _submitUpdate() {
+        _setIsUpdating(true)
+        try {
+            const formData = {
+                ..._updateForm
+            }
+            
+
+            const response = await postFormData('/data/setoran/setoranImages/update', {...formData}, props.authData.token)
+
+
+            if(response){
+                popAlert({
+                    message: 'Setoran berhasil diubah',
+                    type: 'success'
+                })
+
+                _setShowUpdateModal(false)
+                _fetchSetoranDetail() // Refresh data
+            }
+           
+        } catch (e) {
+            popAlert({
+                message: e.message || 'Gagal mengupdate data',
+                type: 'error'
+            })
+        } finally {
+            _setIsUpdating(false)
+        }
     }
 
     async function _confirmReceiveDeposit() {
@@ -1686,12 +1742,13 @@ export default function DepositDetail(props) {
                                                         }}
                                                             onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)'}
                                                             onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
-                                                            onClick={() => setSelectedImage(image)}
                                                         >
 
                                                             {
                                                                 image.full_url && (
-                                                                    <div style={{
+                                                                    <div 
+                                                                    onClick={() => setSelectedImage(image)}
+                                                                    style={{
                                                                         position: 'relative',
                                                                         width: '100%',
                                                                         height: '200px',
@@ -1719,10 +1776,28 @@ export default function DepositDetail(props) {
                                                                 {currency(image.amount, image.title === "Odometer Awal" || image.title === "Odometer Akhir" ? "KM " : "Rp ")}
                                                             </p>
 
-
-                                                            <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#999' }}>
-                                                                {image.date} {image.time}
+                                                             <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#999' }}>
+                                                                {dateFilter.getMonthDate(new Date(image.date))} {image.time}
                                                             </p>
+                                                            
+                                                            {_setoranData?.data.setoran.status === "CREATED" && (
+                                                                <div
+                                                                style={
+                                                                    {
+                                                                        marginTop: "1rem"
+                                                                    }
+                                                                }
+                                                                >
+                                                                    <Button
+                                                                        title="Ubah"
+                                                                        styles={Button.secondary}
+                                                                        small
+                                                                        onClick={(e) => {
+                                                                            _openUpdateModal(image)
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </Col>
                                                 )
@@ -1934,6 +2009,71 @@ export default function DepositDetail(props) {
                                     styles={Button.primary}
                                     onClick={_confirmReceiveDeposit}
                                     onProcess={_isProcessing}
+                                />
+                            </Col>
+                        </Row>
+                    </ModalContent>
+                </Modal>
+
+                <Modal
+                    visible={_showUpdateModal}
+                    centeredContent
+                >
+                    <ModalContent
+                        header={{
+                            title: "Ubah "+_updateForm.title,
+                            closeModal: () => _setShowUpdateModal(false)
+                        }}
+                    >
+                        <div style={{ padding: '20px 0' }}>
+                            
+
+                            <div style={{ marginBottom: '20px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>
+                                    Jumlah {_updateForm.title === "Odometer Awal" || _updateForm.title === "Odometer Akhir" ? "(KM)" : "(Rp)"}
+                                </label>
+                                <Input
+                                    type="number"
+                                    value={_updateForm.amount}
+                                    onChange={(value) => _updateFormField('amount', value)}
+                                    placeholder="Masukkan jumlah"
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '20px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>
+                                    Gambar Baru
+                                </label>
+                                
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => _updateFormField('image', e.target.files[0])}
+                                    style={{
+                                        width: '100%',
+                                        borderRadius: '4px',
+                                        fontSize: '14px'
+                                    }}
+                                />
+                               
+                            </div>
+                        </div>
+                        
+                        <Row spaceBetween>
+                            <Col>
+                                <Button
+                                    title="Batal"
+                                    styles={Button.secondary}
+                                    onClick={() => _setShowUpdateModal(false)}
+                                    disabled={_isUpdating}
+                                />
+                            </Col>
+                            <Col alignEnd>
+                                <Button
+                                    title="Simpan"
+                                    styles={Button.primary}
+                                    onClick={_submitUpdate}
+                                    onProcess={_isUpdating}
                                 />
                             </Col>
                         </Row>

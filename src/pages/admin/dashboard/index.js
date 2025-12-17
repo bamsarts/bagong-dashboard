@@ -2465,7 +2465,11 @@ export default function Dashboard(props) {
                                         {
                                             !props.branch?.branchId && (
 
-                                                <>
+                                                <div
+                                                style={{
+                                                    display: "none"
+                                                }}
+                                                >
                                                     <Row>
                                                         <Col
                                                             column={4}
@@ -2996,7 +3000,7 @@ export default function Dashboard(props) {
                                                         </Col>
                                                     </Row>
 
-                                                </>
+                                                </div>
 
                                             )
                                         }
@@ -3172,7 +3176,7 @@ export default function Dashboard(props) {
                                             }
                                         </Row>
 
-                                        <Row>
+                                        {/* <Row>
                                             <Col
                                                 column={6}
                                             >
@@ -3309,7 +3313,7 @@ export default function Dashboard(props) {
                                                     </Row>
                                                 </Card>
                                             </Col>
-                                        </Row>
+                                        </Row> */}
                                     </>
                                 )
                             }
