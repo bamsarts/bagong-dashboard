@@ -137,6 +137,9 @@ export default function DepositDetail(props) {
             
             const calculatedExpenses = _calculateTotalExpenses(_setoranData.data.biaya);
             _setTotalExpenses(isNaN(calculatedExpenses) ? 0 : calculatedExpenses)
+
+            console.log("oh")
+            console.log(_othersForm)
         }
 
     }, [_othersForm])
@@ -1232,9 +1235,9 @@ export default function DepositDetail(props) {
                                         </Col>
                                         <Col column={1} withPadding>
                                             <Input
-                                                type="number"
+                                                type="currency"
                                                 value={currency(String(_othersForm).replace(/\./g, ''))}
-                                                onChange={(value) => _setOthersForm(parseFloat(String(value).replace(/\./g, '')))}
+                                                onChange={(value) => _setOthersForm(parseFloat(String(value).replace(/\./g, '')) || 0)}
                                                 placeholder={`Masukkan nilai lainnya`}
                                                 style={{
                                                     textAlign: "right"
