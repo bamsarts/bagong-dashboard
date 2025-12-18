@@ -73,6 +73,7 @@ export default function Deposit(props) {
                         icon={value.status == "CREATED" ? <BsCash /> : ''}
                         styles={value.status == "CREATED" ? Button.secondary : Button.primary}
                         onClick={() => {
+                            _saveFilterState()
                             localStorage.setItem("operasional_deposit", JSON.stringify(row))
                             router.push(`/admin/operation/deposit/${value.id}`)
                         }}
@@ -102,13 +103,14 @@ export default function Deposit(props) {
     const [_isProcessing, _setIsProcessing] = useState(false)
     const [_assignDate, _setAssignDate] = useState(new Date())
     const [_assignEndDate, _setAssignEndDate] = useState(new Date())
+    const [_selectedBus, _setSelectedBus] = useState(null)
+    const [_busFilterValue, _setBusFilterValue] = useState('')
 
     const CustomDatePicker = forwardRef(({ value, onClick }, ref) => (
         <Col
             justifyCenter
         >
             <Input
-                withMargin
                 title={"Tanggal Penugasan Awal"}
                 onClick={onClick}
                 ref={ref}
@@ -120,12 +122,11 @@ export default function Deposit(props) {
         </Col>
     ));
 
-     const CustomEndDatePicker = forwardRef(({ value, onClick }, ref) => (
+    const CustomEndDatePicker = forwardRef(({ value, onClick }, ref) => (
         <Col
             justifyCenter
         >
             <Input
-                withMargin
                 title={"Tanggal Penugasan Akhir"}
                 onClick={onClick}
                 ref={ref}
@@ -139,11 +140,12 @@ export default function Deposit(props) {
 
     useEffect(() => {
         _getTraject()
+        _restoreFilterState()
     }, [])
 
     useEffect(() => {
         _getData()
-    }, [_assignDate, _assignEndDate])
+    }, [_assignDate, _assignEndDate, _selectedBus])
 
     function _toggleModal(visible, data = {}) {
         _setModalVisible(visible)
@@ -161,10 +163,13 @@ export default function Deposit(props) {
     }
 
     async function _getData(pagination = _page) {
+
+       
         const params = {
             ...pagination,
             startDate: dateFilter.basicDate(new Date(_assignDate)).normal,
-            endDate: dateFilter.basicDate(new Date(_assignEndDate)).normal
+            endDate: dateFilter.basicDate(new Date(_assignEndDate)).normal,
+            ..._selectedBus && { busId: _selectedBus.id }
         }
 
         try {
@@ -214,11 +219,39 @@ export default function Deposit(props) {
 
             _setBusRange(result.data)
 
-            _getData(_page)
-
         } catch (e) {
             popAlert({ message: e.message })
             return []
+        }
+    }
+
+    function _saveFilterState() {
+        const filterState = {
+            assignDate: _assignDate,
+            assignEndDate: _assignEndDate,
+            selectedBus: _selectedBus,
+            busFilterValue: _busFilterValue,
+            page: _page,
+            paginationConfig: _paginationConfig
+        }
+        localStorage.setItem('deposit_filter_state', JSON.stringify(filterState))
+    }
+
+    function _restoreFilterState() {
+        const savedState = localStorage.getItem('deposit_filter_state')
+        if (savedState) {
+            try {
+                const filterState = JSON.parse(savedState)
+
+                _setAssignDate(new Date(filterState.assignDate))
+                _setAssignEndDate(new Date(filterState.assignEndDate))
+                _setSelectedBus(filterState.selectedBus)
+                _setBusFilterValue(filterState.busFilterValue || '')
+                _setPage(filterState.page)
+                _setPaginationConfig(filterState.paginationConfig)
+            } catch (e) {
+                console.error('Error restoring filter state:', e)
+            }
         }
     }
 
@@ -275,6 +308,8 @@ export default function Deposit(props) {
                                         }}
                                         selected={_assignDate}
                                         onChange={(date) => {
+                                            console.log("date")
+                                            console.log(date)
                                             _setAssignDate(date)
                                         }}
                                         customInput={<CustomDatePicker />}
@@ -296,13 +331,50 @@ export default function Deposit(props) {
                                         customInput={<CustomEndDatePicker />}
                                     />
                                 </Col>
+
+                                <Col
+                                    column={1}
+                                    withPadding
+                                >
+                                    <Input
+                                        title="Bus"
+                                        placeholder="Pilih Bus"
+                                        value={_busFilterValue}
+                                        onChange={(value) => _setBusFilterValue(value)}
+                                        suggestions={_busRange}
+                                        suggestionField="name"
+                                        onSuggestionSelect={(bus) => {
+                                            _setSelectedBus(bus)
+                                            _setBusFilterValue(bus.name || bus.code || '')
+                                        }}
+                                    />
+                                </Col>
+
+                                <Col
+                                    column={1}
+                                    withPadding
+                                    alignEnd
+                                    justifyEnd
+                                >
+                                    {_selectedBus && (
+                                        <Button
+                                            title="Hapus Filter"
+                                            styles={Button.secondary}
+                                            onClick={() => {
+                                                _setSelectedBus(null)
+                                                _setBusFilterValue('')
+                                            }}
+                                            small
+                                        />
+                                    )}
+                                </Col>
                             </Row>
 
                         )}
                         columns={__COLUMNS}
                         records={_depositLists.data}
                         config={_paginationConfig}
-                        onRecordsPerPageChange={perPage => _setPagination({..._page, length: perPage, startFrom: 0 })}
+                        onRecordsPerPageChange={perPage => _setPagination({ ..._page, length: perPage, startFrom: 0 })}
                         onPageChange={page => _setPagination({ ..._page, startFrom: (page - 1) * _page.length })}
                     />
                 </Card>

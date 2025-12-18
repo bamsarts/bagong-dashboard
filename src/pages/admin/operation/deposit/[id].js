@@ -129,9 +129,9 @@ export default function DepositDetail(props) {
 
     useEffect(() => {
         if (_setoranData?.data?.setoran) {
-          
+
             const calculatedExpenses = _calculateTotalExpenses(_setoranData.data.biaya);
-          
+
             _setTotalExpenses(isNaN(calculatedExpenses) ? 0 : calculatedExpenses)
         }
 
@@ -142,7 +142,7 @@ export default function DepositDetail(props) {
 
     useEffect(() => {
         if (_setoranData?.data?.setoran) {
-            
+
             const calculatedExpenses = _calculateTotalExpenses(_setoranData.data.biaya);
             _setTotalExpenses(isNaN(calculatedExpenses) ? 0 : calculatedExpenses)
 
@@ -625,13 +625,13 @@ export default function DepositDetail(props) {
         let finalAmount = _setoranData?.data?.setoran?.payment_amount
 
         if (_setoranData?.data?.setoran?.status == "CREATED") {
-            finalAmount = _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit - _manifestCost.tol) -  _typePaymentAmount.nonCash
+            finalAmount = _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit - _manifestCost.tol) - _typePaymentAmount.nonCash
         }
 
         return finalAmount
     }
 
-    function _getAmountNetIncome(){
+    function _getAmountNetIncome() {
         return _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit - _manifestCost.tol)
     }
 
@@ -658,12 +658,12 @@ export default function DepositDetail(props) {
             const formData = {
                 ..._updateForm
             }
-            
-
-            const response = await postFormData('/data/setoran/setoranImages/update', {...formData}, props.authData.token)
 
 
-            if(response){
+            const response = await postFormData('/data/setoran/setoranImages/update', { ...formData }, props.authData.token)
+
+
+            if (response) {
                 popAlert({
                     message: 'Setoran berhasil diubah',
                     type: 'success'
@@ -672,7 +672,7 @@ export default function DepositDetail(props) {
                 _setShowUpdateModal(false)
                 _fetchSetoranDetail() // Refresh data
             }
-           
+
         } catch (e) {
             popAlert({
                 message: e.message || 'Gagal mengupdate data',
@@ -757,8 +757,8 @@ export default function DepositDetail(props) {
                 type: 'success'
             })
 
-            // Optionally redirect back or refresh data
-            router.back()
+            // Navigate back to index page to restore filter state
+            router.push('/admin/operation/deposit')
         } catch (e) {
             popAlert({
                 message: e.message || 'Gagal menerima setoran',
@@ -776,7 +776,7 @@ export default function DepositDetail(props) {
                 headerContent={(
                     <Button
                         title="Kembali"
-                        onClick={() => router.back()}
+                        onClick={() => router.push('/admin/operation/deposit')}
                         styles={Button.secondary}
                         small
                     />
@@ -1746,16 +1746,16 @@ export default function DepositDetail(props) {
 
                                                             {
                                                                 image.full_url && (
-                                                                    <div 
-                                                                    onClick={() => setSelectedImage(image)}
-                                                                    style={{
-                                                                        position: 'relative',
-                                                                        width: '100%',
-                                                                        height: '200px',
-                                                                        marginBottom: '8px',
-                                                                        borderRadius: '4px',
-                                                                        overflow: 'hidden'
-                                                                    }}>
+                                                                    <div
+                                                                        onClick={() => setSelectedImage(image)}
+                                                                        style={{
+                                                                            position: 'relative',
+                                                                            width: '100%',
+                                                                            height: '200px',
+                                                                            marginBottom: '8px',
+                                                                            borderRadius: '4px',
+                                                                            overflow: 'hidden'
+                                                                        }}>
                                                                         <img
                                                                             src={image.full_url}
                                                                             alt={image.title}
@@ -1776,17 +1776,17 @@ export default function DepositDetail(props) {
                                                                 {currency(image.amount, image.title === "Odometer Awal" || image.title === "Odometer Akhir" ? "KM " : "Rp ")}
                                                             </p>
 
-                                                             <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#999' }}>
+                                                            <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#999' }}>
                                                                 {dateFilter.getMonthDate(new Date(image.date))} {image.time}
                                                             </p>
-                                                            
+
                                                             {_setoranData?.data.setoran.status === "CREATED" && (
                                                                 <div
-                                                                style={
-                                                                    {
-                                                                        marginTop: "1rem"
+                                                                    style={
+                                                                        {
+                                                                            marginTop: "1rem"
+                                                                        }
                                                                     }
-                                                                }
                                                                 >
                                                                     <Button
                                                                         title="Ubah"
@@ -2021,12 +2021,12 @@ export default function DepositDetail(props) {
                 >
                     <ModalContent
                         header={{
-                            title: "Ubah "+_updateForm.title,
+                            title: "Ubah " + _updateForm.title,
                             closeModal: () => _setShowUpdateModal(false)
                         }}
                     >
                         <div style={{ padding: '20px 0' }}>
-                            
+
 
                             <div style={{ marginBottom: '20px' }}>
                                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>
@@ -2044,7 +2044,7 @@ export default function DepositDetail(props) {
                                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>
                                     Gambar Baru
                                 </label>
-                                
+
                                 <input
                                     type="file"
                                     accept="image/*"
@@ -2055,10 +2055,10 @@ export default function DepositDetail(props) {
                                         fontSize: '14px'
                                     }}
                                 />
-                               
+
                             </div>
                         </div>
-                        
+
                         <Row spaceBetween>
                             <Col>
                                 <Button
