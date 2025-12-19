@@ -322,7 +322,7 @@ export default function ChannelExportModal(props = defaultProps) {
                     closeModal: props.closeModal
                 }}
             >
-                <Row>
+                {/* <Row>
                     <Col
                         withPadding
                         marginBottom
@@ -352,7 +352,7 @@ export default function ChannelExportModal(props = defaultProps) {
                             }}
                         />
                     </Col>
-                </Row>
+                </Row> */}
 
 
                 <small

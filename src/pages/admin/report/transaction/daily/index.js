@@ -195,11 +195,6 @@ export default function ReportDaily(props) {
                 rowSpan : 2,
                 hide: props.role_id == "9" ? true : false,         
             },
-            { 
-                title : 'Tanggal Validasi', 
-                rowSpan : 2,
-                hide: props.role_id == "9" ? true : false,        
-            },
             { title : 'Status', rowSpan : 2 },
             { 
                 title : 'Opsi', 
@@ -288,19 +283,6 @@ export default function ReportDaily(props) {
             field : 'userName',
             textAlign: 'left',
             hide: props.role_id == "9" ? true : false,
-        },
-        {   
-            title: 'Tanggal Validasi',
-            field : 'scanAt',
-            hide: props.role_id == "9" ? true : false,
-            customCell : (value) => {
-                if(value != null){
-                    const date = new Date(value)
-                    return dateFilter.getMonthDate(date)
-                }else{
-                    return ''
-                }
-            }
         },
         {
             title: 'Status',
