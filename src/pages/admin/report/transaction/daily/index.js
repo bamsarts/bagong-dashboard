@@ -562,7 +562,7 @@ export default function ReportDaily(props) {
         _setIsProcessing(true)
 
         try {
-            const res = await postJSON(`/laporan/transaksi/penjualan/harian${isLinkAkap}/list`, params, props.authData.token)
+            const res = await postJSON(`/laporan/penjualan/harian${isLinkAkap}/list`, params, props.authData.token)
 
             _setSalesReport(res.data)
             _setIsProcessing(false)

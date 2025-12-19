@@ -1,6 +1,6 @@
 import Button from '../Button'
 import Modal, { ModalContent } from '../Modal'
-import { postJSON, postFormData } from '../../api/utils'
+import { postJSON, postFormData, objectToParams, get } from '../../api/utils'
 import AppContext from '../../context/app'
 import { currency, dateFilter, paymentProvider } from '../../utils/filters'
 import { useState, useContext, useEffect } from "react";
@@ -95,16 +95,17 @@ export default function ChannelExportModal(props = defaultProps) {
             companyId: appContext.authData.companyId,
             startDate: _date.start,
             endDate: _date.end,
-            typeTransaction: _selectedType.value
+            dateBy: _selectedType.value
         }
 
         if (_selectedGroup.title == "Tiket") params.formatReport = "CSV"
         if (appContext.branch?.branchId) params.branchId = appContext.branch.branchId
 
         try {
-            const res = await postJSON(`/laporan/transaksi/penjualan/harian` + _selectedGroup.value, params, appContext.authData.token, true)
+            // Since the API returns a file with proper headers, we'll handle it as a blob
+            const res = await get(`/laporan/penjualan/harian/export` + _selectedGroup.value + `?${objectToParams(params)}`, appContext.authData.token, true);
 
-            if (_selectedGroup.title == "Tiket") {
+             if (_selectedGroup.title == "Tiket") {
                 _downloadCsvTicket(res, `Transaksi-${_selectedType.title}-${_selectedGroup.title}-${_date.start}-s.d-${_date.end}.csv`);
             } else {
                 _downloadCsv(res, `Transaksi-${_selectedType.title}-${_selectedGroup.title}-${_date.start}-s.d-${_date.end}.csv`);
@@ -174,7 +175,7 @@ export default function ChannelExportModal(props = defaultProps) {
 
             // added single quotes
             if (ticket !== -1 && row[ticket]) {
-                row[ticket] = "'"+row[ticket]
+                row[ticket] = "'" + row[ticket]
             }
 
             if (counterIdx !== -1) {
@@ -244,12 +245,10 @@ export default function ChannelExportModal(props = defaultProps) {
         let template = document.createElement('template')
         let tableExport = "<table>"
 
-        const header = ["kode_booking", "penyedia_pembayaran", "tanggal_pembelian", "kode_trayek", "trayek",
-            "asal", "tujuan", "segmen", "harga",
-            "jumlah_penumpang", "total_harga_stl_discount",
-            "total_asuransi", "discount", "biaya_transaksi", "total_harga_normal",
-            "metode_pembayaran", "tanggal_keberangkatan", "jam_keberangkatan", "counter", "nama_cabang", "kode_refrensi_transaksi",
-            "nama_promosi", "provider_promosi"];
+        const header = ["Transaction ID", "Transaction Date", "Date", "Route", "Origin",
+            "Destination", "Bus Name", "Booking Code", "Departure Date",
+            "Base Fare", "Total Amount",
+            "Passenger Count", "Payment Status"];
 
         data = data.split("\n").filter(line => line.trim() !== "");
 
@@ -265,27 +264,23 @@ export default function ChannelExportModal(props = defaultProps) {
         tableExport += "</tr>";
 
         // Column indexes we need
-        const counterIdx = csvHeader.indexOf("counter")
-        const mdrIdx = csvHeader.indexOf("biaya_transaksi")
+        const dateDeparture = csvHeader.indexOf("Date")
+        const trxDate = csvHeader.indexOf("Transaction Date")
+
 
         for (let i = 1; i < data.length; i++) {
             let row = data[i].split(",")
             if (row.length < csvHeader.length) continue;
 
-            if (counterIdx !== -1) {
-
-                if (row[counterIdx] === "api.damri.bisku.id" || row[counterIdx] === "api.damri.ck.bisku.top" || row[counterIdx] === "null") row[counterIdx] = "DAMRI Apps"
-
-                if (row[counterIdx] === "web.damri.bisku.id") row[counterIdx] = "Web Reservasi"
+            if (dateDeparture !== -1) {
+               row[dateDeparture] = "'"+row[dateDeparture]
             }
 
-            if (mdrIdx !== -1) {
-                row[mdrIdx] = parseInt(row[mdrIdx] || "0", 10)
+            if(trxDate !== -1){
+                row[trxDate] = "'"+ dateFilter.basicDate(new Date(row[trxDate])).normal + " "+dateFilter.getTime(new Date(row[trxDate]))
             }
-
-            row[row.length - 2] = ""
-            row[row.length - 1] = ""
-
+           
+           
             tableExport += "<tr>";
             keepIndexes.forEach(idx => { tableExport += `<td>${row[idx] ?? ""}</td>`; });
             tableExport += "</tr>";

@@ -690,7 +690,7 @@ export default function DepositDetail(props) {
             let payload = {
                 ..._formSubmit,
                 id: parseInt(id),
-                totalSetoran: (parseInt(String(_getFinalAmount()).replace(/\./g, '')) - _typePaymentAmount.nonCash),
+                totalSetoran: (parseInt(String(_getFinalAmount()).replace(/\./g, ''))),
                 customValue: []
             }
 
@@ -1980,7 +1980,7 @@ export default function DepositDetail(props) {
                             </p>
                             <div style={{ marginBottom: '15px', fontSize: '13px', color: '#666' }}>
                                 <div style={{ marginBottom: '8px' }}>
-                                    <strong>Total Setoran:</strong> {currency(_getFinalAmount() - _typePaymentAmount.nonCash)}
+                                    <strong>Total Setoran:</strong> {currency(_getFinalAmount())}
                                 </div>
                                 <div style={{ marginBottom: '8px' }}>
                                     <strong>Nopol:</strong> {_assignedData?.bus_name}

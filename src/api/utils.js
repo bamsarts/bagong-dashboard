@@ -101,7 +101,7 @@ export function objectToParams(object = {}) {
     return objectToArray.join('&')
 }
 
-export function get(url, token) {
+export function get(url, token, csv = false) {
     return new Promise((resolve, reject) => {
 
 
@@ -122,7 +122,7 @@ export function get(url, token) {
             headers,
             method: 'GET'
         })
-            .then(parseJson)
+            .then(csv ? parseText : parseJson)
             .then(res => res.ok ? resolve(res.json) : reject(res.json))
             .catch(e => reject(e))
     })
