@@ -22,7 +22,7 @@ export const API_ENDPOINT = {
     dev_coreticket: "https://core-ticketing.bisku.id"
 }
 
-export const BASE_URL = API_ENDPOINT.dev_coreticket
+export const BASE_URL = API_ENDPOINT.bagong_prod
 export const SETTLEMENT_URL = API_ENDPOINT.settlement
 export const CACHE_URL = API_ENDPOINT.development
 export const DAMRI_APPS_URL = API_ENDPOINT.development

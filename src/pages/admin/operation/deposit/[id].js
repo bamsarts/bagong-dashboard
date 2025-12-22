@@ -1576,7 +1576,7 @@ export default function DepositDetail(props) {
                                     >
                                         <Input
                                             type="number"
-                                            value={currency(_manifestCost.notesDeposit - _manifestCost.tol - _manifestCost.others)}
+                                            value={currency(_manifestCost.notesDeposit - _manifestCost.tol)}
                                             placeholder={`Rp`}
                                             style={{
                                                 textAlign: "right"
