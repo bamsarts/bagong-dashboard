@@ -432,6 +432,11 @@ export const NAVIGATIONS = [
         isHide: false,
         subMenus : [
             {
+                title : 'Settlement',
+                href : ADMIN_BASE_URL + '/finance/settlement',
+                isHide: false
+            },
+            {
                 title : 'Pengembalian Dana',
                 href : ADMIN_BASE_URL + '/finance/refund',
                 isHide: false,
@@ -470,8 +475,8 @@ export const NAVIGATIONS = [
                 isHide: false
             },
             {
-                title : 'Settlement',
-                href : ADMIN_BASE_URL + '/finance/settlement',
+                title : 'Emoney',
+                href : ADMIN_BASE_URL + '/finance/emoney',
                 isHide: false
             },
             {
