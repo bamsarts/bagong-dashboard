@@ -7,6 +7,7 @@ import Table from '../../../../components/Table'
 import { currency, dateFilter } from '../../../../utils/filters'
 import { API_ENDPOINT, get, postJSON, SETTLEMENT_URL } from '../../../../api/utils'
 import Button from '../../../../components/Button'
+import SettlementModal from '../../../../components/SettlementModal'
 
 export default function Settlement(props) {
     const [_isProcessing, _setIsProcessing] = useState(false)
@@ -15,6 +16,8 @@ export default function Settlement(props) {
     const [_orderBy, _setOrderBy] = useState('transaction_date')
     const [_startFrom, _setStartFrom] = useState(0)
     const [_length, _setLength] = useState(10)
+    const [_showSettlementModal, _setShowSettlementModal] = useState(false)
+    const [_selectedSettlement, _setSelectedSettlement] = useState(null)
 
     let __COLUMNS = [
         {
@@ -73,6 +76,22 @@ export default function Settlement(props) {
         {
             title: 'Status',
             field: 'status',
+        },
+        {
+            title: 'Opsi',
+            field: 'settlement_url',
+            customCell: (value, record) => {
+                return (
+                    <Button
+                    title={'Settle'}
+                    onProcess={_isProcessing}
+                    onClick={ () => {
+                        _setSelectedSettlement(record)
+                        _setShowSettlementModal(true)
+                    }}
+                    />
+                )
+            }
         }
     ]
 
@@ -110,9 +129,29 @@ export default function Settlement(props) {
         }
     }
 
+    async function _submitSettlement(settlementData) {
+        _setIsProcessing(true)
+        try {
+            const res = await postJSON("/data/settlement/create", settlementData, props.authData.token)
+            
+            if (res.success) {
+                popAlert({ message: 'Settlement berhasil dibuat', type: 'success' })
+                _setShowSettlementModal(false)
+                _setSelectedSettlement(null)
+                _getSettlement() // Refresh the data
+            } else {
+                popAlert({ message: res.message || 'Gagal membuat settlement' })
+            }
+
+        } catch (e) {
+            popAlert({ message: e.message })
+        } finally {
+            _setIsProcessing(false)
+        }
+    }
+
     return (
         <Main>
-
             <AdminLayout>
                 {
                     _settlement && (
@@ -156,11 +195,21 @@ export default function Settlement(props) {
                                     records={_settlement}
                                     noPadding
                                 />
-
                             </Card>
                         </>
                     )
                 }
+                
+                <SettlementModal
+                    visible={_showSettlementModal}
+                    onClose={() => {
+                        _setShowSettlementModal(false)
+                        _setSelectedSettlement(null)
+                    }}
+                    onSubmit={_submitSettlement}
+                    isProcessing={_isProcessing}
+                    initialData={_selectedSettlement}
+                />
             </AdminLayout>
         </Main>
     )

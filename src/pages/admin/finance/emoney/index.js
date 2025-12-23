@@ -12,20 +12,20 @@ export default function Emoney(props) {
     const [_isProcessing, _setIsProcessing] = useState(false)
 
     let __COLUMNS = [
-        {   
+        {
             title: 'Tanggal',
-            field : 'created_at',
-            customCell : (value) => dateFilter.convertISO(new Date(value), "date")
+            field: 'created_at',
+            customCell: (value) => dateFilter.convertISO(new Date(value), "date")
         },
         {
             title: 'Serial Number',
-            field : 'serial_number',
+            field: 'serial_number',
         },
         {
             title: 'Nominal',
-            field : 'amount',
+            field: 'amount',
             textAlign: 'right',
-            customCell : (value) => currency(value)
+            customCell: (value) => currency(value)
         },
         {
             title: 'Opsi',
@@ -33,11 +33,11 @@ export default function Emoney(props) {
             customCell: (value) => {
                 return (
                     <Button
-                    title={'Settle'}
-                    onProcess={_isProcessing}
-                    onClick={ () => {
-                        _settlePaid(value)
-                    }}
+                        title={'Settle'}
+                        onProcess={_isProcessing}
+                        onClick={() => {
+                            _settlePaid(value)
+                        }}
                     />
                 )
             }
@@ -45,24 +45,24 @@ export default function Emoney(props) {
     ]
 
     const [_settlement, _setSettlement] = useState([])
-   
+
     useEffect(() => {
         _getSettlement()
-    },[])
-    
-    async function _settlePaid(target){
+    }, [])
+
+    async function _settlePaid(target) {
         _setIsProcessing(true)
 
-        try{
-            const res = await get({ url: "/api/api-server-side?url="+target}, "", "")
-            if(res.data?.transaction_id){
-                popAlert({ message : 'Settlement berhasil', type : 'success' })
+        try {
+            const res = await get({ url: "/api/api-server-side?url=" + target }, "", "")
+            if (res.data?.transaction_id) {
+                popAlert({ message: 'Settlement berhasil', type: 'success' })
                 _getSettlement()
                 _setIsProcessing(false)
             }
 
-        }catch (e) {
-            popAlert({ message : e.message })
+        } catch (e) {
+            popAlert({ message: e.message })
             _setIsProcessing(false)
         }
     }
@@ -70,51 +70,51 @@ export default function Emoney(props) {
     async function _getSettlement() {
 
         try {
-            const res = await get({url: "/api/api-server-side?url="+SETTLEMENT_URL + "/tsm/emoney/settlement/pending"}, "", "")
+            const res = await get({ url: "/api/api-server-side?url=" + SETTLEMENT_URL + "/tsm/emoney/settlement/pending" }, "", "")
 
-            if(res.data.length === 0){
-                popAlert({ message : 'Tidak ada settlement pending', type : 'info' })
+            if (res.data.length === 0) {
+                popAlert({ message: 'Tidak ada settlement pending', type: 'info' })
                 _setSettlement([])
-            }else{
+            } else {
                 _setSettlement(res.data)
             }
 
         } catch (e) {
-            popAlert({ message : e.message })
+            popAlert({ message: e.message })
         }
     }
 
     return (
         <Main>
-            
+
             <AdminLayout>
                 {
                     _settlement && (
                         <>
                             <Card
-                            noPadding
+                                noPadding
                             >
                                 <Table
                                     headExport={[
-                                    {
-                                        title: 'Tanggal',
-                                        value: 'created_at',
-                                        customCell : (value) => dateFilter.convertISO(new Date(value), "date")
-                                    },
-                                    {
-                                        title: 'Serial Number',
-                                        value: 'serial_number',
-                                    },
-                                    {
-                                        title: 'Nominal',
-                                        value: 'amount',
-                                    },
-                                ]}
-                                columns={__COLUMNS}
-                                records={_settlement}
-                                noPadding
+                                        {
+                                            title: 'Tanggal',
+                                            value: 'created_at',
+                                            customCell: (value) => dateFilter.convertISO(new Date(value), "date")
+                                        },
+                                        {
+                                            title: 'Serial Number',
+                                            value: 'serial_number',
+                                        },
+                                        {
+                                            title: 'Nominal',
+                                            value: 'amount',
+                                        },
+                                    ]}
+                                    columns={__COLUMNS}
+                                    records={_settlement}
+                                    noPadding
                                 />
-                                    
+
                             </Card>
                         </>
                     )
