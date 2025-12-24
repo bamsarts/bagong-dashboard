@@ -20,6 +20,7 @@ export default function Deposit(props) {
 
     const [_trajectRange, _setTrajectRange] = useState([])
     const [_busRange, _setBusRange] = useState([])
+    const [_userCrew, _setUserCrew] = useState([])
 
     const __COLUMNS = [
         {
@@ -48,6 +49,27 @@ export default function Deposit(props) {
             }
         },
         {
+            title: 'Ritase',
+            field: 'ritase',
+            customCell: (value, row) => {
+                return value
+            }
+        },
+        {
+            title: 'Kondektur',
+            textAlign: 'left',
+            customCell: (value, row) => {
+                const kondektur = _userCrew.find(c => c.idUser == row.bus_crew1_id)
+                
+
+                return (
+                    <div>
+                        <div>{kondektur?.name || '-'}</div>
+                    </div>
+                )
+            }
+        },
+        {
             title: 'Penumpang',
             field: 'setoran',
             customCell: (value, row) => {
@@ -58,8 +80,17 @@ export default function Deposit(props) {
             title: 'Jumlah Setoran (Rp)',
             field: 'setoran',
             textAlign: "right",
+            // customCell: (value, row) => {
+            //     return currency(value.payment_amount)
+            // }
             customCell: (value, row) => {
-                return currency(value.payment_amount)
+                const amount = Number(value?.payment_amount || 0)
+
+                return (
+                    <span style={{ color: amount < 0 ? '#FF0000' : 'inherit' }}>
+                        {currency(amount)}
+                    </span>
+                )
             }
         },
         {
@@ -144,6 +175,10 @@ export default function Deposit(props) {
     }, [])
 
     useEffect(() => {
+        _getUserCrew()
+    }, [])
+
+    useEffect(() => {
         _getData()
     }, [_assignDate, _assignEndDate, _selectedBus])
 
@@ -218,6 +253,24 @@ export default function Deposit(props) {
             const result = await postJSON('/masterData/bus/list', params, props.authData.token)
 
             _setBusRange(result.data)
+
+        } catch (e) {
+            popAlert({ message: e.message })
+            return []
+        }
+    }
+    async function _getUserCrew() {
+
+        const params = {
+            "startFrom": 0,
+            "role_id": 19,
+            "length": 360,
+        }
+
+        try {
+            const result = await postJSON('/masterData/userRoleAkses/user/list', params, props.authData.token)
+
+            _setUserCrew(result.data)
 
         } catch (e) {
             popAlert({ message: e.message })
