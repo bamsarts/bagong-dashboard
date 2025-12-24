@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Modal, { ModalContent } from '../Modal'
 import Input from '../Input'
 import Button from '../Button'
@@ -61,11 +61,26 @@ export default function SettlementModal(props = defaultProps) {
         props.onClose()
     }
 
+    useEffect(() => {
+        if(props.visible){
+            setFormData({
+                companyId: props.initialData?.company_id || '',
+                trajectId: props.initialData?.traject_id || '',
+                paymentType: props.initialData?.payment_type || '',
+                transactionDate: props.initialData?.transaction_date ? dateFilter.basicDate(new Date(props.initialData.transaction_date)).normal : dateFilter.basicDate(new Date()).normal,
+                transactionAmount: props.initialData?.transaction_amount || 0,
+                transferDate: dateFilter.basicDate(new Date()).normal,
+                transferAmount: 0,
+                paymentProofLink: ''
+            })
+        }
+    }, [props.visible])
+
+
     return (
         <Modal
             visible={props.visible}
             onBackdropClick={handleClose}
-            large
         >
             <ModalContent
                 header={{
@@ -88,25 +103,7 @@ export default function SettlementModal(props = defaultProps) {
                 ]}
             >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <Input
-                        title="Company ID"
-                        field="companyId"
-                        type="number"
-                        value={formData.companyId}
-                        onChange={handleInputChange}
-                        placeholder="Enter company ID"
-                        required
-                    />
                     
-                    <Input
-                        title="Traject ID"
-                        field="trajectId"
-                        type="number"
-                        value={formData.trajectId}
-                        onChange={handleInputChange}
-                        placeholder="Enter traject ID"
-                        required
-                    />
                     
                     <Input
                         title="Payment Type"

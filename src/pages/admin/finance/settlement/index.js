@@ -8,6 +8,8 @@ import { currency, dateFilter } from '../../../../utils/filters'
 import { API_ENDPOINT, get, postJSON, SETTLEMENT_URL } from '../../../../api/utils'
 import Button from '../../../../components/Button'
 import SettlementModal from '../../../../components/SettlementModal'
+import Input from '../../../../components/Input'
+import { Row, Col } from '../../../../components/Layout'
 
 export default function Settlement(props) {
     const [_isProcessing, _setIsProcessing] = useState(false)
@@ -24,14 +26,6 @@ export default function Settlement(props) {
             title: 'Tanggal Transaksi',
             field: 'transaction_date',
             customCell: (value) => dateFilter.convertISO(new Date(value), "date")
-        },
-        {
-            title: 'Company ID',
-            field: 'company_id',
-        },
-        {
-            title: 'Traject ID',
-            field: 'traject_id',
         },
         {
             title: 'Tipe Pembayaran',
@@ -83,12 +77,14 @@ export default function Settlement(props) {
             customCell: (value, record) => {
                 return (
                     <Button
-                    title={'Settle'}
-                    onProcess={_isProcessing}
-                    onClick={ () => {
-                        _setSelectedSettlement(record)
-                        _setShowSettlementModal(true)
-                    }}
+                        styles={record.status == "CREATED" ?  Button.primary : Button.secondary}
+                        small
+                        title={record.status == "CREATED" ? 'Rincian' : 'Settle'}
+                        onProcess={_isProcessing}
+                        onClick={() => {
+                            _setSelectedSettlement(record)
+                            _setShowSettlementModal(true)
+                        }}
                     />
                 )
             }
@@ -99,7 +95,7 @@ export default function Settlement(props) {
 
     useEffect(() => {
         _getSettlement()
-    }, [])
+    }, [_startDate, _endDate])
 
 
     async function _getSettlement() {
@@ -116,7 +112,7 @@ export default function Settlement(props) {
             }
 
             const res = await postJSON("/data/settlement/list", params, props.authData.token)
-            
+
             if (res.data.length === 0) {
                 popAlert({ message: 'Tidak ada data settlement', type: 'info' })
                 _setSettlement([])
@@ -132,10 +128,10 @@ export default function Settlement(props) {
     async function _submitSettlement(settlementData) {
         _setIsProcessing(true)
         try {
-            const res = await postJSON("/data/settlement/create", settlementData, props.authData.token)
-            
-            if (res.success) {
-                popAlert({ message: 'Settlement berhasil dibuat', type: 'success' })
+            const res = await postJSON("/data/settlement/add", settlementData, props.authData.token)
+
+            if (res.status == "OK") {
+                popAlert({ message: res.message, type: 'success' })
                 _setShowSettlementModal(false)
                 _setSelectedSettlement(null)
                 _getSettlement() // Refresh the data
@@ -160,6 +156,33 @@ export default function Settlement(props) {
                                 noPadding
                             >
                                 <Table
+                                    headerContent={(
+                                        <Row>
+                                            <Col
+                                            column={1}
+                                            withPadding
+                                            >
+                                                <Input
+                                                    title="Tanggal Awal"
+                                                    type="date"
+                                                    value={dateFilter.basicDate(_startDate).normal}
+                                                    onChange={(value) => _setStartDate(new Date(value))}
+                                                />
+                                            </Col>
+                                            <Col
+                                            column={1}
+                                            withPadding
+                                            >
+                                                <Input
+                                                    title="Tanggal Akhir"
+                                                    type="date"
+                                                    value={dateFilter.basicDate(_endDate).normal}
+                                                    onChange={(value) => _setEndDate(new Date(value))}
+                                                />
+                                            </Col>
+                                            
+                                        </Row>
+                                    )}
                                     headExport={[
                                         {
                                             title: 'Tanggal Transaksi',
@@ -199,7 +222,7 @@ export default function Settlement(props) {
                         </>
                     )
                 }
-                
+
                 <SettlementModal
                     visible={_showSettlementModal}
                     onClose={() => {
