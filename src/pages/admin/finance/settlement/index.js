@@ -10,6 +10,7 @@ import Button from '../../../../components/Button'
 import SettlementModal from '../../../../components/SettlementModal'
 import Input from '../../../../components/Input'
 import { Row, Col } from '../../../../components/Layout'
+import PreviewImageModal from '../../../../components/PreviewImageModal'
 
 export default function Settlement(props) {
     const [_isProcessing, _setIsProcessing] = useState(false)
@@ -20,6 +21,10 @@ export default function Settlement(props) {
     const [_length, _setLength] = useState(10)
     const [_showSettlementModal, _setShowSettlementModal] = useState(false)
     const [_selectedSettlement, _setSelectedSettlement] = useState(null)
+    const [_previewImage, _setPreviewImage] = useState({
+        "isOpen": false,
+        "url": ""
+    })
 
     let __COLUMNS = [
         {
@@ -28,29 +33,30 @@ export default function Settlement(props) {
             customCell: (value) => dateFilter.convertISO(new Date(value), "date")
         },
         {
-            title: 'Tipe Pembayaran',
+            title: 'Pembayaran',
             field: 'payment_type',
+            customCell: (value) => value.toUpperCase()
         },
         {
-            title: 'Jumlah Transaksi',
+            title: 'Total Transaksi',
             field: 'transaction_amount',
             textAlign: 'right',
             customCell: (value) => currency(value)
         },
         {
-            title: 'MDR Amount',
+            title: 'MDR',
             field: 'mdr_amount',
             textAlign: 'right',
             customCell: (value) => currency(value)
         },
         {
-            title: 'Net After MDR',
+            title: 'Netto Transaksi',
             field: 'net_after_mdr',
             textAlign: 'right',
             customCell: (value) => currency(value)
         },
         {
-            title: 'Fee Amount',
+            title: 'Fee',
             field: 'fee_amount',
             textAlign: 'right',
             customCell: (value) => currency(value)
@@ -62,24 +68,18 @@ export default function Settlement(props) {
             customCell: (value) => currency(value)
         },
         {
-            title: 'Debt Amount',
-            field: 'debt_amount',
-            textAlign: 'right',
-            customCell: (value) => currency(value)
-        },
-        {
             title: 'Status',
             field: 'status',
         },
         {
-            title: 'Opsi',
+            title: '',
             field: 'settlement_url',
             customCell: (value, record) => {
                 return (
                     <Button
                         styles={record.status == "CREATED" ?  Button.primary : Button.secondary}
                         small
-                        title={record.status == "CREATED" ? 'Rincian' : 'Settle'}
+                        title={record.status == "CREATED" ? 'Rincian' : (record.payment_type == "cash" ? 'Kirim Invoice' : 'Settle')}
                         onProcess={_isProcessing}
                         onClick={() => {
                             _setSelectedSettlement(record)
@@ -232,6 +232,22 @@ export default function Settlement(props) {
                     onSubmit={_submitSettlement}
                     isProcessing={_isProcessing}
                     initialData={_selectedSettlement}
+                    triggerPreviewImage={(data) => {
+                        _setPreviewImage({
+                            "isOpen": data.isOpen,
+                            "url": data.url
+                        })
+                    }}
+                />
+
+                <PreviewImageModal
+                isOpen={_previewImage.isOpen}
+                onClose={() => {
+                    _setPreviewImage({
+                        "isOpen": false,
+                    })
+                }}
+                imageUrl={_previewImage.url}
                 />
             </AdminLayout>
         </Main>

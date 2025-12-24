@@ -48,7 +48,8 @@ const defaultProps = {
     checked: false,
     marginBottom: false,
     onError: false,
-    style: null
+    style: null,
+    accept: null
 }
 
 Input.defaultProps = defaultProps
@@ -269,6 +270,7 @@ export default function Input(props = defaultProps) {
                     capitalize={String(props.capitalize)}
                     hidden={props.hidden}
                     checked={props.checked}
+                    accept={props.accept}
                     />
                     <span
                     className={styles.icon}

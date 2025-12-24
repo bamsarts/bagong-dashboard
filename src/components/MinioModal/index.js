@@ -15,7 +15,7 @@ MinioModal.defaultProps = {
 export default function MinioModal(props = MinioModal.defaultProps) {
 
     const [_isProcessing, _setIsProcessing] = useState(false);
-    const [bucket, setBucket] = useState("damri");
+    const [bucket, setBucket] = useState("bagong");
     const [objects, setObjects] = useState([]);
     const [nextToken, setNextToken] = useState(null);
     const [file, setFile] = useState(null);
@@ -105,7 +105,7 @@ export default function MinioModal(props = MinioModal.defaultProps) {
 
     async function handleCopy(object) {
         try {
-            let copy = "https://cdn.bisku.net/damri/"+object.Key
+            let copy = "https://cdn.bisku.net/bagong/"+object.Key
             await navigator.clipboard.writeText(copy);
             popAlert({message: "Salin " + copy, "type": "success" })
         } catch (error) {
