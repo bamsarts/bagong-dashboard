@@ -11,10 +11,11 @@ import SettlementModal from '../../../../components/SettlementModal'
 import Input from '../../../../components/Input'
 import { Row, Col } from '../../../../components/Layout'
 import PreviewImageModal from '../../../../components/PreviewImageModal'
+import Label from '../../../../components/Label'
 
 export default function Settlement(props) {
     const [_isProcessing, _setIsProcessing] = useState(false)
-    const [_startDate, _setStartDate] = useState(new Date("2025-12-05"))
+    const [_startDate, _setStartDate] = useState(new Date())
     const [_endDate, _setEndDate] = useState(new Date())
     const [_orderBy, _setOrderBy] = useState('transaction_date')
     const [_startFrom, _setStartFrom] = useState(0)
@@ -70,6 +71,29 @@ export default function Settlement(props) {
         {
             title: 'Status',
             field: 'status',
+            customCell: (value, row) => {
+
+                let status = _statusPayment(value)
+
+                return (
+                    <Row
+                        verticalCenter
+                    >
+
+                        <Label
+                            activeIndex={true}
+                            labels={[
+                                {
+                                    "class": status.class,
+                                    "title": status.title,
+                                    "value": true
+                                }
+                            ]}
+                        />
+                    </Row>
+                )
+
+            }
         },
         {
             title: '',
@@ -96,6 +120,22 @@ export default function Settlement(props) {
     useEffect(() => {
         _getSettlement()
     }, [_startDate, _endDate])
+
+    function _statusPayment(data) {
+        let status = {
+            class: "primary",
+            title: data
+        }
+        
+        switch (data) {
+            case "CREATED":
+                status.title = "Ditransfer"
+                return status
+            default:
+                return status;
+        }
+
+    }
 
 
     async function _getSettlement() {

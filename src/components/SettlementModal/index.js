@@ -141,7 +141,7 @@ export default function SettlementModal(props = defaultProps) {
                 if(props.initialData?.payment_type == "cash"){
                     transfer = props.initialData?.fee_amount
                 }else{
-                    transfer = props.initialData?.
+                    transfer = props.initialData?.odt
                 }
             }
 
@@ -152,7 +152,7 @@ export default function SettlementModal(props = defaultProps) {
                 transactionDate: props.initialData?.transaction_date ? dateFilter.basicDate(new Date(props.initialData.transaction_date)).normal : dateFilter.basicDate(new Date()).normal,
                 transactionAmount: props.initialData?.transaction_amount || 0,
                 transferDate: dateFilter.basicDate(new Date()).normal,
-                transferAmount: props.initialData?.transfer_amount,
+                transferAmount: transfer,
                 paymentProofLink: props.initialData?.payment_proof_link
             })
 
