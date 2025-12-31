@@ -14,6 +14,8 @@ import ConfirmationModal from '../../../../components/ConfirmationModal'
 import { currency, dateFilter } from '../../../../utils/filters'
 import DatePicker from 'react-datepicker'
 import "react-datepicker/dist/react-datepicker.css";
+import Label from '../../../../components/Label'
+
 
 export default function Deposit(props) {
     const router = useRouter()
@@ -60,7 +62,7 @@ export default function Deposit(props) {
             textAlign: 'left',
             customCell: (value, row) => {
                 const kondektur = _userCrew.find(c => c.idUser == row.bus_crew1_id)
-                
+
 
                 return (
                     <div>
@@ -80,9 +82,6 @@ export default function Deposit(props) {
             title: 'Jumlah Setoran (Rp)',
             field: 'setoran',
             textAlign: "right",
-            // customCell: (value, row) => {
-            //     return currency(value.payment_amount)
-            // }
             customCell: (value, row) => {
                 const amount = Number(value?.payment_amount || 0)
 
@@ -91,6 +90,34 @@ export default function Deposit(props) {
                         {currency(amount)}
                     </span>
                 )
+            }
+        },
+        {
+            title: 'Status',
+            field: 'setoran',
+            textAlign: "right",
+            customCell: (value, row) => {
+
+                <Label
+                    activeIndex={true}
+                    labels={[
+                        {
+                            "class": _statusPayment(value),
+                            "title": value,
+                            "value": true
+                        }
+                    ]}
+                />
+                switch (value?.status) {
+                    case "CREATED":
+                        return "Belum Diterima"
+                    case "APPROVED":
+                        return "Disetujui"
+                    case "PENDING":
+                        return "Disimpan"
+                    default:
+                        return "-"
+                }
             }
         },
         {
@@ -199,7 +226,7 @@ export default function Deposit(props) {
 
     async function _getData(pagination = _page) {
 
-       
+
         const params = {
             ...pagination,
             startDate: dateFilter.basicDate(new Date(_assignDate)).normal,

@@ -28,6 +28,19 @@ export default function Settlement(props) {
         "url": ""
     })
 
+    const [_paginationConfig, _setPaginationConfig] = useState({
+        recordLength: 0,
+        recordsPerPage: 0,
+        activePage: 1,
+        totalPages: 0,
+    })
+
+    const [_page, _setPage] = useState({
+        length: Table.defaultProps.recordsPerPageValues[1],
+        startFrom: 0,
+    })
+    
+
     let __COLUMNS = [
         {
             title: 'Tanggal Transaksi',
@@ -106,9 +119,6 @@ export default function Settlement(props) {
                 }else {
                     return ''
                 }
-
-                
-
             }
         },
         {
@@ -291,6 +301,12 @@ export default function Settlement(props) {
                                     columns={__COLUMNS}
                                     records={_settlement}
                                     noPadding
+                                    onPageChange={ (page) => {
+                                        _setPagination({ ..._page, page:  page })
+                                    }}
+                                    onRecordsPerPageChange={ (perPage) => {
+                                        _setPagination({ limit: perPage, page: 1 })
+                                    }}
                                 />
                             </Card>
                         </>

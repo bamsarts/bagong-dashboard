@@ -683,7 +683,7 @@ export default function DepositDetail(props) {
         }
     }
 
-    async function _confirmReceiveDeposit() {
+    async function _confirmReceiveDeposit(status = "APPROVED") {
         _setShowConfirmModal(false)
         _setIsProcessing(true)
         try {
@@ -693,6 +693,8 @@ export default function DepositDetail(props) {
                 totalSetoran: (parseInt(String(_getFinalAmount()).replace(/\./g, ''))),
                 customValue: []
             }
+
+            payload.status = status
 
             // Loop through _editablePnp and match with biaya details
             for (const key in _editablePnp) {
@@ -1883,6 +1885,13 @@ export default function DepositDetail(props) {
                                                     title={'Terima Setoran'}
                                                     styles={Button.primary}
                                                     onClick={() => _setShowConfirmModal(true)}
+                                                    onProcess={_isProcessing}
+                                                />
+
+                                                <Button
+                                                    title={'Simpan'}
+                                                    styles={Button.primary}
+                                                    onClick={() => _confirmReceiveDeposit("PENDING")}
                                                     onProcess={_isProcessing}
                                                 />
 
