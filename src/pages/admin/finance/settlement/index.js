@@ -5,7 +5,7 @@ import AdminLayout from '../../../../components/AdminLayout'
 import Card from '../../../../components/Card'
 import Table from '../../../../components/Table'
 import { currency, dateFilter } from '../../../../utils/filters'
-import { API_ENDPOINT, get, postJSON, SETTLEMENT_URL } from '../../../../api/utils'
+import { get, postJSON } from '../../../../api/utils'
 import Button from '../../../../components/Button'
 import SettlementModal from '../../../../components/SettlementModal'
 import Input from '../../../../components/Input'
@@ -22,6 +22,7 @@ export default function Settlement(props) {
     const [_length, _setLength] = useState(10)
     const [_showSettlementModal, _setShowSettlementModal] = useState(false)
     const [_selectedSettlement, _setSelectedSettlement] = useState(null)
+    const [_trayekMaster, _setTrayekMaster] = useState([])
     const [_previewImage, _setPreviewImage] = useState({
         "isOpen": false,
         "url": ""
@@ -32,6 +33,15 @@ export default function Settlement(props) {
             title: 'Tanggal Transaksi',
             field: 'transaction_date',
             customCell: (value) => dateFilter.convertISO(new Date(value), "date")
+        },
+        {
+            title: 'Trayek',
+            field: 'traject_id',
+            textAlign: "left",
+            customCell: (value, row) => {
+                const trayek = _trayekMaster.find(item => item.id === value.toString())
+                return trayek ? trayek.name : value
+            }
         },
         {
             title: 'Pembayaran',
@@ -75,23 +85,29 @@ export default function Settlement(props) {
 
                 let status = _statusPayment(value)
 
-                return (
-                    <Row
-                        verticalCenter
-                    >
+                if(status.title){
+                    return (
+                        <Row
+                            verticalCenter
+                        >
 
-                        <Label
-                            activeIndex={true}
-                            labels={[
-                                {
-                                    "class": status.class,
-                                    "title": status.title,
-                                    "value": true
-                                }
-                            ]}
-                        />
-                    </Row>
-                )
+                            <Label
+                                activeIndex={true}
+                                labels={[
+                                    {
+                                        "class": status.class,
+                                        "title": status.title,
+                                        "value": true
+                                    }
+                                ]}
+                            />
+                        </Row>
+                    )
+                }else {
+                    return ''
+                }
+
+                
 
             }
         },
@@ -101,7 +117,7 @@ export default function Settlement(props) {
             customCell: (value, record) => {
                 return (
                     <Button
-                        styles={record.status == "CREATED" ?  Button.primary : Button.secondary}
+                        styles={record.status == "CREATED" ? Button.primary : Button.secondary}
                         small
                         title={record.status == "CREATED" ? 'Rincian' : (record.payment_type == "cash" ? 'Kirim Invoice' : 'Settle')}
                         onProcess={_isProcessing}
@@ -118,15 +134,33 @@ export default function Settlement(props) {
     const [_settlement, _setSettlement] = useState([])
 
     useEffect(() => {
+        _getTrayekMaster()
         _getSettlement()
     }, [_startDate, _endDate])
+
+    async function _getTrayekMaster() {
+
+        let query = {
+            startFrom : 0,
+            length: 360
+        }
+
+        try {
+            const res = await postJSON("/data/masterData/trayekMaster/list", query, props.authData.token)
+            if (res.data) {
+                _setTrayekMaster(res.data)
+            }
+        } catch (e) {
+            console.error('Error fetching trayek master:', e)
+        }
+    }
 
     function _statusPayment(data) {
         let status = {
             class: "primary",
             title: data
         }
-        
+
         switch (data) {
             case "CREATED":
                 status.title = "Ditransfer"
@@ -199,8 +233,8 @@ export default function Settlement(props) {
                                     headerContent={(
                                         <Row>
                                             <Col
-                                            column={1}
-                                            withPadding
+                                                column={1}
+                                                withPadding
                                             >
                                                 <Input
                                                     title="Tanggal Awal"
@@ -210,8 +244,8 @@ export default function Settlement(props) {
                                                 />
                                             </Col>
                                             <Col
-                                            column={1}
-                                            withPadding
+                                                column={1}
+                                                withPadding
                                             >
                                                 <Input
                                                     title="Tanggal Akhir"
@@ -220,7 +254,7 @@ export default function Settlement(props) {
                                                     onChange={(value) => _setEndDate(new Date(value))}
                                                 />
                                             </Col>
-                                            
+
                                         </Row>
                                     )}
                                     headExport={[
@@ -281,13 +315,13 @@ export default function Settlement(props) {
                 />
 
                 <PreviewImageModal
-                isOpen={_previewImage.isOpen}
-                onClose={() => {
-                    _setPreviewImage({
-                        "isOpen": false,
-                    })
-                }}
-                imageUrl={_previewImage.url}
+                    isOpen={_previewImage.isOpen}
+                    onClose={() => {
+                        _setPreviewImage({
+                            "isOpen": false,
+                        })
+                    }}
+                    imageUrl={_previewImage.url}
                 />
             </AdminLayout>
         </Main>
