@@ -95,29 +95,23 @@ export default function Deposit(props) {
         {
             title: 'Status',
             field: 'setoran',
-            textAlign: "right",
+            textAlign: "center",
             customCell: (value, row) => {
 
-                <Label
+                let data = _statusLabel(value)
+
+                return (
+                    <Label
                     activeIndex={true}
                     labels={[
                         {
-                            "class": _statusPayment(value),
-                            "title": value,
+                            "class": data.class,
+                            "title": data.title,
                             "value": true
                         }
                     ]}
-                />
-                switch (value?.status) {
-                    case "CREATED":
-                        return "Belum Diterima"
-                    case "APPROVED":
-                        return "Disetujui"
-                    case "PENDING":
-                        return "Disimpan"
-                    default:
-                        return "-"
-                }
+                    />
+                )
             }
         },
         {
@@ -208,6 +202,35 @@ export default function Deposit(props) {
     useEffect(() => {
         _getData()
     }, [_assignDate, _assignEndDate, _selectedBus])
+
+    function _statusLabel(value){
+        let data = {
+            class: "primary",
+            title: value.status
+        }
+        
+        switch (value?.status) {
+            case "CREATED":
+                data.title = "Belum Diterima"
+                data.class = "danger"
+                break
+            case "APPROVED":
+                data.title = "Selesai"
+                data.class = "primary"
+                break
+            case "PENDING":
+                data.title = "Disimpan"
+                data.class = "warning"
+                break
+            default:
+                data.title = "-"
+                data.class = "secondary"
+                break
+        }
+        
+        return data
+    }
+    
 
     function _toggleModal(visible, data = {}) {
         _setModalVisible(visible)

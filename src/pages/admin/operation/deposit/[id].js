@@ -1878,9 +1878,10 @@ export default function DepositDetail(props) {
                                 </div>
 
                                 {
-                                    _setoranData?.data.setoran.status == "CREATED" && (
-                                        <Row>
-                                            <Col>
+                                    _setoranData?.data.setoran.status != "APPROVED" && (
+                                        <Row
+                                        spaceBetween
+                                        >
                                                 <Button
                                                     title={'Terima Setoran'}
                                                     styles={Button.primary}
@@ -1890,12 +1891,11 @@ export default function DepositDetail(props) {
 
                                                 <Button
                                                     title={'Simpan'}
-                                                    styles={Button.primary}
+                                                    styles={Button.secondary}
                                                     onClick={() => _confirmReceiveDeposit("PENDING")}
                                                     onProcess={_isProcessing}
                                                 />
 
-                                            </Col>
                                         </Row>
                                     )
                                 }
