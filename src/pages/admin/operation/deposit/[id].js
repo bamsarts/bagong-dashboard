@@ -155,7 +155,7 @@ export default function DepositDetail(props) {
     // Initialize _othersForm with default value from biaya details where name == "Lainnya"
     useEffect(() => {
         if (_setoranData?.data?.biaya?.[0]?.details) {
-            let lainnyaItem = _setoranData.data.biaya[0].details.find(item => item.name === "Lainnya");
+            let lainnyaItem = _setoranData.data.biaya[0].details.find(item => (item.name === "Lainnya" || item.name == "Lain-lain"));
 
             if (_setoranData?.data?.setoran?.status == "CREATED") {
                 lainnyaItem = _setoranData.data.images.find(item => item.title === "Lainnya")
@@ -1889,12 +1889,12 @@ export default function DepositDetail(props) {
                                                     onProcess={_isProcessing}
                                                 />
 
-                                                <Button
+                                                {/* <Button
                                                     title={'Simpan'}
                                                     styles={Button.secondary}
                                                     onClick={() => _confirmReceiveDeposit("PENDING")}
                                                     onProcess={_isProcessing}
-                                                />
+                                                /> */}
 
                                         </Row>
                                     )
