@@ -186,6 +186,8 @@ export default function DepositDetail(props) {
                 "others": data.others
             })
 
+            console.log("manifestCost", data)
+
             generateTrack()
 
         }
@@ -577,28 +579,45 @@ export default function DepositDetail(props) {
             }
 
 
-            if (_setoranData?.data?.setoran?.status == "CREATED") {
-                if (item.name == "SOLAR" || item.name == "TOL" || item.name == "Lainnya") {
+            // if (_setoranData?.data?.setoran?.status == "CREATED") {
+            //     if (item.name == "SOLAR" || item.name == "TOL" || item.name == "Lainnya" || item.name == "Lain-lain") {
+            //         _setoranData.data.images.forEach(i => {
+            //             if (i.title.toUpperCase() == item.name) {
+            //                 item.amount = parseInt(i.amount)
+
+            //                 if (i.title == "Lainnya") {
+            //                     _setOthersForm(item.amount)
+            //                 }
+            //             }
+            //         })
+            //     }
+            // }
+
+            if (item.name.toUpperCase() == "CATATAN SAKU" || item.name.toUpperCase() == "SOLAR" || item.name.toUpperCase() == "TOL" || item.name.toUpperCase() == "LAINNYA" || item.name.toUpperCase() == "LAIN-LAIN") {
+
+                if (_setoranData?.data?.setoran?.status == "CREATED") {
                     _setoranData.data.images.forEach(i => {
                         if (i.title.toUpperCase() == item.name) {
-                            item.amount = parseInt(i.amount)
 
-                            if (i.title == "Lainnya") {
+
+                            if (i.title.toUpperCase() == "LAINNYA") {
                                 _setOthersForm(item.amount)
+                            } else {
+                                item.amount = parseInt(i.amount)
                             }
                         }
                     })
                 }
-            }
 
-            if (item.name == "Catatan Saku" || item.name == "SOLAR" || item.name == "Tol" || item.name == "Lainnya") {
                 // Use editable value if available, otherwise use original amount
                 if (_editablePnp[item.id] !== undefined) {
                     item.amount = _editablePnp[item.id]
                 }
 
+
+
                 // For "Lainnya", use _othersForm value
-                if (item.name === "Lainnya") {
+                if (item.name === "Lainnya" || item.name === "Lain-lain") {
                     item.amount = _othersForm;
                     total.others = _othersForm;
                 } else {
@@ -618,6 +637,7 @@ export default function DepositDetail(props) {
                 }
             })
         }
+
         return total;
     }
 
@@ -625,14 +645,14 @@ export default function DepositDetail(props) {
         let finalAmount = _setoranData?.data?.setoran?.payment_amount
 
         if (_setoranData?.data?.setoran?.status == "CREATED") {
-            finalAmount = _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit - _manifestCost.tol) - _typePaymentAmount.nonCash
+            finalAmount = _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit) - _typePaymentAmount.nonCash
         }
 
         return finalAmount
     }
 
     function _getAmountNetIncome() {
-        return _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit - _manifestCost.tol)
+        return _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit)
     }
 
     function _openUpdateModal(image) {
@@ -736,13 +756,13 @@ export default function DepositDetail(props) {
             }
 
             payload.customValue.push(
-                {
-                    id: 0,
-                    name: "Tol",
-                    desc: "Tol",
-                    amount: _manifestCost.tol,
-                    count: 0
-                },
+                // {
+                //     id: 0,
+                //     name: "Tol",
+                //     desc: "Tol",
+                //     amount: _manifestCost.tol,
+                //     count: 0
+                // },
                 {
                     id: 0,
                     name: "Lainnya",
@@ -760,7 +780,7 @@ export default function DepositDetail(props) {
             })
 
             // Navigate back to index page to restore filter state
-            router.push('/admin/operation/deposit')
+            // router.push('/admin/operation/deposit')
         } catch (e) {
             popAlert({
                 message: e.message || 'Gagal menerima setoran',
@@ -1475,7 +1495,7 @@ export default function DepositDetail(props) {
                                     {
 
                                         _setoranData.data.biaya[0]?.details
-                                            ?.filter(item => (item.name === "Catatan Saku" || item.name == "SOLAR" || item.name == "Tol"))
+                                            ?.filter(item => (item.name.toUpperCase() === "CATATAN SAKU" || item.name.toUpperCase() == "SOLAR" || item.name.toUpperCase() == "TOL"))
                                             .map((item, index) => {
 
                                                 let amountDefault = item?.amount
@@ -1521,7 +1541,7 @@ export default function DepositDetail(props) {
                                             })
                                     }
 
-                                    {
+                                    {/* {
                                         _setoranData?.data?.setoran?.status == "CREATED" && (
                                             <>
                                                 <Row>
@@ -1553,11 +1573,9 @@ export default function DepositDetail(props) {
                                                         />
                                                     </Col>
                                                 </Row>
-
-
                                             </>
                                         )
-                                    }
+                                    } */}
 
                                 </div>
 
@@ -1578,7 +1596,7 @@ export default function DepositDetail(props) {
                                     >
                                         <Input
                                             type="number"
-                                            value={currency(_manifestCost.notesDeposit - _manifestCost.tol)}
+                                            value={currency(_manifestCost.notesDeposit)} //before - manifestCost-tol condition status created
                                             placeholder={`Rp`}
                                             style={{
                                                 textAlign: "right"
@@ -1880,16 +1898,16 @@ export default function DepositDetail(props) {
                                 {
                                     _setoranData?.data.setoran.status != "APPROVED" && (
                                         <Row
-                                        spaceBetween
+                                            spaceBetween
                                         >
-                                                <Button
-                                                    title={'Terima Setoran'}
-                                                    styles={Button.primary}
-                                                    onClick={() => _setShowConfirmModal(true)}
-                                                    onProcess={_isProcessing}
-                                                />
+                                            <Button
+                                                title={'Terima Setoran'}
+                                                styles={Button.primary}
+                                                onClick={() => _setShowConfirmModal(true)}
+                                                onProcess={_isProcessing}
+                                            />
 
-                                                {/* <Button
+                                            {/* <Button
                                                     title={'Simpan'}
                                                     styles={Button.secondary}
                                                     onClick={() => _confirmReceiveDeposit("PENDING")}
