@@ -511,6 +511,11 @@ export const NAVIGATIONS = [
                         title : 'AKAP',
                         href : ADMIN_BASE_URL + '/report/deposit/akap',
                         isHide: false
+                    },
+                    {
+                        title : 'Harian',
+                        href : ADMIN_BASE_URL + '/report/deposit/daily',
+                        isHide: false
                     }
                 ]
             },

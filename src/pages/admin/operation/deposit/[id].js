@@ -526,6 +526,16 @@ export default function DepositDetail(props) {
                 passengerCount = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id));
             }
 
+            if (item.name === "Mandoran fix") {
+                const mandoranFix =
+                    _editablePnp[item.id] !== undefined
+                        ? _editablePnp[item.id]
+                        : parseInt(item.amount) || 0;
+
+                total += mandoranFix;
+                return;
+            }
+
             // Validate passengerCount to prevent NaN
             if (isNaN(passengerCount)) {
                 passengerCount = 0;
@@ -726,6 +736,10 @@ export default function DepositDetail(props) {
                         let amount = matchingDetail.amount
 
                         if (matchingDetail.name == "Catatan Saku") {
+                            count = 0
+                            amount = _editablePnp[key]
+                        }
+                        if (matchingDetail.name == "Mandoran fix") {
                             count = 0
                             amount = _editablePnp[key]
                         }
@@ -1300,7 +1314,50 @@ export default function DepositDetail(props) {
                                             })
                                     }
 
+                                   {
+                                        _setoranData.data.biaya &&
+                                        _setoranData.data.biaya.length > 0 &&
+                                        _setoranData.data.biaya[0].details
+                                            ?.filter(item => item.name === "Mandoran fix")
+                                            .map(item => {
 
+                                                const mandoranFix =
+                                                    _editablePnp[item.id] !== undefined
+                                                        ? _editablePnp[item.id]
+                                                        : parseInt(item.amount) || 0;
+
+                                                return (
+                                                    <Row key={item.id}>
+                                                        <Col
+                                                            withPadding
+                                                            alignEnd
+                                                            justifyCenter
+                                                            column={4}
+                                                        >
+                                                            <span>{item.desc}</span>
+                                                        </Col>
+                                                        
+                                                        <Col
+                                                            withPadding
+                                                            column={1}
+                                                        >
+                                                            <Input
+                                                                style={{ textAlign: "right" }}
+                                                                type="currency"
+                                                                value={currency(String(mandoranFix).replace(/\./g, ''))}
+                                                                onChange={(value) => {
+                                                                    _setEditablePnp(prev => ({
+                                                                        ...prev,
+                                                                        [item.id]: parseInt(String(value).replace(/\./g, '')) || 0
+                                                                    }));
+                                                                }}
+                                                                placeholder="Rp"
+                                                            />
+                                                        </Col>
+                                                    </Row>
+                                                );
+                                            })
+                                    }
 
                                     <Row>
                                         <Col
