@@ -39,6 +39,14 @@ export default function BusList(props) {
             field : 'busCategoryTotalSeat'
         },
         {
+            title : 'pool',
+            field : 'poolName'
+        },
+        {
+            title : 'Inap',
+            field : 'poolInapName'
+        },
+        {
             title : 'Aksi',
             field : "id",
             customCell : (value, row) => {

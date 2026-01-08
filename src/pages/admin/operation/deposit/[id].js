@@ -794,7 +794,7 @@ export default function DepositDetail(props) {
             })
 
             // Navigate back to index page to restore filter state
-            // router.push('/admin/operation/deposit')
+            router.push('/admin/operation/deposit')
         } catch (e) {
             popAlert({
                 message: e.message || 'Gagal menerima setoran',
@@ -804,6 +804,8 @@ export default function DepositDetail(props) {
             _setIsProcessing(false)
         }
     }
+
+    
 
 
     return (
@@ -1473,7 +1475,7 @@ export default function DepositDetail(props) {
                                         </Col>
 
                                     </Row>
-
+ 
 
                                     {
                                         _setoranData.data.biaya && _setoranData.data.biaya.length > 0 && _setoranData.data.biaya[0].details
@@ -1552,7 +1554,18 @@ export default function DepositDetail(props) {
                                     {
 
                                         _setoranData.data.biaya[0]?.details
-                                            ?.filter(item => (item.name.toUpperCase() === "CATATAN SAKU" || item.name.toUpperCase() == "SOLAR" || item.name.toUpperCase() == "TOL"))
+                                            // ?.filter(item => (item.name.toUpperCase() === "CATATAN SAKU" || item.name.toUpperCase() == "SOLAR" || item.name.toUpperCase() == "TOL"))
+                                            ?.filter(item =>
+                                                    ["CATATAN SAKU", "SOLAR", "TOL"].includes(item.name.toUpperCase())
+                                                )
+                                            .sort((a, b) => {
+                                                if (a.sequence !== null && b.sequence !== null) {
+                                                return a.sequence - b.sequence
+                                                }
+                                                if (a.sequence !== null) return -1
+                                                if (b.sequence !== null) return 1
+                                                return 0
+                                            })
                                             .map((item, index) => {
 
                                                 let amountDefault = item?.amount
