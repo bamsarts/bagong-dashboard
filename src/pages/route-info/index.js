@@ -1,156 +1,166 @@
-import Main, {popAlert} from '../../components/Main'
+import Main, { popAlert } from '../../components/Main'
 import AdminLayout from '../../components/AdminLayout'
 import { useEffect, useState, useContext } from 'react'
 import { Col, Row } from '../../components/Layout'
 import Button from '../../components/Button'
 import Input from '../../components/Input'
-import { postJSON, get, BASE_URL, CMS_URL } from '../../api/utils'
+import { postJSON, get, BASE_URL, CMS_URL, BUCKET } from '../../api/utils'
 // import styles from './DetailNews.module.scss'
 import { useRouter } from 'next/router'
 import Card from '../../components/Card'
 import Label from '../../components/Label'
 import { input } from '../../utils/filters'
 
-export default function RouteInfo(props){
+export default function RouteInfo(props) {
 
     const router = useRouter()
-    const [_urlCsv, _setUrlCsv] = useState("https://docs.google.com/spreadsheets/d/e/2PACX-1vQwNkxGfBj2PWX8fyn4gpte8iNebDz1LI2I7GlQnBdyOW6e39Thkzrb4DVv6GeNeQ/pub?gid=1935800650&single=true&output=csv")
     const [_routeInfo, _setRouteInfo] = useState([])
     const [_search, _setSearch] = useState("")
     const [_defaultRoute, _setDefaultRoute] = useState([])
-    const [_activeStatus, _setActiveStatus] = useState("bandara")
+    const [_allRouteData, _setAllRouteData] = useState([])
+    const [_trayekList, _setTrayekList] = useState([])
+    const [_activeStatus, _setActiveStatus] = useState(null)
     const [_mobileLink, _setMobileLink] = useState("")
 
     useEffect(() => {
         _getRouteInfo()
 
-        if(router.query?.redirect){
+        if (router.query?.redirect) {
             window.location.href = router.query?.redirect
-
             getMobileOperatingSystem()
-
         }
+    }, [])
 
-
-
-    }, [_activeStatus])
+    useEffect(() => {
+        if (_activeStatus && _allRouteData.length > 0) {
+            const filteredData = _allRouteData.filter(item => item.Trayek === _activeStatus)
+            _setRouteInfo(filteredData)
+            _setDefaultRoute(filteredData)
+        }
+    }, [_activeStatus, _allRouteData])
 
     useEffect(() => {
 
-        if(_search != ""){
-            let suggestion = [..._routeInfo].filter(item => {
-                return item.rute &&  // Exclude items with null/undefined rute
-                       item.rute.toLowerCase().includes(_search.toLowerCase())
+        if (_search != "") {
+            let suggestion = [..._defaultRoute].filter(item => {
+                return (item.Trayek && item.Trayek.toLowerCase().includes(_search.toLowerCase())) ||
+                    (item.Asal && item.Asal.toLowerCase().includes(_search.toLowerCase())) ||
+                    (item.Tujuan && item.Tujuan.toLowerCase().includes(_search.toLowerCase()))
             });
 
             _setRouteInfo(suggestion)
 
-        }else{
+        } else {
             _setRouteInfo(_defaultRoute)
         }
 
     }, [_search])
 
-    async function _getRouteInfo(){
-        try{
-            const result = await get({
-                url: "/assets/files/"+_activeStatus+".json"
-            })
+    async function _getRouteInfo() {
+        try {
+            const response = await fetch(BUCKET + "/AKDP_Bagong_Rute.json")
+            const result = await response.json()
 
-            _setRouteInfo(result)
-            _setDefaultRoute(result)
-        } catch (e){
+            _setAllRouteData(result)
 
-        } finally {
+            // Extract unique Trayek values
+            const uniqueTrayek = [...new Set(result.map(item => item.Trayek).filter(Boolean))]
+            _setTrayekList(uniqueTrayek)
 
+            // Set first Trayek as default active status
+            if (uniqueTrayek.length > 0 && !_activeStatus) {
+                _setActiveStatus(uniqueTrayek[0])
+            }
+        } catch (e) {
+            console.error('Error fetching route info:', e)
         }
     }
 
-    function _checkRoute(data){
-        if(input.isValidUrl(data)){
+    function _checkRoute(data) {
+        if (input.isValidUrl(data)) {
             return (
-                <a 
-                style={{
-                    color: "blue"
-                }}
-                target="_blank" 
-                href={data}>
+                <a
+                    style={{
+                        color: "blue"
+                    }}
+                    target="_blank"
+                    href={data}>
                     {data}
                 </a>
             )
-        }else{
+        } else {
             return data
         }
     }
 
     function getMobileOperatingSystem() {
         var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    
+
         // Windows Phone must come first because its UA also contains "Android"
         if (/windows phone/i.test(userAgent)) {
             return "Windows Phone";
         }
-    
+
         if (/android/i.test(userAgent)) {
             _setMobileLink("https://play.google.com/store/apps/details?id=com.simadamri.damriapps")
             return "Android";
         }
-    
+
         // iOS detection from: http://stackoverflow.com/a/9039885/177710
         if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
             _setMobileLink("https://apps.apple.com/app/damri-apps/id6443452294")
             return "iOS";
         }
-    
+
         return "";
     }
 
     return (
         <Main>
-            
+
             <AdminLayout
-            hideLogo={true}
+                hideLogo={true}
             >
 
                 {
                     _mobileLink && (
-                
+
                         <Card
-                        invertedColor
-                        style={{
-                            position: "fixed",
-                            bottom: 0,
-                            width: "100%"
-                        }}
+                            invertedColor
+                            style={{
+                                position: "fixed",
+                                bottom: 0,
+                                width: "100%"
+                            }}
                         >
                             <Row
-                            center
+                                center
                             >
                                 <Col
-                                column={2}
-                                style={{
-                                    display: "grid"
-                                }}
+                                    column={2}
+                                    style={{
+                                        display: "grid"
+                                    }}
                                 >
                                     <img
-                                    src={"/assets/logo/logo_damri.svg"}
-                                    width={"auto"}
-                                    height={18}
-                                    style={{
-                                        marginBottom: ".5rem"
-                                    }}
+                                        src={"/assets/logo/logo_damri.svg"}
+                                        width={"auto"}
+                                        height={18}
+                                        style={{
+                                            marginBottom: ".5rem"
+                                        }}
                                     />
 
                                     <small>Beli tiket lebih mudah</small>
                                 </Col>
 
                                 <Col
-                                column={2}
-                                alignEnd
-                                justifyCenter
+                                    column={2}
+                                    alignEnd
+                                    justifyCenter
                                 >
-                                    <a 
-                                    href={_mobileLink}
+                                    <a
+                                        href={_mobileLink}
                                     >
                                         Download
                                     </a>
@@ -162,362 +172,110 @@ export default function RouteInfo(props){
                 }
 
                 <Row
-                center
+                    center
                 >
                     <Col
-                    column={4}
-                    mobileFullWidth
-                    style={{
-                        padding: "1rem"
-                    }}
+                        column={4}
+                        mobileFullWidth
+                        style={{
+                            padding: "1rem"
+                        }}
                     >
                         <div
-                        style={{
-                            marginBottom: "2rem"
-                        }}
+                            style={{
+                                marginBottom: "2rem",
+                            }}
                         >
                             <Label
-                            activeIndex={_activeStatus}
-                            labels={[
-                                {
+                                activeIndex={_activeStatus}
+                                labels={_trayekList.map(trayek => ({
                                     class: "primary",
-                                    title: 'Bandara',
-                                    value: "bandara",
-                                    onClick : () => {
-                                        _setActiveStatus("bandara")
+                                    title: trayek,
+                                    value: trayek,
+                                    onClick: () => {
+                                        _setActiveStatus(trayek)
                                     }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Banjarmasin',
-                                    value: "banjarmasin",
-                                    onClick : () => {
-                                        _setActiveStatus("banjarmasin")
-                                    }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Bandung',
-                                    value: "bandung",
-                                    onClick : (value) => {
-                                        _setActiveStatus("bandung")
-                                    }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Jakarta',
-                                    value: "jakarta",
-                                    onClick : (value) => {
-                                        _setActiveStatus("jakarta")
-                                    }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Lampung',
-                                    value: "lampung",
-                                    onClick : (value) => {
-                                        _setActiveStatus("lampung")
-                                    }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Surabaya & Malang',
-                                    value: "surabaya_malang",
-                                    onClick : (value) => {
-                                        _setActiveStatus("surabaya_malang")
-                                    }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Mataram',
-                                    value: "mataram",
-                                    onClick : (value) => {
-                                        _setActiveStatus("mataram")
-                                    }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Makassar',
-                                    value: "makassar",
-                                    onClick : (value) => {
-                                        _setActiveStatus("makassar")
-                                    }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Pontianak',
-                                    value: "pontianak",
-                                    onClick : (value) => {
-                                        _setActiveStatus("pontianak")
-                                    }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Palembang',
-                                    value: "palembang",
-                                    onClick : (value) => {
-                                        _setActiveStatus("palembang")
-                                    }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Purwokerto',
-                                    value: "purwokerto",
-                                    onClick : (value) => {
-                                        _setActiveStatus("purwokerto")
-                                    }
-                                },
-                                {
-                                    class: "primary",
-                                    title: 'Yogyakarta',
-                                    value: "yogyakarta",
-                                    onClick : (value) => {
-                                        _setActiveStatus("yogyakarta")
-                                    }
-                                },
-                            ]}
+                                }))}
                             />
                         </div>
 
                         <Input
-                        alphaOnly
-                        placeholder={"Cari"}
-                        value={_search}
-                        capitalize={'words'}
-                        onChange={value => _setSearch(value)}
-                        marginBottom
+                            alphaOnly
+                            placeholder={"Cari"}
+                            value={_search}
+                            capitalize={'words'}
+                            onChange={value => _setSearch(value)}
+                            marginBottom
                         />
-                        
+
 
                         <div
-                        style={{
-                            margin: "1rem 0rem",
-                            fontSize: ".8rem"
-                        }}
-                        >  
+                            style={{
+                                margin: "1rem 0rem",
+                                fontSize: ".8rem"
+                            }}
+                        >
                             <small>*Informasi rute dan tarif di bawah ini bisa berubah setiap saat</small>
                         </div>
 
                         {
-                            _routeInfo.map(function(val, key){
+                            _routeInfo.map(function (val, key) {
 
-                                if(val.rute != "" && val.rute != null){
+                                if (val.Trayek != "" && val.Trayek != null) {
                                     return (
-                                        <Card>
+                                        <Card key={key}>
                                             <div
-                                            style={{
-                                                display: "grid"
-                                            }}
-                                            >
-                                                <strong
                                                 style={{
-                                                    marginBottom: ".5rem"
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    alignItems: "center"
                                                 }}
-                                                >
-                                                    {val.rute}
-                                                </strong>
+                                            >
 
                                                 {
-                                                    val.titik_keberangkatan && (
-                                                        <>
-                                                            <small
-                                                            style={{
-                                                                fontWeight: "bold",
-                                                                marginBottom: ".2rem"
-                                                            }}
-                                                            >
-                                                                Titik Keberangkatan :
-                                                            </small>
-                
-                                                            <small
-                                                            style={{
-                                                                marginBottom: ".5rem"
-                                                            }}
-                                                            >
-                                                                {val.titik_keberangkatan}
-                                                            </small>
-                                                        </>
+                                                    val.Asal && (
+                                                        <small>
+                                                            {val.Asal}
+                                                        </small>
                                                     )
                                                 }
 
                                                 {
-                                                    val.rute_yang_dilewati && (
-                                                        <>
-                                                            <small
-                                                            style={{
-                                                                fontWeight: "bold",
-                                                                marginBottom: ".2rem"
-                                                            }}
-                                                            >
-                                                                Rute yang dilewati :
-                                                            </small>
-                                                            
-                                                            <small
-                                                            style={{
-                                                                whiteSpace: "pre-line",
-                                                                marginBottom: ".5rem"
-                                                            }}
-                                                            >
-                                                                {_checkRoute(val.rute_yang_dilewati)}
-                                                            </small>
-                                                        </>
+                                                    val.Tujuan && (
+                                                        <small>
+                                                            {val.Tujuan}
+                                                        </small>
                                                     )
                                                 }
-
-                                                
-                                                
 
                                                 {
-                                                    (val.menuju_bandara || val.jam) && (
-                                                        <>
-                                                            <small
+                                                    val.Tarif && (
+                                                        <small
                                                             style={{
-                                                                fontWeight: "bold",
-                                                                marginBottom: ".2rem"
+                                                                fontWeight: "bold"
                                                             }}
-                                                            >
-                                                                Waktu Berangkat :
-                                                            </small>
-                
-                                                            <small
-                                                            style={{
-                                                                marginBottom: ".5rem"
-                                                            }}
-                                                            >
-                                                                {val.menuju_bandara || val.jam}
-                                                            </small>
-                                                        </>
-                                                    )
-                                                }
-                                                
-                                                
-                                                {
-                                                    val.dari_bandara && (
-                                                        <>
-                                                            <small
-                                                            style={{
-                                                                fontWeight: "bold",
-                                                                marginBottom: ".2rem"
-                                                            }}
-                                                            >
-                                                                Waktu Pulang :
-                                                            </small>
-                
-                                                            <small
-                                                            style={{
-                                                                marginBottom: ".5rem"
-                                                            }}
-                                                            >
-                                                                {val.dari_bandara}
-                                                            </small>
-                                                        </>
-                                                    )
-                                                }
-                                                
-                                                
-                                                {
-                                                    val?.interval_waktu && (
-                                                        <>
-                                                            <small
-                                                            style={{
-                                                                fontWeight: "bold",
-                                                                marginBottom: ".2rem"
-                                                            }}
-                                                            >
-                                                                Interval :
-                                                            </small>
-
-                                                            <small
-                                                            style={{
-                                                                marginBottom: ".5rem"
-                                                            }}
-                                                            >
-                                                                { val.interval_waktu.includes("KM") ? val.interval_waktu : val.interval_waktu + " Menit"}
-
-                                                            </small>
-                                                        </>
+                                                        >
+                                                            Rp{val.Tarif}
+                                                        </small>
                                                     )
                                                 }
 
-                                               
-
-                                                {
-                                                   (val.executive || val.royal || val.bisnis) && (
-                                                        <>
-                                                            <small
-                                                            style={{
-                                                                fontWeight: "bold",
-                                                                marginBottom: ".2rem"
-                                                            }}
-                                                            >
-                                                                Tarif :
-                                                            </small>
-                
-                                                            <small>{val.tarif_baru}</small>
-
-                                                            <ul
-                                                            style={{
-                                                                fontSize: ".7rem"
-                                                            }}
-                                                            >
-                                                                {
-                                                                    val.ekonomi && (
-                                                                        <li>Ekonomi : {val.ekonomi}</li>
-                                                                    )
-                                                                }
-
-                                                                {
-                                                                    val.bisnis && (
-                                                                        <li>Bisnis : {val.bisnis}</li>
-                                                                    )
-                                                                }
-
-                                                                {
-                                                                    val.executive && (
-                                                                        <li>Eksekutif : {val.executive}</li>
-                                                                    )
-                                                                }
-
-                                                                {
-                                                                    val.royal && (
-                                                                        <li>Royal : {val.royal}</li>
-                                                                    )
-                                                                }
-
-                                                                {
-                                                                    val.royal_imperial && (
-                                                                        <li>Royal Imperial : {val.royal_imperial}</li>
-                                                                    )
-                                                                }
-
-                                                                {
-                                                                    val.sleeper && (
-                                                                        <li>Sleeper : {val.sleeper}</li>
-                                                                    )
-                                                                }
-                                                            </ul>
-
-                                                        </>
-                                                    )
-                                                }
-                                                
-                                             
                                             </div>
                                         </Card>
                                     )
                                 }
-                                
+
                             })
                         }
-                        
+
 
 
                     </Col>
-                   
+
                 </Row>
-            
+
             </AdminLayout>
         </Main>
     )
-   
+
 }
