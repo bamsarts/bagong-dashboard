@@ -1,0 +1,52 @@
+@import '../../styles/sass/variables';
+@import '../../styles/sass/mixins';
+
+.modal_wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+    pointer-events: none;
+    
+    &.visible {
+        background-color: #{$dark-color + $opacity_75};
+        pointer-events: all;
+    }
+}
+
+.modal_container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    max-width: 500px;
+    background-color: $light-color;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    pointer-events: all;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    
+    &.visible {
+        transform: translateX(0);
+    }
+
+    @include respond-sm {
+        max-width: 400px;
+    }
+}
+

@@ -396,6 +396,10 @@ export const NAVIGATIONS = [
                 title : 'Shortlink',
                 href : ADMIN_BASE_URL + '/master-data/shortlink'
             },
+            {
+                title : 'Penugasan Template',
+                href : ADMIN_BASE_URL + '/master-data/assignment-template'
+            },
         ]
     },
     {
@@ -637,6 +641,11 @@ export const NAVIGATIONS = [
             {
                 title : 'Penugasan',
                 href : ADMIN_BASE_URL + '/operation/assign-task',
+                isHide: false,
+            },
+            {
+                title : 'New Penugasan',
+                href : ADMIN_BASE_URL + '/operation/assignment',
                 isHide: false,
             }
         ]
