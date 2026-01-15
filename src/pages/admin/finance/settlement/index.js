@@ -39,7 +39,7 @@ export default function Settlement(props) {
         length: Table.defaultProps.recordsPerPageValues[1],
         startFrom: 0,
     })
-    
+
 
     let __COLUMNS = [
         {
@@ -59,7 +59,9 @@ export default function Settlement(props) {
         {
             title: 'Pembayaran',
             field: 'payment_type',
-            customCell: (value) => value.toUpperCase()
+            customCell: (value, row) => {
+                return value ? value.toUpperCase() : ''
+            },
         },
         {
             title: 'Total Transaksi',
@@ -98,7 +100,7 @@ export default function Settlement(props) {
 
                 let status = _statusPayment(value)
 
-                if(status.title){
+                if (status.title) {
                     return (
                         <Row
                             verticalCenter
@@ -116,7 +118,7 @@ export default function Settlement(props) {
                             />
                         </Row>
                     )
-                }else {
+                } else {
                     return ''
                 }
             }
@@ -151,7 +153,7 @@ export default function Settlement(props) {
     async function _getTrayekMaster() {
 
         let query = {
-            startFrom : 0,
+            startFrom: 0,
             length: 360
         }
 
@@ -192,7 +194,8 @@ export default function Settlement(props) {
                 startFrom: _startFrom.toString(),
                 length: _length.toString(),
                 sortMode: "desc",
-                query: null
+                query: null,
+                paymentCategory: "non_tunai"
             }
 
             const res = await postJSON("/data/settlement/list", params, props.authData.token)
@@ -301,10 +304,10 @@ export default function Settlement(props) {
                                     columns={__COLUMNS}
                                     records={_settlement}
                                     noPadding
-                                    onPageChange={ (page) => {
-                                        _setPagination({ ..._page, page:  page })
+                                    onPageChange={(page) => {
+                                        _setPagination({ ..._page, page: page })
                                     }}
-                                    onRecordsPerPageChange={ (perPage) => {
+                                    onRecordsPerPageChange={(perPage) => {
                                         _setPagination({ limit: perPage, page: 1 })
                                     }}
                                 />

@@ -33,6 +33,7 @@ export default function SettlementModal(props = defaultProps) {
     const [previewUrl, setPreviewUrl] = useState(null)
     const [isUploading, setIsUploading] = useState(false)
     const [showImageDetail, setShowImageDetail] = useState(false)
+    const [showTransactionTable, setShowTransactionTable] = useState(false)
 
     const handleInputChange = (value, field) => {
         setFormData(prev => ({
@@ -134,13 +135,13 @@ export default function SettlementModal(props = defaultProps) {
 
     useEffect(() => {
         if (props.visible) {
-            
+
             let transfer = props.initialData?.transfer_amount
 
-            if(props.initialData?.status != "CREATED"){
-                if(props.initialData?.payment_type == "cash"){
+            if (props.initialData?.status != "CREATED") {
+                if (props.initialData?.payment_type == "cash") {
                     transfer = props.initialData?.fee_amount
-                }else{
+                } else {
                     transfer = props.initialData?.odt
                 }
             }
@@ -177,7 +178,7 @@ export default function SettlementModal(props = defaultProps) {
                 className={`${styles.backdrop} ${props.visible ? styles.visible : ''}`}
                 onClick={props.closeModal}
             />
-            <div style={{ minWidth: "40%" }} className={`${styles.modal_container} ${props.visible ? styles.visible : ''}`}>
+            <div style={{ minWidth: showTransactionTable ? "90%" : "40%", transition: "min-width 0.3s ease" }} className={`${styles.modal_container} ${props.visible ? styles.visible : ''}`}>
 
                 <ModalContent
                     header={{
@@ -185,114 +186,217 @@ export default function SettlementModal(props = defaultProps) {
                         closeModal: handleClose
                     }}
                     actions={[
-                        <Button
-                            key="submit"
-                            title={(props.initialData?.status == "CREATED" ? 'Ubah' : 'Simpan')}
-                            onClick={handleSubmit}
-                            onProcess={props.isProcessing || isUploading}
-                        />
+
                     ]}
                 >
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: "0 .5rem" }}>
+                    <Row>
 
-                        <Row
-                        
-                        spaceBetween
-                        >
-                            <span>Pembayaran</span>
-                            <strong>{formData.paymentType.toUpperCase()}</strong>
-                        </Row>
+                        {showTransactionTable && props.initialData?.transaction_list && props.initialData.transaction_list.length > 0 && (
+                            <Col
+                                withPadding
+                                column={showTransactionTable ? 4 : 6}
+                            >
 
-                        <Row
-                        
-                        spaceBetween
-                        >
-                            <span>Total Transaksi</span>
-                            <strong>{currency(formData.transactionAmount, "Rp")}</strong>
-                        </Row>
-
-                        <Row
-                        
-                        spaceBetween
-                        >
-                            <span>Tanggal {formData.paymentType == "cash" ? "Invoice" : 'Transfer'}</span>
-                            <strong>{dateFilter.getMonthDate(new Date(formData.transactionDate))}</strong>
-                        </Row>
-                        
-
-                        <Input
-                            title={"Tanggal " + (formData.paymentType == "cash" ? "Invoice" : 'Transfer')}
-                            field="transferDate"
-                            type="date"
-                            value={formData.transferDate}
-                            onChange={handleInputChange}
-                            required
-                        />
-
-                        <Input
-                            title={"Nilai " + (formData.paymentType == "cash" ? "Invoice" : 'Transfer')}
-                            field="transferAmount"
-                            type="number"
-                            value={formData.transferAmount}
-                            onChange={handleInputChange}
-                            placeholder="Masukkan nominal"
-                            required
-                        />
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                            <span>
-                                Bukti {(formData.paymentType == "cash" ? "Invoice" : 'Transfer')}
-                            </span>
-
-                            <input
-                                field="paymentProofFile"
-                                type="file"
-                                onChange={handleFileChange}
-                                placeholder="Select payment proof image"
-                                accept=".jpeg, .jpg, .png, .pdf"
-                                required
-                            />
-
-                            <div>
-                                {previewUrl && (
-                                    <div style={{
-                                        marginTop: '0.5rem',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        padding: '0.5rem',
-                                        backgroundColor: '#f9f9f9'
+                                <div style={{
+                                    maxHeight: '90vh',
+                                    overflowY: 'auto',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '8px',
+                                    backgroundColor: '#f9f9f9'
+                                }}>
+                                    <table style={{
+                                        width: '100%',
+                                        borderCollapse: 'collapse',
+                                        fontSize: '0.85rem'
                                     }}>
-                                        <div style={{ marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>
-                                            Preview:
-                                        </div>
-                                        <img
-                                            src={previewUrl}
-                                            alt="Payment proof preview"
-                                            style={{
-                                                maxWidth: '100%',
-                                                maxHeight: '200px',
-                                                objectFit: 'contain',
+                                        <thead style={{
+                                            backgroundColor: '#e0e0e0',
+                                            position: 'sticky',
+                                            top: 0
+                                        }}>
+                                            <tr>
+                                                <th style={{ padding: '0.5rem', textAlign: 'left', borderBottom: '1px solid #ccc' }}>Rute</th>
+                                                <th style={{ padding: '0.5rem', textAlign: 'left', borderBottom: '1px solid #ccc' }}>Pembayaran</th>
+                                                <th style={{ padding: '0.5rem', textAlign: 'right', borderBottom: '1px solid #ccc' }}>Penumpang</th>
+                                                <th style={{ padding: '0.5rem', textAlign: 'right', borderBottom: '1px solid #ccc' }}>Jumlah</th>
+                                                <th style={{ padding: '0.5rem', textAlign: 'right', borderBottom: '1px solid #ccc' }}>Total</th>
+                                                <th style={{ padding: '0.5rem', textAlign: 'center', borderBottom: '1px solid #ccc' }}>Status</th>
+                                                <th style={{ padding: '0.5rem', textAlign: 'left', borderBottom: '1px solid #ccc' }}>Tanggal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {props.initialData.transaction_list.map((transaction, index) => (
+                                                <tr
+                                                    key={transaction.id || index}
+                                                    style={{
+                                                        backgroundColor: index % 2 === 0 ? '#fff' : '#f5f5f5',
+                                                        borderBottom: '1px solid #eee'
+                                                    }}
+                                                >
+                                                    <td style={{ padding: '0.5rem' }}>
+                                                        <div style={{ fontWeight: '500' }}>{transaction.traject_code}</div>
+                                                        <div style={{ fontSize: '0.75rem', color: '#666' }}>{transaction.traject_name}</div>
+                                                    </td>
+                                                    <td style={{ padding: '0.5rem' }}>
+                                                        <span style={{
+                                                            backgroundColor: transaction.payment_category === 'non_tunai' ? '#e3f2fd' : '#fff3e0',
+                                                            color: transaction.payment_category === 'non_tunai' ? '#1976d2' : '#f57c00',
+                                                            padding: '0.2rem 0.5rem',
+                                                            borderRadius: '4px',
+                                                            fontSize: '0.75rem',
+                                                            fontWeight: '500'
+                                                        }}>
+                                                            {transaction.payment_provider_label}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ padding: '0.5rem', textAlign: 'right' }}>{transaction.quantity}</td>
+                                                    <td style={{ padding: '0.5rem', textAlign: 'right' }}>{currency(transaction.amount)}</td>
+                                                    <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: '600' }}>{currency(transaction.total_amount)}</td>
+                                                    <td style={{ padding: '0.5rem', textAlign: 'center' }}>
+                                                        <span style={{
+                                                            backgroundColor: transaction.payment_status === 'PAID' ? '#e8f5e9' : '#ffebee',
+                                                            color: transaction.payment_status === 'PAID' ? '#2e7d32' : '#c62828',
+                                                            padding: '0.2rem 0.5rem',
+                                                            borderRadius: '4px',
+                                                            fontSize: '0.75rem',
+                                                            fontWeight: '500'
+                                                        }}>
+                                                            {transaction.payment_status}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ padding: '0.5rem', fontSize: '0.8rem' }}>
+                                                        {dateFilter.convertISO(new Date(transaction.created_at), "fulldate", true)}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </Col>
+
+                        )}
+
+
+                        <Col
+                            withPadding
+                            column={showTransactionTable ? 2 : 6}
+                        >
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: "0 .5rem" }}>
+
+                                <Row spaceBetween style={{ alignItems: 'center' }}>
+                                    <Button
+                                        small
+                                        title={showTransactionTable ? 'Tutup' : 'Lihat Transaksi'}
+                                        onClick={() => setShowTransactionTable(!showTransactionTable)}
+                                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem' }}
+                                    />
+                                </Row>
+
+
+
+                                <Row
+
+                                    spaceBetween
+                                >
+                                    <span>Total Transaksi</span>
+                                    <strong>{currency(formData.transactionAmount, "Rp")}</strong>
+                                </Row>
+
+                                <Row
+
+                                    spaceBetween
+                                >
+                                    <span>Tanggal {formData.paymentType == "cash" ? "Invoice" : 'Transfer'}</span>
+                                    <strong>{dateFilter.getMonthDate(new Date(formData.transactionDate))}</strong>
+                                </Row>
+
+
+                                <Input
+                                    title={"Tanggal " + (formData.paymentType == "cash" ? "Invoice" : 'Transfer')}
+                                    field="transferDate"
+                                    type="date"
+                                    value={formData.transferDate}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+
+                                <Input
+                                    title={"Nilai " + (formData.paymentType == "cash" ? "Invoice" : 'Transfer')}
+                                    field="transferAmount"
+                                    type="number"
+                                    value={formData.transferAmount}
+                                    onChange={handleInputChange}
+                                    placeholder="Masukkan nominal"
+                                    required
+                                />
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    <span>
+                                        Bukti {(formData.paymentType == "cash" ? "Invoice" : 'Transfer')}
+                                    </span>
+
+                                    <input
+                                        field="paymentProofFile"
+                                        type="file"
+                                        onChange={handleFileChange}
+                                        placeholder="Select payment proof image"
+                                        accept=".jpeg, .jpg, .png, .pdf"
+                                        required
+                                    />
+
+                                    <div>
+                                        {previewUrl && (
+                                            <div style={{
+                                                marginTop: '0.5rem',
+                                                border: '1px solid #ddd',
                                                 borderRadius: '4px',
-                                                border: '1px solid #eee',
-                                                cursor: 'pointer'
-                                            }}
-                                            onClick={() => props.triggerPreviewImage({
-                                                "isOpen": true,
-                                                "url": previewUrl
-                                            })}
-                                            title="Click to view full size"
-                                        />
+                                                padding: '0.5rem',
+                                                backgroundColor: '#f9f9f9'
+                                            }}>
+                                                <div style={{ marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>
+                                                    Preview:
+                                                </div>
+                                                <img
+                                                    src={previewUrl}
+                                                    alt="Payment proof preview"
+                                                    style={{
+                                                        maxWidth: '100%',
+                                                        maxHeight: '200px',
+                                                        objectFit: 'contain',
+                                                        borderRadius: '4px',
+                                                        border: '1px solid #eee',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    onClick={() => props.triggerPreviewImage({
+                                                        "isOpen": true,
+                                                        "url": previewUrl
+                                                    })}
+                                                    title="Click to view full size"
+                                                />
+                                            </div>
+                                        )}
                                     </div>
-                                )}
+
+                                </div>
+
+                                <Button
+                                    key="submit"
+                                    title={(props.initialData?.status == "CREATED" ? 'Ubah' : 'Simpan')}
+                                    onClick={handleSubmit}
+                                    onProcess={props.isProcessing || isUploading}
+                                    styles={Button.secondary}
+                                />
                             </div>
-                            
-                        </div>
-                    </div>
+                        </Col>
+                    </Row>
+
+
                 </ModalContent>
-            
+
             </div>
 
-            
+
         </div>
     )
 }
