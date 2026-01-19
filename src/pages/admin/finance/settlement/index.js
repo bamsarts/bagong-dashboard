@@ -49,11 +49,10 @@ export default function Settlement(props) {
         },
         {
             title: 'Trayek',
-            field: 'traject_id',
+            field: 'traject_name',
             textAlign: "left",
             customCell: (value, row) => {
-                const trayek = _trayekMaster.find(item => item.id === value.toString())
-                return trayek ? trayek.name : value
+                return value
             }
         },
         {
