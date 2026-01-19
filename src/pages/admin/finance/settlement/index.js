@@ -57,7 +57,7 @@ export default function Settlement(props) {
         },
         {
             title: 'Pembayaran',
-            field: 'payment_type',
+            field: 'payment_category',
             customCell: (value, row) => {
                 return value ? value.toUpperCase() : ''
             },

@@ -307,10 +307,74 @@ export default function SettlementModal(props = defaultProps) {
 
                                     spaceBetween
                                 >
-                                    <span>Tanggal {formData.paymentType == "cash" ? "Invoice" : 'Transfer'}</span>
-                                    <strong>{dateFilter.getMonthDate(new Date(formData.transactionDate))}</strong>
+                                    <span>Fee</span>
+                                    <strong>{currency(String(props.initialData?.fee_amount), "Rp")}</strong>
                                 </Row>
 
+                                <Row
+
+                                    spaceBetween
+                                >
+                                    <span>MDR</span>
+                                    <strong>{currency(String(props.initialData?.mdr_amount), "Rp")}</strong>
+                                </Row>
+
+                                {
+                                    props.initialData?.transfer_date && (
+                                        <Row
+
+                                            spaceBetween
+                                        >
+                                            <span>Tanggal Transfer</span>
+                                            <strong>{dateFilter.getMonthDate(new Date(props.initialData?.transfer_date))}</strong>
+                                        </Row>
+                                    )
+                                }
+
+                                <Row>
+
+                                </Row>
+
+                                {props.initialData?.traject_bank && props.initialData.traject_bank.length > 0 && (
+                                    <div style={{
+                                        backgroundColor: '#f0f7ff',
+                                        border: '1px solid #b3d4fc',
+                                        borderRadius: '8px',
+                                        padding: '1rem',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        <div style={{
+                                            fontWeight: '600',
+                                            marginBottom: '0.75rem',
+                                            color: '#1976d2',
+                                            fontSize: '0.9rem'
+                                        }}>
+                                            Informasi Rekening
+                                        </div>
+                                        {props.initialData.traject_bank.map((bank, index) => (
+                                            <div key={bank.id || index} style={{
+                                                backgroundColor: '#fff',
+                                                borderRadius: '6px',
+                                                padding: '0.75rem',
+                                                marginBottom: index < props.initialData.traject_bank.length - 1 ? '0.5rem' : 0,
+                                                border: '1px solid #e3e3e3'
+                                            }}>
+                                                <Row spaceBetween style={{ marginBottom: '0.25rem' }}>
+                                                    <span style={{ color: '#666', fontSize: '0.85rem' }}>Bank</span>
+                                                    <strong style={{ color: '#333', fontSize: '0.9rem' }}>{bank.bank_name}</strong>
+                                                </Row>
+                                                <Row spaceBetween style={{ marginBottom: '0.25rem' }}>
+                                                    <span style={{ color: '#666', fontSize: '0.85rem' }}>Atas Nama</span>
+                                                    <strong style={{ color: '#333', fontSize: '0.9rem' }}>{bank.bank_account_name}</strong>
+                                                </Row>
+                                                <Row spaceBetween>
+                                                    <span style={{ color: '#666', fontSize: '0.85rem' }}>No. Rekening</span>
+                                                    <strong style={{ color: '#333', fontSize: '0.9rem', letterSpacing: '0.5px' }}>{bank.bank_account_number}</strong>
+                                                </Row>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
 
                                 <Input
                                     title={"Tanggal " + (formData.paymentType == "cash" ? "Invoice" : 'Transfer')}
