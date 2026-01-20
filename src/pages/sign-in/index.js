@@ -26,6 +26,7 @@ export default function SignIn(props) {
     const [_isProcessing, _setIsProcessing] = useState(false)
     const [_isShowPassword, _setIsShowPassword] = useState(false)
     const [_logo, _setLogo] = useState("")
+    const [_isDev, _setIsDev] = useState(false)
 
     useEffect(() => {
         resetCookie(window.document.cookie)
@@ -41,14 +42,27 @@ export default function SignIn(props) {
 
         if (typeof window !== 'undefined') {
             const subdomain = window.location.hostname.split('.')[0];
+            const subSubDomain = window.location.hostname.split('.')[1];
+
             if (subdomain === "bisku" || window.location.hostname === 'localhost') {
                 _setLogo("/assets/logo/bisku.png")
 
             } else if (subdomain === "bagong") {
                 _setLogo("/assets/logo/bagong.svg")
 
-            } else {
+            } else if (subdomain === "damri") {
                 _setLogo("/assets/logo/damri.png")
+            } else if (subdomain === "dev") {
+                if (subSubDomain === "bagong") {
+                    _setLogo("/assets/logo/bagong.svg")
+                } else if (subSubDomain === "damri") {
+                    _setLogo("/assets/logo/damri.png")
+                } else {
+                    _setLogo("/assets/logo/bisku.png")
+                }
+                _setIsDev(true)
+            } else {
+                _setLogo("/assets/logo/bisku.png")
             }
         }
 
@@ -210,6 +224,14 @@ export default function SignIn(props) {
                             src={_logo}
                             className={styles.logo}
                         />
+
+                        {
+                            _isDev && (
+                                <h3>
+                                    Development
+                                </h3>
+                            )
+                        }
                     </div>
 
                     <Card>
