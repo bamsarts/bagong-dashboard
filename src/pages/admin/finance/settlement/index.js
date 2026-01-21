@@ -12,6 +12,7 @@ import Input from '../../../../components/Input'
 import { Row, Col } from '../../../../components/Layout'
 import PreviewImageModal from '../../../../components/PreviewImageModal'
 import Label from '../../../../components/Label'
+import { getLocalStorage } from '../../../../utils/local-storage'
 
 export default function Settlement(props) {
     const [_isProcessing, _setIsProcessing] = useState(false)
@@ -23,6 +24,7 @@ export default function Settlement(props) {
     const [_showSettlementModal, _setShowSettlementModal] = useState(false)
     const [_selectedSettlement, _setSelectedSettlement] = useState(null)
     const [_trayekMaster, _setTrayekMaster] = useState([])
+    const [_roleAccess, _setRoleAccess] = useState(null)
     const [_previewImage, _setPreviewImage] = useState({
         "isOpen": false,
         "url": ""
@@ -148,6 +150,25 @@ export default function Settlement(props) {
         _getTrayekMaster()
         _getSettlement()
     }, [_startDate, _endDate])
+
+    useEffect(() => {
+        // Get role access from localStorage
+        const accessMenuDamri = getLocalStorage('access_menu_damri')
+        if (accessMenuDamri) {
+            try {
+                const roleData = JSON.parse(accessMenuDamri)
+                // Filter for "Keuangan>Settlement" menu
+                let settlementRole = roleData.find(role => role.menu === "Keuangan>Settlement")
+
+                if ((settlementRole && settlementRole.updateRole === true) || props.role_id == "2") {
+
+                    _setRoleAccess(true)
+                }
+            } catch (e) {
+                console.error('Error parsing role data:', e)
+            }
+        }
+    }, [])
 
     async function _getTrayekMaster() {
 
@@ -324,6 +345,7 @@ export default function Settlement(props) {
                     onSubmit={_submitSettlement}
                     isProcessing={_isProcessing}
                     initialData={_selectedSettlement}
+                    roleAccess={_roleAccess}
                     triggerPreviewImage={(data) => {
                         _setPreviewImage({
                             "isOpen": data.isOpen,

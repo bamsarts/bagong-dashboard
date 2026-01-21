@@ -77,7 +77,8 @@ export default function UserModal(props = defaultProps) {
 
     async function _submitData() {
 
-        let typeSubmit = props.data.id ? 'update' : 'add'
+        let typeSubmit = props.data.id ? 'update' : 'create'
+        let url = typeSubmit == 'update' ? '/masterData/userRoleAkses/user/' : '/dashboard/user/'
 
         delete _form.failCount
         delete _form.id
@@ -122,7 +123,8 @@ export default function UserModal(props = defaultProps) {
                 delete query.cpassword
             }
 
-            const result = await postJSON('/masterData/userRoleAkses/user/' + typeSubmit, query, appContext.authData.token)
+            const result = await postJSON(url + typeSubmit, query, appContext.authData.token)
+
 
             if (result) props.closeModal()
             _clearForm()

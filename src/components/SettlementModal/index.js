@@ -12,7 +12,8 @@ const defaultProps = {
     onClose: () => { },
     onSubmit: () => { },
     isProcessing: false,
-    initialData: null
+    initialData: null,
+    roleAccess: null
 }
 
 SettlementModal.defaultProps = defaultProps
@@ -26,7 +27,8 @@ export default function SettlementModal(props = defaultProps) {
         transactionAmount: props.initialData?.transaction_amount || 0,
         transferDate: dateFilter.basicDate(new Date()).normal,
         transferAmount: 0,
-        paymentProofLink: ''
+        paymentProofLink: '',
+        trajectMasterId: props.initialData?.traject_master_id || '',
     })
 
     const [selectedFile, setSelectedFile] = useState(null)
@@ -74,7 +76,8 @@ export default function SettlementModal(props = defaultProps) {
 
             const submitData = {
                 companyId: parseInt(formData.companyId),
-                trajectId: parseInt(formData.trajectId),
+                // trajectId: parseInt(formData.trajectId),
+                trajectMasterId: parseInt(formData.trajectMasterId),
                 paymentType: formData.paymentType,
                 transactionDate: formData.transactionDate,
                 transactionAmount: parseFloat(formData.transactionAmount),
@@ -94,6 +97,7 @@ export default function SettlementModal(props = defaultProps) {
         setFormData({
             companyId: '',
             trajectId: '',
+            trajectMasterId: '',
             paymentType: '',
             transactionDate: dateFilter.basicDate(new Date()).normal,
             transactionAmount: 0,
@@ -149,7 +153,8 @@ export default function SettlementModal(props = defaultProps) {
             setFormData({
                 companyId: props.initialData?.company_id || '',
                 trajectId: props.initialData?.traject_id || '',
-                paymentType: props.initialData?.payment_type || '',
+                trajectMasterId: props.initialData?.traject_master_id || '',
+                paymentType: props.initialData?.payment_type || props.initialData?.payment_category || '',
                 transactionDate: props.initialData?.transaction_date ? dateFilter.basicDate(new Date(props.initialData.transaction_date)).normal : dateFilter.basicDate(new Date()).normal,
                 transactionAmount: props.initialData?.transaction_amount || 0,
                 transferDate: dateFilter.basicDate(new Date()).normal,
@@ -376,16 +381,21 @@ export default function SettlementModal(props = defaultProps) {
                                     </div>
                                 )}
 
-                                <Input
-                                    title={"Tanggal " + (formData.paymentType == "cash" ? "Invoice" : 'Transfer')}
-                                    field="transferDate"
-                                    type="date"
-                                    value={formData.transferDate}
-                                    onChange={handleInputChange}
-                                    required
-                                />
+                                {
+                                    props.roleAccess && (
+                                        <Input
+                                            title={"Tanggal " + (formData.paymentType == "cash" ? "Invoice" : 'Transfer')}
+                                            field="transferDate"
+                                            type="date"
+                                            value={formData.transferDate}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    )
+                                }
 
                                 <Input
+                                    disabled={!props.roleAccess}
                                     title={"Nilai " + (formData.paymentType == "cash" ? "Invoice" : 'Transfer')}
                                     field="transferAmount"
                                     type="number"
@@ -395,19 +405,25 @@ export default function SettlementModal(props = defaultProps) {
                                     required
                                 />
 
+
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                     <span>
                                         Bukti {(formData.paymentType == "cash" ? "Invoice" : 'Transfer')}
                                     </span>
 
-                                    <input
-                                        field="paymentProofFile"
-                                        type="file"
-                                        onChange={handleFileChange}
-                                        placeholder="Select payment proof image"
-                                        accept=".jpeg, .jpg, .png, .pdf"
-                                        required
-                                    />
+                                    {
+                                        props.roleAccess && (
+                                            <input
+                                                field="paymentProofFile"
+                                                type="file"
+                                                onChange={handleFileChange}
+                                                placeholder="Select payment proof image"
+                                                accept=".jpeg, .jpg, .png, .pdf"
+                                                required
+                                            />
+                                        )
+                                    }
+
 
                                     <div>
                                         {previewUrl && (
@@ -444,13 +460,15 @@ export default function SettlementModal(props = defaultProps) {
 
                                 </div>
 
-                                <Button
-                                    key="submit"
-                                    title={(props.initialData?.status == "CREATED" ? 'Ubah' : 'Simpan')}
-                                    onClick={handleSubmit}
-                                    onProcess={props.isProcessing || isUploading}
-                                    styles={Button.secondary}
-                                />
+                                {props.roleAccess && (
+                                    <Button
+                                        key="submit"
+                                        title={(props.initialData?.status == "CREATED" ? 'Ubah' : 'Simpan')}
+                                        onClick={handleSubmit}
+                                        onProcess={props.isProcessing || isUploading}
+                                        styles={Button.secondary}
+                                    />
+                                )}
                             </div>
                         </Col>
                     </Row>
