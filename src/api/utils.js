@@ -17,7 +17,7 @@ export const API_ENDPOINT = {
     staging: 'https://app.damri.bisku.id:5000',
     cache_all: ['http://103.217.227.11:6262', 'http://103.217.227.11:7272', 'http://103.217.227.11:8282'],
     web_damri_dev: "http://103.158.252.98:1038",
-    bagong_prod: "https://bagong.bisku.net",
+    bagong_prod: "https://bagong.bisku.id",
     bucket: "https://cdn.bisku.net/bagong",
     dev_coreticket: "https://core-ticketing.bisku.id"
 }
