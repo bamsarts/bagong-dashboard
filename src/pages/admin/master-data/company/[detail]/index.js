@@ -23,58 +23,58 @@ export default function CompanyDetail(props) {
 
     const __COLUMNS = [
         {
-            title : 'Nama Pengguna',
-            field : 'userName',
+            title: 'Nama Pengguna',
+            field: 'userName',
             textAlign: 'left'
         },
         {
-            title : 'Username',
-            field : 'userUsername',
+            title: 'Username',
+            field: 'userUsername',
             textAlign: 'left'
         },
         {
-            title : 'Email',
-            field : 'userEmail',
+            title: 'Email',
+            field: 'userEmail',
             textAlign: 'left'
         },
         {
-            title : 'Bisa Topup',
-            field : 'isTopup',
+            title: 'Bisa Topup',
+            field: 'isTopup',
             customCell: (value) => {
                 return value ? 'Ya' : 'Tidak'
             }
         },
         {
-            title : 'Aksi',
-            field : "id",
-            customCell : (value, row) => {
-                return (    
+            title: 'Aksi',
+            field: "id",
+            customCell: (value, row) => {
+                return (
                     <Row>
                         <div
-                        title={"Hapus"}
-                        className={generateClasses([
-                            styles.button_action
-                        ])}
-                        onClick={() => {
-                            _setOpenModalDelete(true)
-                            _setFormDelete({
-                                "id": value,
-                            })
-                        }}
+                            title={"Hapus"}
+                            className={generateClasses([
+                                styles.button_action
+                            ])}
+                            onClick={() => {
+                                _setOpenModalDelete(true)
+                                _setFormDelete({
+                                    "id": value,
+                                })
+                            }}
                         >
-                            <AiFillDelete/>
+                            <AiFillDelete />
                         </div>
 
                         <div
-                        title={"Topup"}
-                        className={generateClasses([
-                            styles.button_action
-                        ])}
-                        onClick={() => {
-                            _setRowData(row)
-                        }}
+                            title={"Topup"}
+                            className={generateClasses([
+                                styles.button_action
+                            ])}
+                            onClick={() => {
+                                _setRowData(row)
+                            }}
                         >
-                            <AiOutlineWallet/>
+                            <AiOutlineWallet />
                         </div>
                     </Row>
                 )
@@ -83,7 +83,7 @@ export default function CompanyDetail(props) {
     ]
 
     const __FORM = {
-        "companyId": "1",
+        "companyId": router.query.detail,
         "userId": "",
         "isTopup": false,
         "user": {
@@ -99,11 +99,11 @@ export default function CompanyDetail(props) {
         totalPages: 0
     })
     const [_page, _setPage] = useState({
-        length : Table.defaultProps.recordsPerPageValues[0],
-        startFrom : 0,
+        length: Table.defaultProps.recordsPerPageValues[0],
+        startFrom: 0,
         orderBy: 'id',
         sortMode: 'desc',
-        companyId: '1'
+        companyId: router.query.detail
     })
     const [_userRange, _setUserRange] = useState([])
     const [_form, _setForm] = useState(__FORM)
@@ -129,7 +129,7 @@ export default function CompanyDetail(props) {
         })
         _getData(pagination)
     }
-    
+
     async function _getData(pagination = _page) {
         const params = {
             ...pagination,
@@ -139,27 +139,27 @@ export default function CompanyDetail(props) {
             const companyDetailLists = await postJSON('/masterData/company/user/list', params, props.authData.token)
             _setCompanyDetailLists(companyDetailLists)
             _setPaginationConfig({
-                recordLength : companyDetailLists.totalFiltered,
-                recordsPerPage : pagination.length,
-                activePage : (pagination.startFrom / pagination.length) + 1,
-                totalPages : Math.ceil(companyDetailLists.totalFiltered / pagination.length)  
+                recordLength: companyDetailLists.totalFiltered,
+                recordsPerPage: pagination.length,
+                activePage: (pagination.startFrom / pagination.length) + 1,
+                totalPages: Math.ceil(companyDetailLists.totalFiltered / pagination.length)
             })
         } catch (e) {
-            popAlert({ message : e.message })
+            popAlert({ message: e.message })
         }
     }
-    
+
     async function _getUsers() {
         const params = {
             "startFrom": 0,
             "length": 1090
         }
-        
+
         try {
             const user = await postJSON(`/masterData/userRoleAkses/user/list`, params, props.authData.token)
             let userRange = [];
 
-            user.data.forEach(function(val, key){
+            user.data.forEach(function (val, key) {
                 userRange.push({
                     "title": val.name,
                     "value": val.id
@@ -172,7 +172,7 @@ export default function CompanyDetail(props) {
         }
     }
 
-    function _updateQuery(data = {}){
+    function _updateQuery(data = {}) {
         _setForm(oldQuery => {
             return {
                 ...oldQuery,
@@ -181,26 +181,26 @@ export default function CompanyDetail(props) {
         })
     }
 
-    async function _submitUser(){
-  
+    async function _submitUser() {
+
         _setIsProcessing(true)
 
-        try{
-            let query  = {
+        try {
+            let query = {
                 ..._form
             }
 
             delete query.user
 
             const result = await postJSON('/masterData/company/user/add', query, props.authData.token)
-            
+
             _setForm(__FORM)
             _setChecked(false)
-            popAlert({"message": "Berhasil ditambahkan", "type": "success"})
+            popAlert({ "message": "Berhasil ditambahkan", "type": "success" })
             _getData()
-        } catch(e){
-            popAlert({ message : e.message })       
-        } finally{
+        } catch (e) {
+            popAlert({ message: e.message })
+        } finally {
             _setIsProcessing(false)
         }
     }
@@ -212,16 +212,16 @@ export default function CompanyDetail(props) {
         })
     };
 
-    async function _deleteUser(){
+    async function _deleteUser() {
         _setIsProcessing(true)
-       
-        try {    
+
+        try {
             const res = await postJSON('/masterData/company/user/delete', _formDelete, props.authData.token)
             _getData()
             _setOpenModalDelete(false)
-            popAlert({"message": "Berhasil dihapus", "type": "success"})
+            popAlert({ "message": "Berhasil dihapus", "type": "success" })
         } catch (e) {
-            popAlert({ message : e.message })
+            popAlert({ message: e.message })
         } finally {
             _setIsProcessing(false)
         }
@@ -231,97 +231,97 @@ export default function CompanyDetail(props) {
         <Main>
 
             <TopupUserModal
-            data={_dataRowData}
-            closeModal={() => {
-                _setRowData({})
-            }}
+                data={_dataRowData}
+                closeModal={() => {
+                    _setRowData({})
+                }}
             />
-            
+
             <ConfirmationModal
-            visible={_openModalDelete}
-            closeModal={() => {
-                _setOpenModalDelete(false)
-            }}
-            onDelete={_deleteUser}
-            onLoading={_isProcessing}
+                visible={_openModalDelete}
+                closeModal={() => {
+                    _setOpenModalDelete(false)
+                }}
+                onDelete={_deleteUser}
+                onLoading={_isProcessing}
             />
 
             <AdminLayout
-            headerContent={
-                <div className={styles.header_content}>
-                    <div>
-                        <a href="/admin/master-data/company">
-                            <AiOutlineLeft/>
-                        </a>
-                        <strong>{router.query.company}</strong>
+                headerContent={
+                    <div className={styles.header_content}>
+                        <div>
+                            <a href="/admin/master-data/company">
+                                <AiOutlineLeft />
+                            </a>
+                            <strong>{router.query.company}</strong>
+                        </div>
                     </div>
-                </div>
-            }
+                }
             >
                 <Card
-                noPadding
+                    noPadding
                 >
                     <Table
-                    columns={__COLUMNS}
-                    records={_companyDetailLists.data}
-                    config={_paginationConfig}
-                    onRecordsPerPageChange={perPage => _setPagination({ length : perPage, startFrom : 0 })}
-                    onPageChange={page => _setPagination({ ..._page, startFrom : (page - 1) * _page.length })}
-                    headerContent={
-                        <Row
-                        verticalEnd
-                        >
-                            <Col
-                            column={2}
-                            withPadding
-                            mobileFullWidth
+                        columns={__COLUMNS}
+                        records={_companyDetailLists.data}
+                        config={_paginationConfig}
+                        onRecordsPerPageChange={perPage => _setPagination({ length: perPage, startFrom: 0 })}
+                        onPageChange={page => _setPagination({ ..._page, startFrom: (page - 1) * _page.length })}
+                        headerContent={
+                            <Row
+                                verticalEnd
                             >
-                                <Input
-                                title={"Pengguna"}
-                                placeholder={'Pilih Pengguna'}
-                                value={_form.user.title}
-                                suggestions={_userRange}
-                                suggestionField={'title'}
-                                onSuggestionSelect={(value) => {
-                                    _updateQuery({
-                                        "userId": value.value,
-                                        "user": value
-                                    })
-                                }}
-                                />
-                            </Col>
+                                <Col
+                                    column={2}
+                                    withPadding
+                                    mobileFullWidth
+                                >
+                                    <Input
+                                        title={"Pengguna"}
+                                        placeholder={'Pilih Pengguna'}
+                                        value={_form.user.title}
+                                        suggestions={_userRange}
+                                        suggestionField={'title'}
+                                        onSuggestionSelect={(value) => {
+                                            _updateQuery({
+                                                "userId": value.value,
+                                                "user": value
+                                            })
+                                        }}
+                                    />
+                                </Col>
 
-                            <Col
-                            column={1}
-                            withPadding
-                            >
-                                <Input
-                                title={"Bisa Topup"}
-                                type={"checkbox"}
-                                checked={_checked}
-                                value={_form.isTopup}
-                                onChange={(value) => {
-                                    handleChange()
-                                }}
-                                />
-                            </Col>
+                                <Col
+                                    column={1}
+                                    withPadding
+                                >
+                                    <Input
+                                        title={"Bisa Topup"}
+                                        type={"checkbox"}
+                                        checked={_checked}
+                                        value={_form.isTopup}
+                                        onChange={(value) => {
+                                            handleChange()
+                                        }}
+                                    />
+                                </Col>
 
-                            <Col
-                            column={1}
-                            withPadding
-                            >
-                                <Button
-                                title={'Tambahkan'}
-                                styles={Button.secondary}
-                                onClick={() => {
-                                    _submitUser()
-                                }}
-                                onProcess={_isProcessing}
-                                small
-                                />
-                            </Col>
-                        </Row>
-                    }
+                                <Col
+                                    column={1}
+                                    withPadding
+                                >
+                                    <Button
+                                        title={'Tambahkan'}
+                                        styles={Button.secondary}
+                                        onClick={() => {
+                                            _submitUser()
+                                        }}
+                                        onProcess={_isProcessing}
+                                        small
+                                    />
+                                </Col>
+                            </Row>
+                        }
                     />
                 </Card>
             </AdminLayout>

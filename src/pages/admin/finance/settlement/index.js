@@ -203,7 +203,6 @@ export default function Settlement(props) {
 
     }
 
-
     async function _getSettlement() {
         try {
             // Build query parameters

@@ -125,11 +125,17 @@ export default function UserModal(props = defaultProps) {
 
             const result = await postJSON(url + typeSubmit, query, appContext.authData.token)
 
+            if (result) {
+                // Check if companyId exists and we're creating a new user
+                if (appContext.authData.companyId && typeSubmit === 'create') {
+                    await _submitUserToCompany(result.data.id)
+                }
 
-            if (result) props.closeModal()
-            _clearForm()
-            popAlert({ "message": "Berhasil disimpan", "type": "success" })
-            props.onSuccess()
+                props.closeModal()
+                _clearForm()
+                popAlert({ "message": "Berhasil disimpan", "type": "success" })
+                props.onSuccess()
+            }
         } catch (e) {
             let errMessage = ""
             if (e.message?.details) {
@@ -142,6 +148,22 @@ export default function UserModal(props = defaultProps) {
             _setIsProcessing(false)
         }
     }
+
+    async function _submitUserToCompany(userId) {
+        try {
+            let query = {
+                companyId: appContext.authData.companyId,
+                userId: userId,
+                isTopup: false,
+            }
+
+            await postJSON('/masterData/company/user/add', query, appContext.authData.token)
+
+        } catch (e) {
+            popAlert({ message: e.message })
+        }
+    }
+
 
     function _validatePhone(data) {
         let phone = `${data}`

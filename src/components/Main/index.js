@@ -12,20 +12,20 @@ import generateClasses from '../../utils/generateClasses'
 
 import styles from './Main.module.scss'
 
-const alertDefaultProps = { 
-    message : '', 
-    type : 'error',
-    duration : 2500
+const alertDefaultProps = {
+    message: '',
+    type: 'error',
+    duration: 2500
 }
 
 const defaultProps = {
-    headContent : null
+    headContent: null
 }
 
 Main.defaultProps = defaultProps
 
 export default function Main(props = defaultProps) {
-    
+
     const router = useRouter()
 
     const appContext = useContext(AppContext)
@@ -40,29 +40,83 @@ export default function Main(props = defaultProps) {
         "name": ""
     })
 
+    const [_companyRange, _setCompanyRange] = useState([
+        {
+            id: "1",
+            name: "DAMRI",
+            logo: "/assets/logo/damri.png",
+            favicon: "/assets/logo/favicon-damri.png"
+        },
+        {
+            id: "2",
+            name: "BAGONG",
+            logo: "/assets/logo/bagong.svg",
+            favicon: "/assets/logo/favicon-bagong.PNG"
+        },
+        {
+            id: "3",
+            name: "LORENA",
+            logo: "/assets/logo/lorena.png",
+            favicon: "/assets/logo/favicon-lorena.png"
+        },
+        {
+            id: "4",
+            name: "AGRAMAS",
+            logo: "/assets/logo/agramas.png",
+            favicon: "/assets/logo/favicon-agramas.png"
+        }
+    ])
+
     useEffect(() => {
 
-        if(typeof window !== "undefined"){
+        if (typeof window !== "undefined") {
             const subdomain = window.location.hostname.split('.')[0];
+            let subSubDomain = window.location.hostname.split('.')[1];
+            let companyMatchSubdomain = null
 
-            if(subdomain === "bisku" || window.location.hostname === 'localhost'){
+
+            // Prioritize company ID matching from _companyRange
+            const companyMatch = _companyRange.find(company => company.id === appContext.authData?.companyId)
+
+            if (subSubDomain) {
+                companyMatchSubdomain = _companyRange.find(company => company.name.toLowerCase() === subSubDomain.toLowerCase())
+            }
+
+            if (companyMatch) {
+                // Use logo from _companyRange if companyId matches
+
+                _setCompany({
+                    "favicon": companyMatch.favicon,
+                    "name": companyMatch.name + " Dashboard"
+                })
+            } else if (companyMatchSubdomain) {
+                _setCompany({
+                    "favicon": companyMatchSubdomain.favicon,
+                    "name": companyMatchSubdomain.name + " Dashboard"
+                })
+            } else if (subdomain === "bisku" || window.location.hostname === 'localhost') {
+                // Fall back to subdomain-based logic
                 _setCompany({
                     "favicon": "/assets/logo/favicon-bisku.jpg",
                     "name": "Bisku Dashboard"
                 })
-            } else if(subdomain === "bagong"){
-                _setCompany({
-                    "favicon": "/assets/logo/favicon-bagong.PNG",
-                    "name": "Bagong Dashboard"
-                })
-            } else{
-                _setCompany({
-                    "favicon": "/assets/logo/favicon.png",
-                    "name": "Damri Dashboard"
-                })
+            } else if (subdomain === "dev") {
+
+                const companyMatchSubdomain = _companyRange.find(company => company.name.toLowerCase() === subSubDomain.toLowerCase())
+
+                if (companyMatchSubdomain) {
+                    _setCompany({
+                        "favicon": companyMatchSubdomain.favicon,
+                        "name": companyMatchSubdomain.name + " Dashboard"
+                    })
+                }
+
+                _setIsDev(true)
             }
+
+
         }
-       
+
 
 
         function popAlertEventHandler(e) {
@@ -79,7 +133,7 @@ export default function Main(props = defaultProps) {
 
         document.body.addEventListener('popAlert', popAlertEventHandler, false)
 
-        if(_time == ""){
+        if (_time == "") {
             _setTime(new Date().getTime())
         }
 
@@ -87,8 +141,8 @@ export default function Main(props = defaultProps) {
             document.body.removeEventListener('popAlert', popAlertEventHandler, false)
         })
 
-        
-   
+
+
     }, [])
 
     function _closeAlert() {
@@ -105,42 +159,42 @@ export default function Main(props = defaultProps) {
             <Head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="initial-scale=1.0, width=device-width, maximum-scale=1, user-scalable=yes" />
-                <meta name="description" content="Bisku"/>
+                <meta name="description" content="Bisku" />
                 <link rel="shortcut icon" href={_company.favicon} type="image/x-icon"></link>
                 <title>{_company.name}</title>
                 {props.headContent}
             </Head>
 
             <div
-            className={generateClasses([
-                styles.alert_container,
-                !_alertVisible && styles.hide_alert
-            ])}
+                className={generateClasses([
+                    styles.alert_container,
+                    !_alertVisible && styles.hide_alert
+                ])}
             >
                 <Alert
-                show={_alertVisible}
-                slideTo={'bottom'}
-                {..._alertProps}
-                onClick={_closeAlert}
+                    show={_alertVisible}
+                    slideTo={'bottom'}
+                    {..._alertProps}
+                    onClick={_closeAlert}
                 />
             </div>
 
             {
                 _isAdminPage() && (
                     <Sidebar
-                    router={router}
-                    context={appContext}
-                    key={_time}
+                        router={router}
+                        context={appContext}
+                        key={_time}
                     />
                 )
             }
-            
+
             <main
-            className={generateClasses([
-                styles.main,
-                _isAdminPage() && styles.admin_page,
-                (_isAdminPage() && appContext.sidebarOpen) && styles.sidebar_open
-            ])}
+                className={generateClasses([
+                    styles.main,
+                    _isAdminPage() && styles.admin_page,
+                    (_isAdminPage() && appContext.sidebarOpen) && styles.sidebar_open
+                ])}
             >
                 {props.children}
             </main>

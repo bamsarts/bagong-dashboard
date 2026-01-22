@@ -31,6 +31,29 @@ export default function Sidebar(props = defaultProps) {
     const [_selectedSubMenu, _setSelectedSubMenu] = useState(0)
     const [_accessMenu, _setAccessMenu] = useState([])
     const [_logo, _setLogo] = useState("")
+    const [_companyRange, _setCompanyRange] = useState([
+        {
+            id: "1",
+            name: "DAMRI",
+            logo: "/assets/logo/damri.png"
+        },
+        {
+            id: "2",
+            name: "BAGONG",
+            logo: "/assets/logo/bagong.svg"
+        },
+        {
+            id: "3",
+            name: "LORENA",
+            logo: "/assets/logo/lorena.png"
+        },
+        {
+            id: "4",
+            name: "AGRAMAS",
+            logo: "/assets/logo/agramas.png"
+        }
+    ])
+    const [_isDev, _setIsDev] = useState(false)
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -38,6 +61,7 @@ export default function Sidebar(props = defaultProps) {
 
             let storage = getLocalStorage("access_menu_damri")
             const subdomain = window.location.hostname.split('.')[0];
+            const subSubDomain = window.location.hostname.split('.')[1];
 
             if (storage == null) {
                 window.location.href = "/sign-in"
@@ -46,15 +70,31 @@ export default function Sidebar(props = defaultProps) {
                 _setAccessMenu(item)
             }
 
-            if(subdomain === "bisku" || window.location.hostname === 'localhost'){
+            // Prioritize company ID matching from _companyRange
+            const companyMatch = _companyRange.find(company => company.id === appContext.authData?.companyId)
+
+            if (companyMatch) {
+                // Use logo from _companyRange if companyId matches
+                _setLogo(companyMatch.logo)
+            } else if (subdomain === "bisku" || window.location.hostname === 'localhost') {
+                // Fall back to subdomain-based logic
                 _setLogo("/assets/logo/bisku.png")
-            }else if(subdomain == "bagong"){
+            } else if (subdomain == "bagong") {
                 _setLogo("/assets/logo/bagong.svg")
-            }else{
-                _setLogo(props.context.company?.logo)
+            } else if (subdomain === "dev") {
+
+                const companyMatchSubdomain = _companyRange.find(company => company.name.toLowerCase() === subSubDomain.toLowerCase())
+
+                if (companyMatchSubdomain) {
+                    _setLogo(companyMatchSubdomain.logo)
+                }
+
+                _setIsDev(true)
+            } else {
+                _setLogo(appContext.company?.logo)
             }
 
-           
+
         }
     }, [])
 
@@ -240,8 +280,15 @@ export default function Sidebar(props = defaultProps) {
                     className={styles.main_logo}
                 >
                     <img
-                    src={_logo}
+                        src={_logo}
                     />
+
+                    {
+                        _isDev && (
+                            <h5>Development</h5>
+                        )
+                    }
+
                 </div>
                 <div
                     className={styles.menu_button}
