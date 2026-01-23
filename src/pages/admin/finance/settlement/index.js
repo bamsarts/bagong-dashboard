@@ -45,7 +45,7 @@ export default function Settlement(props) {
 
     let __COLUMNS = [
         {
-            title: 'Tanggal Transaksi',
+            title: 'Tanggal Setoran',
             field: 'transaction_date',
             customCell: (value) => dateFilter.convertISO(new Date(value), "date")
         },
@@ -89,7 +89,7 @@ export default function Settlement(props) {
             customCell: (value) => currency(value)
         },
         {
-            title: 'ODT',
+            title: 'Grand Total',
             field: 'odt',
             textAlign: 'right',
             customCell: (value) => currency(value)
@@ -195,7 +195,7 @@ export default function Settlement(props) {
 
         switch (data) {
             case "CREATED":
-                status.title = "Ditransfer"
+                status.title = "Settlement"
                 return status
             default:
                 return status;
@@ -262,6 +262,7 @@ export default function Settlement(props) {
                                 noPadding
                             >
                                 <Table
+                                    fileName={"Settlement-" + dateFilter.basicDate(new Date(_startDate)).normal + "-sd-" + dateFilter.basicDate(new Date(_endDate)).normal}
                                     headerContent={(
                                         <Row>
                                             <Col
@@ -291,33 +292,74 @@ export default function Settlement(props) {
                                     )}
                                     headExport={[
                                         {
-                                            title: 'Tanggal Transaksi',
+                                            title: 'Tanggal Setoran',
                                             value: 'transaction_date',
                                             customCell: (value) => dateFilter.convertISO(new Date(value), "date")
                                         },
                                         {
-                                            title: 'Company ID',
-                                            value: 'company_id',
+                                            title: 'Trayek',
+                                            value: 'traject_name',
                                         },
                                         {
-                                            title: 'Traject ID',
-                                            value: 'traject_id',
+                                            title: 'Pembayaran',
+                                            value: 'payment_category',
                                         },
                                         {
-                                            title: 'Tipe Pembayaran',
-                                            value: 'payment_type',
-                                        },
-                                        {
-                                            title: 'Jumlah Transaksi',
+                                            title: 'Total Transaksi',
                                             value: 'transaction_amount',
                                         },
                                         {
-                                            title: 'Net After MDR',
+                                            title: 'MDR',
+                                            value: 'mdr_amount',
+                                        },
+                                        {
+                                            title: 'Netto Transaksi',
                                             value: 'net_after_mdr',
                                         },
                                         {
-                                            title: 'ODT',
+                                            title: 'Fee',
+                                            value: 'fee_amount',
+                                        },
+                                        {
+                                            title: 'Grand Total',
                                             value: 'odt',
+                                        },
+                                        {
+                                            title: 'Status',
+                                            value: 'status',
+                                            customCell: (value) => {
+                                                return value == "CREATED" ? "Settlement" : "Pending"
+                                            }
+                                        },
+                                        {
+                                            title: 'Rekening Bank',
+                                            value: 'traject_bank',
+                                            customCell: (value) => {
+
+                                                if (value.length > 0) {
+                                                    return value[0].bank_name
+                                                }
+                                            }
+                                        },
+                                        {
+                                            title: 'Nama Rekening',
+                                            value: 'traject_bank',
+                                            customCell: (value) => {
+
+                                                if (value.length > 0) {
+                                                    return value[0].bank_account_name
+                                                }
+                                            }
+                                        },
+                                        {
+                                            title: 'Nomor Rekening',
+                                            value: 'traject_bank',
+                                            customCell: (value) => {
+
+                                                if (value.length > 0) {
+                                                    return value[0].bank_account_number
+                                                }
+                                            }
                                         },
                                     ]}
                                     columns={__COLUMNS}
