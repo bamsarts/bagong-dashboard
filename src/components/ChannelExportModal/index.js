@@ -105,7 +105,7 @@ export default function ChannelExportModal(props = defaultProps) {
             // Since the API returns a file with proper headers, we'll handle it as a blob
             const res = await get(`/laporan/penjualan/harian/export` + _selectedGroup.value + `?${objectToParams(params)}`, appContext.authData.token, true);
 
-             if (_selectedGroup.title == "Tiket") {
+            if (_selectedGroup.title == "Tiket") {
                 _downloadCsvTicket(res, `Transaksi-${_selectedType.title}-${_selectedGroup.title}-${_date.start}-s.d-${_date.end}.csv`);
             } else {
                 _downloadCsv(res, `Transaksi-${_selectedType.title}-${_selectedGroup.title}-${_date.start}-s.d-${_date.end}.csv`);
@@ -241,6 +241,53 @@ export default function ChannelExportModal(props = defaultProps) {
         return writeFile(wb, `${fileName.replace(".csv", "")}.xlsx`);
     }
 
+    /**
+     * Parse a CSV row, handling quoted values that may contain commas.
+     * @param {string} row - The CSV row string to parse
+     * @returns {string[]} - Array of field values
+     */
+    function parseCSVRow(row) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+
+        for (let i = 0; i < row.length; i++) {
+            const char = row[i];
+            const nextChar = row[i + 1];
+
+            if (inQuotes) {
+                if (char === '"') {
+                    if (nextChar === '"') {
+                        // Escaped quote
+                        current += '"';
+                        i++; // Skip next quote
+                    } else {
+                        // End of quoted field
+                        inQuotes = false;
+                    }
+                } else {
+                    current += char;
+                }
+            } else {
+                if (char === '"') {
+                    // Start of quoted field
+                    inQuotes = true;
+                } else if (char === ',') {
+                    // Field separator
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+        }
+
+        // Don't forget the last field
+        result.push(current);
+
+        return result;
+    }
+
     function _downloadCsv(data, fileName) {
         let template = document.createElement('template')
         let tableExport = "<table>"
@@ -248,13 +295,13 @@ export default function ChannelExportModal(props = defaultProps) {
         const header = ["Transaction ID", "Transaction Date", "Date", "Route", "Origin",
             "Destination", "Bus Name", "Booking Code", "Departure Date",
             "Base Fare", "Total Amount",
-            "Passenger Count", "Payment Status"];
+            "Passenger Count", "Payment Status", "Payment Method"];
 
         data = data.split("\n").filter(line => line.trim() !== "");
 
         if (data.length === 0) return;
 
-        const csvHeader = data[0].split(",");
+        const csvHeader = parseCSVRow(data[0]);
         const headerSet = new Set(header);
         const keepIndexes = csvHeader.map((col, idx) => headerSet.has(col) ? idx : -1).filter(idx => idx !== -1);
 
@@ -269,18 +316,18 @@ export default function ChannelExportModal(props = defaultProps) {
 
 
         for (let i = 1; i < data.length; i++) {
-            let row = data[i].split(",")
+            let row = parseCSVRow(data[i]);
             if (row.length < csvHeader.length) continue;
 
             if (dateDeparture !== -1) {
-               row[dateDeparture] = "'"+row[dateDeparture]
+                row[dateDeparture] = "'" + row[dateDeparture]
             }
 
-            if(trxDate !== -1){
-                row[trxDate] = "'"+ dateFilter.basicDate(new Date(row[trxDate])).normal + " "+dateFilter.getTime(new Date(row[trxDate]))
+            if (trxDate !== -1) {
+                row[trxDate] = "'" + dateFilter.basicDate(new Date(row[trxDate])).normal + " " + dateFilter.getTime(new Date(row[trxDate]))
             }
-           
-           
+
+
             tableExport += "<tr>";
             keepIndexes.forEach(idx => { tableExport += `<td>${row[idx] ?? ""}</td>`; });
             tableExport += "</tr>";

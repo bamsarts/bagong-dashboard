@@ -106,6 +106,7 @@ export default function BusFacilityModal(props = defaultProps) {
 
             delete query.image_link
             delete query.image_title
+            query.image_id = 1
 
             const result = await postJSON('/masterData/bus/fasilitas/' + typeUrl, query, appContext.authData.token)
             props.refresh()

@@ -7,7 +7,7 @@ import Button from '../Button'
 import styles from './BusCategoryModal.module.scss'
 import { popAlert } from '../Main'
 import { Col, Row } from '../Layout'
-import { AiFillDelete} from 'react-icons/ai'
+import { AiFillDelete } from 'react-icons/ai'
 import generateClasses from '../../utils/generateClasses'
 import SwitchButton from '../SwitchButton'
 import backgroundColor from '../../styles/sass/background-color.module.scss'
@@ -23,7 +23,7 @@ const defaultProps = {
 
 BusCategoryModal.defaultProps = defaultProps
 
-export default function BusCategoryModal(props = defaultProps){
+export default function BusCategoryModal(props = defaultProps) {
     const appContext = useContext(AppContext)
     const [_isProcessing, _setIsProcessing] = useState(false)
     const CONFIG_PARAM = {
@@ -47,39 +47,39 @@ export default function BusCategoryModal(props = defaultProps){
     const [_trajectRanges, _setTrajectRanges] = useState([])
     const [_selectedTraject, _setSelectedTraject] = useState([])
 
-    useEffect(() => {         
+    useEffect(() => {
 
-        if(props.data?.id){
+        if (props.data?.id) {
             _updateQuery({
                 ...props.data,
             })
 
             _setTitleModal("Ubah Bus Kategori")
 
-            if(props.type == "media"){
+            if (props.type == "media") {
                 _getMedia()
                 _getMediaBusCategory()
                 _setTitleModal("Ubah Media Bus")
             }
 
-            if(props.type == "facility"){
+            if (props.type == "facility") {
                 _getTraject()
                 _getFacilityBusCategory()
                 _setTitleModal("Ubah Fasilitas Bus")
             }
-        }else{
+        } else {
             _setSeatsLayout(null)
         }
     }, [props.data])
 
     useEffect(() => {
 
-        if(_form?.seatLayout != "" && _form?.seatLayout != null){
+        if (_form?.seatLayout != "" && _form?.seatLayout != null) {
             let seatArray = new Array()
-            
-            _form.seatLayout.split(";").forEach(function(val, key){
+
+            _form.seatLayout.split(";").forEach(function (val, key) {
                 seatArray[key] = new Array()
-                val.split(",").forEach(function(i, j){
+                val.split(",").forEach(function (i, j) {
                     let objSeat = {
                         type: "",
                         seatNumber: "",
@@ -87,15 +87,15 @@ export default function BusCategoryModal(props = defaultProps){
                         passenger: ""
                     }
 
-                    i.split("|").forEach(function(a, b){
-                            
-                        if(b == 0){
+                    i.split("|").forEach(function (a, b) {
+
+                        if (b == 0) {
                             objSeat.type = a
-                        }else if(b == 1){
+                        } else if (b == 1) {
                             objSeat.seatNumber = a
-                        }else if(b == 2){
+                        } else if (b == 2) {
                             objSeat.status = a
-                        }else{
+                        } else {
                             objSeat.passenger = a
                         }
                     })
@@ -105,19 +105,19 @@ export default function BusCategoryModal(props = defaultProps){
 
             _setSeatsLayout(seatArray)
 
-            if(props.type == "" || props.type == "facility"){
+            if (props.type == "" || props.type == "facility") {
                 _setSeatWrapperWidth(document.getElementsByClassName('seat_wrapper').offsetWidth)
-    
+
                 const seatWrapper = __seat_wrapper_ref?.current
                 if (!seatWrapper) return
-        
+
                 const observer = new ResizeObserver(() => {
                     const { width } = seatWrapper.getBoundingClientRect()
                     _setSeatWrapperWidth(width)
                 })
-        
+
                 observer.observe(seatWrapper)
-        
+
                 return () => {
                     observer.disconnect()
                 }
@@ -125,9 +125,9 @@ export default function BusCategoryModal(props = defaultProps){
         }
     }, [_form.seatLayout])
 
-    function _updateQuery(data = {}, type = null){
+    function _updateQuery(data = {}, type = null) {
 
-        if(type == null){
+        if (type == null) {
             _setForm(oldQuery => {
                 return {
                     ...oldQuery,
@@ -135,19 +135,19 @@ export default function BusCategoryModal(props = defaultProps){
                 }
             })
 
-        }else if(type == "media"){
+        } else if (type == "media") {
             data.imageId = data.id
             let mediaFound = _mediaCategories
             mediaFound.push(data)
             var cleanMediaFound = mediaFound.filter((arr, index, self) =>
-            index === self.findIndex((t) => (t.imageId === arr.imageId)))
+                index === self.findIndex((t) => (t.imageId === arr.imageId)))
             _setMediaCategories(cleanMediaFound)
 
-        }else if(type == "del-media"){
+        } else if (type == "del-media") {
             var cleanMediaFound = _mediaCategories.filter((arr, index, self) => index !== data)
             _setMediaCategories(cleanMediaFound)
 
-        }else if(type == "update-facility"){
+        } else if (type == "update-facility") {
             let facility = _facilityRanges
             facility[data].status = !facility[data].status
             _setFacilityRanges(oldQuery => {
@@ -159,13 +159,13 @@ export default function BusCategoryModal(props = defaultProps){
     }
 
     function _getSeatBackgroundColor(seat) {
-        
+
         if (seat.status === 'booked' || seat.type === 'DRIVER') {
             return backgroundColor.medium_dark
-        
+
         }
 
-        if(seat.status === "reserved"){
+        if (seat.status === "reserved") {
             return backgroundColor.warning
         }
 
@@ -177,14 +177,14 @@ export default function BusCategoryModal(props = defaultProps){
         }
     }
 
-    function _clearForm(){
+    function _clearForm() {
         _setForm(CONFIG_PARAM)
     }
 
-    async function _getMedia(){
-        
+    async function _getMedia() {
+
         let params = {
-            startFrom : 0,
+            startFrom: 0,
             length: 460,
             orderBy: "id",
             sortMode: "desc"
@@ -192,8 +192,8 @@ export default function BusCategoryModal(props = defaultProps){
 
         try {
             const res = await postJSON(`/masterData/media/image/list`, params, appContext.authData.token)
-        
-            if(res) {
+
+            if (res) {
                 _setMediaRanges(res.data)
             }
 
@@ -202,59 +202,59 @@ export default function BusCategoryModal(props = defaultProps){
         }
     }
 
-    async function _getMediaBusCategory(){
+    async function _getMediaBusCategory() {
         try {
-            const media = await get('/masterData/bus/kategori/image/'+props.data?.id, appContext.authData.token)
+            const media = await get('/masterData/bus/kategori/image/' + props.data?.id, appContext.authData.token)
             _setMediaCategories(media.data)
         } catch (e) {
-            popAlert({ message : e.message })
-        } 
+            popAlert({ message: e.message })
+        }
     }
 
-    async function _getFacilityBusCategory(){
+    async function _getFacilityBusCategory() {
         try {
-            const facility = await get('/masterData/bus/kategori/fasilitas/'+props.data?.id+"/undefined", appContext.authData.token)
+            const facility = await get('/masterData/bus/kategori/fasilitas/' + props.data?.id + "/{traject_id}", appContext.authData.token)
             _setFacilityRanges(facility.data)
         } catch (e) {
-            popAlert({ message : e.message })
-        } 
+            popAlert({ message: e.message })
+        }
     }
 
     useEffect(() => {
         console.log(_selectedTraject)
     }, [_selectedTraject])
 
-    async function _submitData(){
+    async function _submitData() {
         _setIsProcessing(true)
 
-        try{
+        try {
             let typeUrl = "add"
-            let query  = {
+            let query = {
                 ..._form
             }
-            
-            if(props.data.id){
+
+            if (props.data.id) {
                 typeUrl = "update"
-            }else{
+            } else {
                 delete query.id
             }
-            
-            const result = await postJSON('/masterData/bus/kategori/'+typeUrl, query, appContext.authData.token)
+
+            const result = await postJSON('/masterData/bus/kategori/' + typeUrl, query, appContext.authData.token)
             props.refresh()
-            if(result) props.closeModal()
+            if (result) props.closeModal()
             _clearForm()
-            popAlert({"message": "Berhasil disimpan", "type": "success"})
-        } catch(e){
-            popAlert({ message : e.message })       
-        } finally{
+            popAlert({ "message": "Berhasil disimpan", "type": "success" })
+        } catch (e) {
+            popAlert({ message: e.message })
+        } finally {
             _setIsProcessing(false)
         }
     }
 
-    async function _updateMediaFacility(type){
+    async function _updateMediaFacility(type) {
         _setIsProcessing(true)
 
-        try{
+        try {
             let query = {
                 "bus_category_id": props.data?.id,
             }
@@ -263,44 +263,44 @@ export default function BusCategoryModal(props = defaultProps){
             //     query.traject_id = `${_selectedTraject[0].id}`
             // }
 
-            if(type == "image"){
+            if (type == "image") {
                 let images = []
-                _mediaCategories.forEach(function(val, key){
+                _mediaCategories.forEach(function (val, key) {
                     images.push(val.imageId)
                 })
                 query.image_id = images.join()
-                _cacheBusCategory("images/bus-category/"+props.data?.id)
-            }else {
+                _cacheBusCategory("images/bus-category/" + props.data?.id)
+            } else {
                 let facilities = []
-                _facilityRanges.forEach(function(val, key){
-                    if(val.status){
+                _facilityRanges.forEach(function (val, key) {
+                    if (val.status) {
                         facilities.push(val.id)
                     }
                 })
                 query.bus_facility_id = facilities.join()
-                _cacheBusCategory("facilities/bus-category/"+props.data?.id)
+                _cacheBusCategory("facilities/bus-category/" + props.data?.id)
             }
 
-            const result = await postJSON('/masterData/bus/kategori/'+type+'/update', query, appContext.authData.token)
+            const result = await postJSON('/masterData/bus/kategori/' + type + '/update', query, appContext.authData.token)
             props.refresh()
-            if(result) props.closeModal()
+            if (result) props.closeModal()
             _clearForm()
-            popAlert({"message": "Berhasil disimpan", "type": "success"})
-        } catch(e){
-            popAlert({ message : e.message })       
-        } finally{
+            popAlert({ "message": "Berhasil disimpan", "type": "success" })
+        } catch (e) {
+            popAlert({ message: e.message })
+        } finally {
             _setIsProcessing(false)
         }
     }
 
-    async function _cacheBusCategory(targetUrl){
+    async function _cacheBusCategory(targetUrl) {
         try {
             const resultCache = await get({
-                url: "/api/api-server-side?url="+CACHE_URL+"/cache/"+targetUrl
+                url: "/api/api-server-side?url=" + CACHE_URL + "/cache/" + targetUrl
             })
         } catch (e) {
-            popAlert({ message : e.message })
-        } 
+            popAlert({ message: e.message })
+        }
     }
 
     async function _getTraject() {
@@ -312,10 +312,10 @@ export default function BusCategoryModal(props = defaultProps){
 
         try {
             const traject = await postJSON(`/masterData/trayek/list`, params, appContext.authData.token)
-            
 
-            traject.data.forEach(function(val, key){
-                val.name = "("+val.code+") "+val.name
+
+            traject.data.forEach(function (val, key) {
+                val.name = "(" + val.code + ") " + val.name
             })
 
             _setTrajectRanges(traject.data)
@@ -325,13 +325,13 @@ export default function BusCategoryModal(props = defaultProps){
         }
     }
 
-    function _updateTraject(data = {}, isDelete = false){
+    function _updateTraject(data = {}, isDelete = false) {
         let trajects = [..._selectedTraject]
         const index = _selectedTraject.indexOf(data)
 
-        if(index < 0 && !isDelete){
+        if (index < 0 && !isDelete) {
             trajects.push(data)
-        }else{
+        } else {
             trajects.splice(index, 1)
         }
 
@@ -341,141 +341,141 @@ export default function BusCategoryModal(props = defaultProps){
 
     return (
         <Modal
-        visible={props.visible}
-        centeredContent
-        large
+            visible={props.visible}
+            centeredContent
+            large
         >
             <ModalContent
-            header={{
-                title: _titleModal,
-                closeModal: () => {
-                    props.closeModal()
-                    _clearForm()
-                },
-            }}
+                header={{
+                    title: _titleModal,
+                    closeModal: () => {
+                        props.closeModal()
+                        _clearForm()
+                    },
+                }}
             >
                 {
                     props.type == "" && (
                         <Row>
                             <Col
-                            column={4}
+                                column={4}
                             >
-                    
+
                                 <Input
-                                withMargin
-                                title={"Kode Kategori"}
-                                placeholder={'Masukan Kode'}
-                                value={_form.code}
-                                onChange={(value) => {
-                                    _updateQuery({
-                                        "code": value
-                                    })
-                                }}
+                                    withMargin
+                                    title={"Kode Kategori"}
+                                    placeholder={'Masukan Kode'}
+                                    value={_form.code}
+                                    onChange={(value) => {
+                                        _updateQuery({
+                                            "code": value
+                                        })
+                                    }}
                                 />
 
                                 <Input
-                                withMargin
-                                title={"Nama Kategori"}
-                                placeholder={'Nama Kategori'}
-                                value={_form.name}
-                                onChange={(value) => {
-                                    _updateQuery({
-                                        "name": value
-                                    })
-                                }}
+                                    withMargin
+                                    title={"Nama Kategori"}
+                                    placeholder={'Nama Kategori'}
+                                    value={_form.name}
+                                    onChange={(value) => {
+                                        _updateQuery({
+                                            "name": value
+                                        })
+                                    }}
                                 />
 
                                 <Input
-                                withMargin
-                                title={"Jumlah Kursi"}
-                                placeholder={''}
-                                value={_form.totalSeat == null ? 0 : _form.totalSeat}
-                                onChange={(value) => {
-                                    _updateQuery({
-                                        "totalSeat": value
-                                    })
-                                }}
+                                    withMargin
+                                    title={"Jumlah Kursi"}
+                                    placeholder={''}
+                                    value={_form.totalSeat == null ? 0 : _form.totalSeat}
+                                    onChange={(value) => {
+                                        _updateQuery({
+                                            "totalSeat": value
+                                        })
+                                    }}
                                 />
 
                                 <Input
-                                withMargin
-                                title={"Tipe"}
-                                placeholder={'Masukan Tipe'}
-                                value={_form.type}
-                                onChange={(value) => {
-                                    _updateQuery({
-                                        "type": value
-                                    })
-                                }}
+                                    withMargin
+                                    title={"Tipe"}
+                                    placeholder={'Masukan Tipe'}
+                                    value={_form.type}
+                                    onChange={(value) => {
+                                        _updateQuery({
+                                            "type": value
+                                        })
+                                    }}
                                 />
 
                                 <Input
-                                withMargin
-                                multiline={3}
-                                title={"Layout Kursi"}
-                                placeholder={'Masukan format layout kursi'}
-                                value={_form.seatLayout}
-                                onChange={(data) => {
-                                    _updateQuery({
-                                        "seatLayout": data
-                                    })
-                                }}
+                                    withMargin
+                                    multiline={3}
+                                    title={"Layout Kursi"}
+                                    placeholder={'Masukan format layout kursi'}
+                                    value={_form.seatLayout}
+                                    onChange={(data) => {
+                                        _updateQuery({
+                                            "seatLayout": data
+                                        })
+                                    }}
                                 />
 
 
                                 <div className={styles.buttonContainer}>
                                     <Button
-                                    title={'Simpan'}
-                                    styles={Button.secondary}
-                                    onClick={_submitData}
-                                    onProcess={_isProcessing}
+                                        title={'Simpan'}
+                                        styles={Button.secondary}
+                                        onClick={_submitData}
+                                        onProcess={_isProcessing}
                                     />
                                 </div>
                             </Col>
 
                             <Col
-                            column={2}
+                                column={2}
                             >
                                 <div>
                                     <span>Preview Layout</span>
 
                                     <div
-                                    class={'seat_wrapper'}
-                                    ref={__seat_wrapper_ref}
+                                        class={'seat_wrapper'}
+                                        ref={__seat_wrapper_ref}
                                     >
                                         {
 
-                                            (_seatsLayout != null || _seatsLayout != "")  && (
+                                            (_seatsLayout != null || _seatsLayout != "") && (
 
                                                 _seatsLayout?.map((row, key) => {
                                                     return (
                                                         <Row
-                                                        key={key}
-                                                        center
-                                                        style={{
-                                                            flexWrap: 'inherit'
-                                                        }}
+                                                            key={key}
+                                                            center
+                                                            style={{
+                                                                flexWrap: 'inherit'
+                                                            }}
                                                         >
                                                             {
                                                                 row.map((col, key2) => {
                                                                     return (
                                                                         <Col
-                                                                        key={key2}
-                                                                        style={{
-                                                                            justifyContent : 'center',
-                                                                            padding : 4,
-                                                                            flex : 0,
-                                                                        }}
-                                                                        ignoreScreenSize>
+                                                                            key={key2}
+                                                                            style={{
+                                                                                justifyContent: 'center',
+                                                                                padding: 4,
+                                                                                flex: 0,
+                                                                            }}
+                                                                            ignoreScreenSize>
                                                                             <Seat
-                                                                            size={(_seatWrapperWidth / 6) - 4}
-                                                                            visible={['SEAT', 'DRIVER', 'TOILET', 'STAIR_UP', 'STAIR_DOWN'].indexOf(col.type) >= 0}
-                                                                            backgroundColor={_getSeatBackgroundColor(col)}
-                                                                            number={col.type == "SEAT" ? col.seatNumber : ''}
-                                                                            color={backgroundColor.warning}
-                                                                            onSelect={false}
-                                                                            isBusDriver={col.type}
-                                                                            disabled={true}
+                                                                                size={(_seatWrapperWidth / 6) - 4}
+                                                                                visible={['SEAT', 'DRIVER', 'TOILET', 'STAIR_UP', 'STAIR_DOWN'].indexOf(col.type) >= 0}
+                                                                                backgroundColor={_getSeatBackgroundColor(col)}
+                                                                                number={col.type == "SEAT" ? col.seatNumber : ''}
+                                                                                color={backgroundColor.warning}
+                                                                                onSelect={false}
+                                                                                isBusDriver={col.type}
+                                                                                disabled={true}
                                                                             />
                                                                         </Col>
                                                                     )
@@ -490,7 +490,7 @@ export default function BusCategoryModal(props = defaultProps){
                                     </div>
                                 </div>
                             </Col>
-                            
+
                         </Row>
                     )
                 }
@@ -499,65 +499,65 @@ export default function BusCategoryModal(props = defaultProps){
                     props.type == "media" && (
                         <>
                             <Input
-                            title={"Gambar Bus"}
-                            withMargin
-                            placeholder={'Pilih Gambar'}
-                            value={_formMedia.image_title}
-                            suggestions={_mediaRanges}
-                            suggestionField={'title'}
-                            suggestionImage={'link'}
-                            onSuggestionSelect={(value) => {
-                                _updateQuery(value, "media")
-                            }}
+                                title={"Gambar Bus"}
+                                withMargin
+                                placeholder={'Pilih Gambar'}
+                                value={_formMedia.image_title}
+                                suggestions={_mediaRanges}
+                                suggestionField={'title'}
+                                suggestionImage={'link'}
+                                onSuggestionSelect={(value) => {
+                                    _updateQuery(value, "media")
+                                }}
                             />
-                            
+
                             <Row
-                            spaceEvenly
+                                spaceEvenly
                             >
                                 {
-                                    _mediaCategories.map(function(val, key){
-                                        return(
+                                    _mediaCategories.map(function (val, key) {
+                                        return (
                                             <div>
                                                 <div
-                                                className={styles.media_item}
+                                                    className={styles.media_item}
                                                 >
-                                                    <img 
-                                                    style={{"margin": "auto"}}
-                                                    src={val.link+"?option=thumbnail&size=10"} 
-                                                    width="100%" 
-                                                    heght="auto"
+                                                    <img
+                                                        style={{ "margin": "auto" }}
+                                                        src={val.link + "?option=thumbnail&size=10"}
+                                                        width="100%"
+                                                        heght="auto"
                                                     />
                                                 </div>
 
                                                 <div
-                                                title={"Hapus"}
-                                                className={generateClasses([
-                                                    styles.button_action,
-                                                    styles.text_red
-                                                ])}
-                                                onClick={() => {
-                                                    _updateQuery(key, "del-media")
-                                                }}
+                                                    title={"Hapus"}
+                                                    className={generateClasses([
+                                                        styles.button_action,
+                                                        styles.text_red
+                                                    ])}
+                                                    onClick={() => {
+                                                        _updateQuery(key, "del-media")
+                                                    }}
                                                 >
-                                                    <AiFillDelete/>
+                                                    <AiFillDelete />
                                                 </div>
                                             </div>
                                         )
                                     })
                                 }
                             </Row>
-                                
-                            <div 
-                            style={{"margin-top": "10rem"}}
-                            className={styles.buttonContainer}
+
+                            <div
+                                style={{ "margin-top": "10rem" }}
+                                className={styles.buttonContainer}
                             >
                                 <Button
-                                title={'Simpan'}
-                                styles={Button.secondary}
-                                onClick={() => {
-                                    _updateMediaFacility("image")
-                                }}
-                                onProcess={_isProcessing}
+                                    title={'Simpan'}
+                                    styles={Button.secondary}
+                                    onClick={() => {
+                                        _updateMediaFacility("image")
+                                    }}
+                                    onProcess={_isProcessing}
                                 />
                             </div>
                         </>
@@ -592,36 +592,36 @@ export default function BusCategoryModal(props = defaultProps){
                             {
                                 _facilityRanges.length > 0 && (
 
-                               
+
                                     <Row>
                                         <Col
-                                        column={4}
+                                            column={4}
                                         >
                                             {
-                                                _facilityRanges.map(function(val, key){
+                                                _facilityRanges.map(function (val, key) {
                                                     return (
                                                         <Row
-                                                        spaceBetween
-                                                        withPadding
+                                                            spaceBetween
+                                                            withPadding
                                                         >
                                                             <div
-                                                            style={{"display": "grid"}}
+                                                                style={{ "display": "grid" }}
                                                             >
                                                                 <img
-                                                                style={{"margin": "auto"}}
-                                                                src={val.link+"?option=thumbnail&size=10"} 
-                                                                width="50" 
-                                                                height="50"
+                                                                    style={{ "margin": "auto" }}
+                                                                    src={val.link + "?option=thumbnail&size=10"}
+                                                                    width="50"
+                                                                    height="50"
                                                                 />
                                                             </div>
 
                                                             <span>{val.name}</span>
 
                                                             <SwitchButton
-                                                            checked={val.status}
-                                                            onClick={() => {
-                                                            _updateQuery(key, "update-facility")
-                                                            }}
+                                                                checked={val.status}
+                                                                onClick={() => {
+                                                                    _updateQuery(key, "update-facility")
+                                                                }}
                                                             />
                                                         </Row>
                                                     )
@@ -630,14 +630,14 @@ export default function BusCategoryModal(props = defaultProps){
                                         </Col>
 
                                         <Col
-                                        column={2}
+                                            column={2}
                                         >
                                             <div>
                                                 <span>Preview Layout Fasilitas</span>
 
                                                 <div
-                                                class={'seat_wrapper'}
-                                                ref={__seat_wrapper_ref}
+                                                    class={'seat_wrapper'}
+                                                    ref={__seat_wrapper_ref}
                                                 >
                                                     {
 
@@ -646,32 +646,32 @@ export default function BusCategoryModal(props = defaultProps){
                                                             _seatsLayout?.map((row, key) => {
                                                                 return (
                                                                     <Row
-                                                                    key={key}
-                                                                    center
-                                                                    style={{
-                                                                        flexWrap: 'inherit'
-                                                                    }}
+                                                                        key={key}
+                                                                        center
+                                                                        style={{
+                                                                            flexWrap: 'inherit'
+                                                                        }}
                                                                     >
                                                                         {
                                                                             row.map((col, key2) => {
                                                                                 return (
                                                                                     <Col
-                                                                                    key={key2}
-                                                                                    style={{
-                                                                                        justifyContent : 'center',
-                                                                                        padding : 4,
-                                                                                        flex : 0,
-                                                                                    }}
-                                                                                    ignoreScreenSize>
+                                                                                        key={key2}
+                                                                                        style={{
+                                                                                            justifyContent: 'center',
+                                                                                            padding: 4,
+                                                                                            flex: 0,
+                                                                                        }}
+                                                                                        ignoreScreenSize>
                                                                                         <Seat
-                                                                                        size={(_seatWrapperWidth / 6) - 4}
-                                                                                        visible={['SEAT', 'DRIVER','TOILET','STAIR_UP','STAIR_DOWN'].indexOf(col.type) >= 0}
-                                                                                        backgroundColor={_getSeatBackgroundColor(col)}
-                                                                                        number={col.type == "SEAT" ? col.seatNumber : ''}
-                                                                                        color={backgroundColor.warning}
-                                                                                        onSelect={false}
-                                                                                        isBusDriver={col.type}
-                                                                                        disabled={true}
+                                                                                            size={(_seatWrapperWidth / 6) - 4}
+                                                                                            visible={['SEAT', 'DRIVER', 'TOILET', 'STAIR_UP', 'STAIR_DOWN'].indexOf(col.type) >= 0}
+                                                                                            backgroundColor={_getSeatBackgroundColor(col)}
+                                                                                            number={col.type == "SEAT" ? col.seatNumber : ''}
+                                                                                            color={backgroundColor.warning}
+                                                                                            onSelect={false}
+                                                                                            isBusDriver={col.type}
+                                                                                            disabled={true}
                                                                                         />
                                                                                     </Col>
                                                                                 )
@@ -680,7 +680,7 @@ export default function BusCategoryModal(props = defaultProps){
                                                                     </Row>
                                                                 )
                                                             })
-                                                        
+
                                                         )
                                                     }
                                                 </div>
@@ -692,16 +692,16 @@ export default function BusCategoryModal(props = defaultProps){
                                 )
                             }
 
-                            <div 
-                            className={styles.buttonContainer}
+                            <div
+                                className={styles.buttonContainer}
                             >
                                 <Button
-                                title={'Simpan'}
-                                styles={Button.secondary}
-                                onClick={() => {
-                                    _updateMediaFacility("fasilitas")
-                                }}
-                                onProcess={_isProcessing}
+                                    title={'Simpan'}
+                                    styles={Button.secondary}
+                                    onClick={() => {
+                                        _updateMediaFacility("fasilitas")
+                                    }}
+                                    onProcess={_isProcessing}
                                 />
                             </div>
                         </>
