@@ -188,11 +188,12 @@ export default function News(props) {
                 "id": _articleDelete
             }
 
-            const result = await postJSON('/marketingSupport/articleLink/delete', query, props.authData.token)
+            const result = await postJSON('/data/articleLink/delete', query, props.authData.token, false, "DELETE")
 
             if (result) _getData()
 
             popAlert({ "message": "Berhasil dihapus", "type": "success" })
+            _setArticleDelete()
         } catch (e) {
 
             let errMessage = ""
