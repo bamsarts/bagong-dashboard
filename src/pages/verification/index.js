@@ -35,7 +35,6 @@ export default function Verification() {
                 } else {
                     _setLogo("/assets/logo/bisku.png")
                 }
-                _setIsDev(true)
             } else {
                 _setLogo("/assets/logo/bisku.png")
             }
