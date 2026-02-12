@@ -50,8 +50,7 @@ export default async function handler(req, res) {
             if(req.query.type == "formdata"){
                 const formData = objectToFormData(JSON.parse(decodeURIComponent(req.query.formData)))
 
-                console.log("qt")
-                console.log(req.query)
+              
 
                 const requestOptions = {
                     method: "POST",
@@ -81,7 +80,7 @@ export default async function handler(req, res) {
             }
             
         }else{
-            result = await get({ url: req.query.url }, false)
+            result = await get({ url: req.query.url }, req.query?.token || false)
         }
 
         
