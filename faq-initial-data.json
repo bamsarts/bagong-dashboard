@@ -1,0 +1,329 @@
+{
+  "faq": {
+    "generalInfo": [
+      {
+        "question": "Dimana saya bisa mendapatkan informasi jadwal layanan bus?",
+        "answer": "Untuk melakukan pengecekan jadwal dapat melalui Bagong Apps, media sosial (instagram dan twitter @bagongbus), contact center 1500-XXX dan Whatsapp 0811-XXXX-XXXX.",
+        "maxHeight": 282
+      },
+      {
+        "question": "Apakah pelanggan diperbolehkan merokok atau menggunakan rokok elektrik di dalam bus?",
+        "answer": "Pelanggan tidak diperbolehkan merokok atau menggunakan rokok elektrik di dalam bus.",
+        "maxHeight": 58
+      },
+      {
+        "question": "Apakah diperbolehkan naik di luar lokasi pemberangkatan?",
+        "answer": "Pelanggan harus naik di lokasi yang sudah ditentukan.",
+        "maxHeight": 57
+      },
+      {
+        "question": "Apakah balita dan batita dikenakan tarif normal?",
+        "answer": "Untuk anak usia di atas 3 (tiga) tahun atau dengan tinggi badan lebih dari 90 cm wajib dikenakan biaya 1 (satu) tiket.",
+        "maxHeight": 57
+      },
+      {
+        "question": "Apakah ibu hamil diperbolehkan naik Bus?",
+        "answer": "Ibu hamil diperbolehkan untuk naik bus dengan usia kehamilan maksimal 32 (tiga puluh dua) minggu. Jika usia kehamilan lebih dari 32 (tiga puluh dua) minggu maka pelanggan harus melampirkan surat keterangan dari dokter kandungan atau bidan bahwa kehamilan pelanggan dalam kondisi normal.",
+        "maxHeight": 205
+      },
+      {
+        "question": "Dimana saya dapat melihat informasi fasilitas bus?",
+        "answer": "Informasi fasilitas dan jenis layanan dapat dilihat pada menu informasi armada pada halaman utama Bagong Apps.",
+        "maxHeight": 157
+      },
+      {
+        "question": "Bila saat tiba di lokasi pemberangkatan, namun bus saya tidak ada, saya bisa menghubungi siapa/kemana?",
+        "answer": {
+          "type": "html",
+          "content": "Pelanggan dapat menghubungi petugas loket di masing-masing lokasi pemberangkatan. Apabila tidak terdapat petugas loket di lokasi pemberangkatan, pelanggan dapat menghubungi contact center 1500-XXX, email customer service <a href=\"mailto:cs@bagongbus.com\">cs@bagongbus.com</a>, media sosial resmi Bagong di Instagram dan Twitter <a href=\"http://twitter.com/@bagongbus\" target=\"_blank\">@bagongbus</a> maupun Whatsapp <a href=\"http://wa.me/6281121100825\" target=\"_blank\" rel=\"noopener noreferrer\">0811-2110-0825</a>"
+        },
+        "maxHeight": 200
+      },
+      {
+        "question": "Jika ada permintaan kerjasama dengan Bagong Bus, bisa kontak kemana?",
+        "answer": {
+          "type": "html",
+          "content": "Pihak yang akan mengajukan kerjasama dapat menghubungi email <a href=\"mailto:partnership@bagongbus.com\">partnership@bagongbus.com</a>"
+        },
+        "maxHeight": 200
+      }
+    ],
+    "bagongApps": [
+      {
+        "question": "Bagaimana cara mengganti password?",
+        "answer": {
+          "type": "list",
+          "items": [
+            "Masukkan Password lama anda terlebih dahulu",
+            "Kemudian masukkan password baru sesuai dengan yang anda inginkan"
+          ]
+        },
+        "maxHeight": null
+      },
+      {
+        "question": "Bagaimana bila saya lupa password?",
+        "answer": {
+          "type": "list",
+          "items": [
+            "Masukkan kode OTP yang dikirimkan melalui email yang terdaftar",
+            "Atur ulang password Anda, lalu klik lanjut"
+          ]
+        },
+        "maxHeight": null
+      },
+      {
+        "question": "Apakah saya dapat mengganti alamat email atau nomor telepon yang sudah terdaftar?",
+        "answer": {
+          "type": "mixed",
+          "content": [
+            {
+              "type": "text",
+              "text": "Email:",
+              "bold": true
+            },
+            {
+              "type": "list",
+              "items": [
+                "Halaman profil - pengaturan akun - klik email - masukan email baru dan kata sandi - masukan kode OTP yang dikirim ke email yang baru"
+              ]
+            },
+            {
+              "type": "text",
+              "text": "Nomor telepon:",
+              "bold": true
+            },
+            {
+              "type": "list",
+              "items": [
+                "Halaman profil - pengaturan akun - klik nomor telepon - masukan nomor telepon baru dan kata sandi - masukan kode OTP yang dikirim ke nomor telepon yang baru"
+              ]
+            }
+          ]
+        },
+        "maxHeight": null
+      },
+      {
+        "question": "Bagaimana cara melakukan cancellation, refund melalui Bagong Apps?",
+        "answer": {
+          "type": "list",
+          "items": [
+            "Buka menu Aktivitas",
+            "Buka detail perjalanan anda (yang ingin dibatalkan)",
+            "Klik tombol pembatalan perjalanan",
+            "Klik lanjutkan",
+            "Registrasi data rekening untuk pengembalian dana (jika belum memiliki data rekening)",
+            "Pilih rekening",
+            "Pilih tiket yang ingin dibatalkan",
+            "klik lanjutkan",
+            "klik proses jika data sudah sesuai",
+            "Pembatalan berhasil dan dana akan diproses transfer oleh sistem"
+          ]
+        },
+        "maxHeight": null
+      },
+      {
+        "question": "Apakah saya dapat melakukan reschedule melalui Bagong Apps?",
+        "answer": "Saat ini Bagong Apps belum menyediakan fitur reschedule. Pelanggan yang membeli tiket melalui Bagong Apps dapat melakukan reschedule di loket Bagong paling lambat 6 jam sebelum waktu keberangkatan dengan pengenaan denda reschedule sebesar 10% dari nilai tiket.",
+        "maxHeight": null
+      },
+      {
+        "question": "Bagaimana jika sudah melakukan pembayaran tetapi tiket tidak terbit?",
+        "answer": "Jika pelanggan mengalami kendala sudah berhasil melakukan pembayaran tetapi tiket belum terbit. Pelanggan dapat menghubungi contact center 1500-XXX, email customer service cs@bagongbus.com, media sosial resmi Bagong di Instagram dan Twitter @bagongbus maupun Whatsapp 0811-2110-0825.",
+        "maxHeight": null
+      }
+    ],
+    "passengerBaggage": [
+      {
+        "question": "Barang saya tertinggal di dalam bus, bagaimana cara saya melaporkannya?",
+        "answer": {
+          "type": "mixed",
+          "content": [
+            {
+              "type": "text",
+              "text": "Silakan untuk menghubungi salah satu customer touch points Bagong Bus :"
+            },
+            {
+              "type": "list",
+              "items": [
+                "Contact Center : 1500-XXX",
+                "0811-2110-0825",
+                "<a href=\"mailto:cs@bagongbus.com\">cs@bagongbus.com</a>",
+                "Media sosial Instagram dan Twitter @bagongbus"
+              ]
+            },
+            {
+              "type": "text",
+              "text": "Dengan melampirkan informasi berupa"
+            },
+            {
+              "type": "list",
+              "items": [
+                "Bukti tiket/screenshoot e-ticket",
+                "Identitas",
+                "Kontak pelanggan",
+                "Ciri-ciri barang",
+                "Rute perjalanan",
+                "Waktu serta detail lokasi penyimpanan barang",
+                "Kode bus/nomor polisi"
+              ]
+            }
+          ]
+        },
+        "maxHeight": null
+      },
+      {
+        "question": "Apakah diperbolehkan membawa makanan atau minuman ke dalam bus?",
+        "answer": "Pelanggan diperbolehkan membawa makanan maupun minuman yang tidak berbau menyengat seperti (durian) dan selama tidak mengotori bus.",
+        "maxHeight": null
+      },
+      {
+        "question": "Apa saja yang tidak boleh dibawa ke dalam bus?",
+        "answer": {
+          "type": "list",
+          "items": [
+            "Narkotika",
+            "Minuman keras/alkohol",
+            "Benda-benda mudah terbakar (bahan bakar, cat, thinner, lem, methanol, cairan pemantik api, petasan, suar, dan kembang api)",
+            "Bahan peledak",
+            "Zat beracun",
+            "Zat radioaktif",
+            "Senjata api",
+            "Benda mengandung gas",
+            "Benda tajam",
+            "Benda-benda beraroma tajam",
+            "Makanan berbau menyengat",
+            "Hewan hidup",
+            "Benda/zat lain yang dapat membahayakan pelanggan selama perjalanan"
+          ]
+        },
+        "maxHeight": null
+      }
+    ],
+    "payment": [
+      {
+        "question": "Metode pembayaran apa saja yang dapat saya gunakan?",
+        "answer": {
+          "type": "mixed",
+          "content": [
+            {
+              "type": "text",
+              "text": "Metode pembayaran yang tersedia meliputi :"
+            },
+            {
+              "type": "list",
+              "items": [
+                "Virtual Account Mandiri, BCA, BNI, BRI, BNC, Permata, BTN",
+                "Gopay",
+                "LinkAja",
+                "OVO",
+                "Shopee Pay",
+                "Kredivo",
+                "Kartu Kredit",
+                "Indomaret"
+              ]
+            }
+          ]
+        },
+        "maxHeight": null
+      },
+      {
+        "question": "Berapa lama batas waktu pembayaran e-tiket?",
+        "answer": {
+          "type": "mixed",
+          "content": [
+            {
+              "type": "text",
+              "text": "Batas waktu pembayaran adalah :"
+            },
+            {
+              "type": "list",
+              "items": [
+                "Virtual Account Mandiri, BCA, BNI, BRI <b>45 menit</b> sejak pemesanan dilakukan.",
+                "Gopay <b>25 menit</b> sejak pemesanan dilakukan.",
+                "LinkAja <b>15 menit</b> sejak pemesanan dilakukan.",
+                "Shopee Pay <b>15 menit</b> sejak pemesanan dilakukan.",
+                "OVO <b>5 menit</b> sejak pemesanan dilakukan."
+              ]
+            },
+            {
+              "type": "text",
+              "text": "Apabila tidak dilakukan pembayaran dalam rentang waktu tersebut, maka status pemesanan akan kadaluwarsa."
+            }
+          ]
+        },
+        "maxHeight": null
+      },
+      {
+        "question": "Bagaimana saya mengetahui bahwa pembayaran saya berhasil?",
+        "answer": "Akan menerima status pembayaran berhasil pada halaman notifikasi Bagong Apps dan pada halaman Aktifitas status perjalanan berubah menjadi <b>menunggu keberangkatan</b>",
+        "maxHeight": null
+      },
+      {
+        "question": "Bagaimana cara melihat e-tiket yang sudah terbit?",
+        "answer": {
+          "type": "mixed",
+          "content": [
+            {
+              "type": "text",
+              "text": "Berikut langkah untuk melihat e-tiket dan mengunduh e-tiket:"
+            },
+            {
+              "type": "list",
+              "items": [
+                "Klik menu aktifitas yang terletak di sisi bawah aplikasi",
+                "Di dalam menu aktifitas, terdapat daftar perjalanan naik bus",
+                "Klik perjalanan yang ingin ditampilkan e-tiketnya, pastikan status perjalanan menunggu keberangkatan",
+                "Pada detail status perjalanan, klik tombol Unduh tiket untuk mengunduh e-tiket dalam bentuk pdf atau klik tampilkan tiket untuk menampilkan e-tiket dalam bentuk QR dan melihat detail informasi tiket"
+              ]
+            }
+          ]
+        },
+        "maxHeight": null
+      },
+      {
+        "question": "Bagaimana bila terjadi kegagalan pembayaran atau e-tiket tidak terbit?",
+        "answer": {
+          "type": "mixed",
+          "content": [
+            {
+              "type": "text",
+              "text": "Apabila mengalami kegagalan pembayaran maka segera laporkan ke customer touch points Bagong Bus:"
+            },
+            {
+              "type": "list",
+              "items": [
+                "Contact Center : 1500-XXX",
+                "0811-2110-0825",
+                "<a href=\"mailto:cs@bagongbus.com\">cs@bagongbus.com</a>",
+                "Media sosial Instagram dan Twitter @bagongbus"
+              ]
+            }
+          ]
+        },
+        "maxHeight": null
+      }
+    ],
+    "baggage": [
+      {
+        "question": "Berapa ketentuan berat bagasi?",
+        "answer": "Setiap penumpang diperbolehkan membawa bagasi dengan berat maksimum untuk tiap penumpang 20 kg atau dengan dimensi 70 cm x 48 cm x 30 cm.",
+        "maxHeight": null
+      },
+      {
+        "question": "Bagaimana jika berat dan volume bagasi melebihi ketentuan?",
+        "answer": "Batas berat barang bawaan bagasi adalah sebesar 20Kg. Selebihnya dikenakan biaya tambahan. Untuk biaya tambahan kelebihan bagasi dikenakan biaya sebesar Rp 3.500/kg.",
+        "maxHeight": null
+      },
+      {
+        "question": "Apakah Bagong Bus menyediakan bagasi untuk sepeda?",
+        "answer": "Armada Bagong Bus hanya menyediakan bagasi sepeda lipat dengan berat maksimal sebesar 20 Kg dan ukuran roda maksimal 22 inci.",
+        "maxHeight": null
+      },
+      {
+        "question": "Berapa banyak sepeda yang dapat dibawa penumpang ke bagasi?",
+        "answer": "Setiap pelanggan hanya diperbolehkan membawa 1 (satu) sepeda lipat.",
+        "maxHeight": null
+      }
+    ]
+  }
+}
