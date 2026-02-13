@@ -388,6 +388,7 @@ export default function NewsModal(props = defaultProps) {
 
             if (query.linkExternal == "") query.linkExternal = "#"
             if (linkPdf) query.linkExternal = linkPdf
+            if (!query.subCategory) delete query.subCategory
 
             delete query.file
             delete query.tempBody

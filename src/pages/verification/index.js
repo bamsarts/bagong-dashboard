@@ -56,7 +56,7 @@ export default function Verification() {
                 if (result?.data?.status == "OK") {
                     _setLoading(false)
                     _setVerificationStatus('success')
-                    _setMessage("Verifikasi berhasil! Anda akan diarahkan ke Aplikasi")
+                    _setMessage("Anda akan diarahkan ke Aplikasi")
 
                     setTimeout(() => {
                         window.location.href = "bagong://registerFinish"
