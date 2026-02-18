@@ -370,6 +370,7 @@ export default function NewsModal(props = defaultProps) {
             }
 
             let typeUrl = props.data?.id ? "update" : "add"
+            let method = typeUrl == "update" ? 'PUT' : "POST"
 
             query.imageLink = image
             query.startPeriode = dateFilter.basicDate(query.startPeriode).normal
@@ -399,7 +400,7 @@ export default function NewsModal(props = defaultProps) {
             // delete query.tags
             // delete query.subCategory
 
-            const result = await postJSON('/data/articleLink/' + typeUrl, query, appContext.authData.token, "PUT")
+            const result = await postJSON('/data/articleLink/' + typeUrl, query, appContext.authData.token, false, method)
 
             if (result) props.closeModal()
             _clearForm()
