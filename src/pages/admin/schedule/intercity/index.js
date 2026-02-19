@@ -42,30 +42,53 @@ export default function ScheduleIntercity(props) {
             textAlign: 'center'
         },
         {
-            title : 'Arah Trip',
+            title : 'Kode Jadwal',
+            field : 'code',
+            textAlign: 'left'
+        },
+        {
+            title : 'Channel',
             field : 'direction',
             textAlign: 'center',
             customCell: (value, row) => {
                 return (
-                    <span
-                    className={generateClasses([
-                        styles.label,
-                        value == "PERGI" ? styles.primary : styles.warning
-                    ])}
-                    >
-                        {value}
-                    </span>
+                    <Row>
+
+                        {
+                            row.isApps && (
+                                <span
+                                className={generateClasses([
+                                    styles.label,
+                                    styles.primary
+                                ])}
+                                >
+                                    Apps
+                                </span>
+                            )
+                        }
+                        
+                        {
+                            row.MPOS && (
+                                <span
+                                className={generateClasses([
+                                styles.label,
+                                styles.warning
+                                ])}
+                                >
+                                    MPOS
+                                </span>
+                            )
+                        }
+
+                        
+                    </Row>
+                    
                 )
             }
         },
         {
             title : 'Segmentasi',
-            field : 'trajectTypeName',
-            textAlign: 'left'
-        },
-        {
-            title : 'Kode Jadwal',
-            field : 'code',
+            field : 'trajectTypeCode',
             textAlign: 'left'
         },
         {
@@ -79,8 +102,8 @@ export default function ScheduleIntercity(props) {
             textAlign: 'left'
         },
         {
-            title : 'LMB',
-            field : 'lmbCode',
+            title : 'Bus',
+            field : 'busCode',
             textAlign: 'left'
         },
         {

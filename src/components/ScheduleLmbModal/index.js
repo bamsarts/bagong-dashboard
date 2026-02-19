@@ -273,8 +273,7 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
         const params = {
             "branchId": props.data?.branchId,
             "departureDate": props.data?.departureDate,
-            // "branchId": 47,
-            // "departureDate": "2023-01-15",
+            "trajectMasterCode": props.data?.trajectMasterCode
         }
         
         try {
@@ -315,11 +314,7 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
             // _setIsProcessing(false)
 
             
-            if(lmb.data.length == 0){
-                popAlert({ message : "Data LMB belum tersedia di SIMA Operasi" })
-            }else{
-                _setLmbRanges(lmb.data)
-            }
+            _setLmbRanges(lmb.data)
                         
         } catch (e) {
             popAlert({ message : e.message })
@@ -726,7 +721,6 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
                             <Input
                             onError={_errorForm.crew1Name}
                             error={"Pengemudi 1 tidak tersedia"}
-                            disabled
                             withMargin
                             title={"Pengemudi 1"}
                             placeholder={'Pilih Pengemudi 1'}
@@ -748,7 +742,6 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
                             <Input
                             onError={_errorForm.crew2Name}
                             error={"Pengemudi 2 tidak tersedia"}
-                            disabled
                             withMargin
                             title={"Pengemudi 2"}
                             placeholder={'Pilih Pengemudi 2'}
@@ -764,40 +757,7 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
                             />
                         </Col>
 
-                        {/* <Col
-                        column={1}
-                        >
-                            <Input
-                            withMargin
-                            title="Kode LMB"
-                            placeholder='Masukan kode LMB'
-                            onChange={(value) => {
-                                _updateQuery({
-                                    lmbCode: value
-                                })
-                            }}
-                            value={_form.lmbCode}
-                            />
-                        </Col> */}
-
-                        <Col
-                        column={1}
-                        >
-                            <Input
-                            disabled
-                            withMargin
-                            title={"LMB"}
-                            placeholder={'Pilih LMB'}
-                            value={_form.lmbCode}
-                            suggestions={_lmbRanges}
-                            suggestionField={'busCode'}
-                            onSuggestionSelect={(value) => {
-                                _updateQuery({
-                                    "lmbCode": value.idLmb,
-                                })
-                            }}
-                            />
-                        </Col>
+                        
                     </Row>
                     
                     <Table
