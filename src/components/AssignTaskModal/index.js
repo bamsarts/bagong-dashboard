@@ -106,7 +106,7 @@ export default function AssignTaskModal(props = defaultProps) {
     async function _getBusList() {
         const params = {
             "startFrom": 0,
-            "length": 100,
+            "length": 500,
             "companyId": appContext.authData.companyId
         }
 
