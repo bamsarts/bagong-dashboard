@@ -213,7 +213,12 @@ export default function BusListModal(props = defaultProps) {
 
             popAlert({ message: 'Berhasil disimpan', type: 'success' })
         } catch (e) {
-            popAlert({ message: e.message })
+            popAlert({
+                message:
+                    typeof e?.message === 'string'
+                        ? e.message
+                        : 'Gagal Menyimpan Data'
+            })
         } finally {
             _setIsProcessing(false)
         }

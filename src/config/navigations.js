@@ -400,6 +400,10 @@ export const NAVIGATIONS = [
                 title : 'Penugasan Template',
                 href : ADMIN_BASE_URL + '/master-data/assignment-template'
             },
+            {
+                title : 'Rekening Trayek',
+                href : ADMIN_BASE_URL + '/master-data/bank-traject'
+            },
         ]
     },
     {
@@ -519,6 +523,11 @@ export const NAVIGATIONS = [
                     {
                         title : 'Harian',
                         href : ADMIN_BASE_URL + '/report/deposit/daily',
+                        isHide: false
+                    },
+                    {
+                        title : 'Bulanan',
+                        href : ADMIN_BASE_URL + '/report/deposit/monthly',
                         isHide: false
                     }
                 ]
