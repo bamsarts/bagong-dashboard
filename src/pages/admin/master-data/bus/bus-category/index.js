@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { postJSON } from '../../../../../api/utils'
+import { objectToParams, postJSON, get } from '../../../../../api/utils'
 import throttle from '../../../../../utils/throttle'
 
 import Main, { popAlert } from '../../../../../components/Main'
@@ -139,7 +139,7 @@ export default function BusCategory(props) {
         if (query) params.query = query
 
         try {
-            const busCategories = await postJSON('/masterData/bus/kategori/list', params, props.authData.token)
+            const busCategories = await get('/masterData/bus/kategori/list?'+objectToParams(query), props.authData.token)
             _setBusCategories(busCategories)
             _setPaginationConfig({
                 recordLength : busCategories.totalFiltered,
@@ -160,7 +160,7 @@ export default function BusCategory(props) {
         }
        
         try {    
-            const res = await postJSON('/masterData/bus/kategori/delete', params, props.authData.token)
+            const res = await postJSON('/masterData/bus/kategori/delete', params, props.authData.token, false, "DELETE")
             _getData()
             _setBusDelete(false)
             _setIsProcessing(false)

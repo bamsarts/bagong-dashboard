@@ -13,6 +13,7 @@ import SwitchButton from '../SwitchButton'
 import backgroundColor from '../../styles/sass/background-color.module.scss'
 import Seat from '../Seat'
 import SelectArea from '../SelectArea'
+import MinioModal from '../MinioModal'
 
 const defaultProps = {
     visible: false,
@@ -41,11 +42,11 @@ export default function BusCategoryModal(props = defaultProps) {
     const [_facilityRanges, _setFacilityRanges] = useState([])
     const [_titleModal, _setTitleModal] = useState("Tambah Bus Kategori")
     const __seat_wrapper_ref = createRef()
-    const __seat_wrapper_facility_ref = createRef()
     const [_seatWrapperWidth, _setSeatWrapperWidth] = useState(0)
     const [_seatsLayout, _setSeatsLayout] = useState(null)
     const [_trajectRanges, _setTrajectRanges] = useState([])
     const [_selectedTraject, _setSelectedTraject] = useState([])
+    const [_isOpenModalS3, _setIsOpenModalS3] = useState(false)
 
     useEffect(() => {
 
@@ -69,6 +70,7 @@ export default function BusCategoryModal(props = defaultProps) {
             }
         } else {
             _setSeatsLayout(null)
+            _setTitleModal("Tambah Bus Kategori")
         }
     }, [props.data])
 
@@ -136,12 +138,12 @@ export default function BusCategoryModal(props = defaultProps) {
             })
 
         } else if (type == "media") {
-            data.imageId = data.id
-            let mediaFound = _mediaCategories
-            mediaFound.push(data)
-            var cleanMediaFound = mediaFound.filter((arr, index, self) =>
-                index === self.findIndex((t) => (t.imageId === arr.imageId)))
-            _setMediaCategories(cleanMediaFound)
+            // data.imageId = data.id
+            // let mediaFound = _mediaCategories
+            // mediaFound.push(data)
+            // var cleanMediaFound = mediaFound.filter((arr, index, self) =>
+            //     index === self.findIndex((t) => (t.imageId === arr.imageId)))
+            // _setMediaCategories(cleanMediaFound)
 
         } else if (type == "del-media") {
             var cleanMediaFound = _mediaCategories.filter((arr, index, self) => index !== data)
@@ -229,17 +231,22 @@ export default function BusCategoryModal(props = defaultProps) {
 
         try {
             let typeUrl = "add"
+            let method = "POST"
+
             let query = {
                 ..._form
             }
 
             if (props.data.id) {
                 typeUrl = "update"
+                method = "PUT"
             } else {
                 delete query.id
             }
 
-            const result = await postJSON('/masterData/bus/kategori/' + typeUrl, query, appContext.authData.token)
+            query.totalSeat = parseInt(query.totalSeat)
+
+            const result = await postJSON('/masterData/bus/kategori/' + typeUrl, query, appContext.authData.token, false, method)
             props.refresh()
             if (result) props.closeModal()
             _clearForm()
@@ -265,10 +272,10 @@ export default function BusCategoryModal(props = defaultProps) {
 
             if (type == "image") {
                 let images = []
-                _mediaCategories.forEach(function (val, key) {
-                    images.push(val.imageId)
-                })
-                query.image_id = images.join()
+                // _mediaCategories.forEach(function (val, key) {
+                //     images.push(val.imageId)
+                // })
+                // query.image_id = images.join()
                 _cacheBusCategory("images/bus-category/" + props.data?.id)
             } else {
                 let facilities = []
@@ -345,6 +352,14 @@ export default function BusCategoryModal(props = defaultProps) {
             centeredContent
             large
         >
+
+            <MinioModal
+            visible={_isOpenModalS3}
+            closeModal={() => {
+                _setIsOpenModalS3(false)
+            }}
+            />
+
             <ModalContent
                 header={{
                     title: _titleModal,
@@ -511,41 +526,64 @@ export default function BusCategoryModal(props = defaultProps) {
                                 }}
                             />
 
-                            <Row
-                                spaceEvenly
-                            >
-                                {
-                                    _mediaCategories.map(function (val, key) {
-                                        return (
-                                            <div>
-                                                <div
-                                                    className={styles.media_item}
-                                                >
-                                                    <img
-                                                        style={{ "margin": "auto" }}
-                                                        src={val.link + "?option=thumbnail&size=10"}
-                                                        width="100%"
-                                                        heght="auto"
-                                                    />
-                                                </div>
+                            <Input
+                                title={"Link Gambar Bus"}
+                                withMargin
+                                placeholder={'Pilih Gambar'}
+                                value={_formMedia.image_title}
+                                onChange={(value) => {
+                                    _updateQuery(value, "media")
+                                }}
+                            />
 
-                                                <div
-                                                    title={"Hapus"}
-                                                    className={generateClasses([
-                                                        styles.button_action,
-                                                        styles.text_red
-                                                    ])}
-                                                    onClick={() => {
-                                                        _updateQuery(key, "del-media")
-                                                    }}
-                                                >
-                                                    <AiFillDelete />
-                                                </div>
-                                            </div>
-                                        )
-                                    })
-                                }
-                            </Row>
+                            <Button
+                            small
+                            title={'Media S3'}
+                            onClick={() => {
+                                _setIsOpenModalS3(true)
+                            }}
+                            />
+
+                            {
+                                _mediaCategories && (
+                                    <Row
+                                        spaceEvenly
+                                    >
+                                        {
+                                            _mediaCategories.map(function (val, key) {
+                                                return (
+                                                    <div>
+                                                        <div
+                                                            className={styles.media_item}
+                                                        >
+                                                            <img
+                                                                style={{ "margin": "auto" }}
+                                                                src={val.link + "?option=thumbnail&size=10"}
+                                                                width="100%"
+                                                                heght="auto"
+                                                            />
+                                                        </div>
+
+                                                        <div
+                                                            title={"Hapus"}
+                                                            className={generateClasses([
+                                                                styles.button_action,
+                                                                styles.text_red
+                                                            ])}
+                                                            onClick={() => {
+                                                                _updateQuery(key, "del-media")
+                                                            }}
+                                                        >
+                                                            <AiFillDelete />
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })
+                                        }
+                                    </Row>
+                                )
+                            }
+                            
 
                             <div
                                 style={{ "margin-top": "10rem" }}

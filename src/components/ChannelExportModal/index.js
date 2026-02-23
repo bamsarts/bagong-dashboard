@@ -27,7 +27,7 @@ export default function ChannelExportModal(props = defaultProps) {
 
 
     const [_selectedType, _setSelectedType] = useState({
-        title: "Pembelian",
+        title: "Transaksi",
         value: "transaction"
     })
 
@@ -43,12 +43,12 @@ export default function ChannelExportModal(props = defaultProps) {
 
     const [_typeTransaction, _setTypeTransaction] = useState([
         {
-            title: "Pembelian",
+            title: "Transaksi",
             value: "transaction"
         },
         {
-            title: "Keberangkatan",
-            value: "departure"
+            title: "Setoran",
+            value: "transaction"
         },
     ])
 
@@ -105,12 +105,11 @@ export default function ChannelExportModal(props = defaultProps) {
             // Since the API returns a file with proper headers, we'll handle it as a blob
             const res = await get(`/laporan/penjualan/harian/export` + _selectedGroup.value + `?${objectToParams(params)}`, appContext.authData.token, true);
 
-            if (_selectedGroup.title == "Tiket") {
-                _downloadCsvTicket(res, `Transaksi-${_selectedType.title}-${_selectedGroup.title}-${_date.start}-s.d-${_date.end}.csv`);
+            if (_selectedType.title == "Transaksi") {
+                _downloadCsv(res, `Transaksi-${_date.start}-s.d-${_date.end}.csv`);
             } else {
-                _downloadCsv(res, `Transaksi-${_selectedType.title}-${_selectedGroup.title}-${_date.start}-s.d-${_date.end}.csv`);
+                _downloadCsv(res, `Setoran-${_date.start}-s.d-${_date.end}.csv`, "setoran");
             }
-
 
             _setIsProcessing(false)
         } catch (e) {
@@ -288,48 +287,81 @@ export default function ChannelExportModal(props = defaultProps) {
         return result;
     }
 
-    function _downloadCsv(data, fileName) {
+    function _downloadCsv(data, fileName, type = "transaction") {
         let template = document.createElement('template')
         let tableExport = "<table>"
 
-        const header = ["Transaction ID", "Transaction Date", "Date", "Route", "Origin",
-            "Destination", "Bus Name", "Booking Code", "Departure Date",
-            "Base Fare", "Total Amount",
-            "Passenger Count", "Payment Status", "Payment Method"];
+        // Define desired columns in the order we want them in the export
+        const headerTransaction = ["Transaction ID", "Penyedia Pembayaran", "Date", "Kode Trayek", "Route", "Origin",
+            "Destination", "Bus Name", "Cabang Trayek", "Booking Code", "Departure Date", "Passenger Count",
+            "Base Fare", "Diskon", "Total Harga Setelah Discount", "MDR", "Payment Method",
+            "Channel", "Payment Status", "Status Setoran", "Nomor Rekening", "Nama Rekening"];
+
+
+        const headerDeposit = ["Transaction ID", "Penyedia Pembayaran", "Date", "Kode Trayek", "Route", "Origin",
+            "Destination", "Bus Name", "Cabang Trayek", "Booking Code", "Tanggal Setoran", "Passenger Count",
+            "Base Fare", "Total Harga Tiket", "Diskon", "Total Harga Setelah Discount", "MDR", "Payment Method",
+            "Channel"];
+
+        let header = type == "transaction" ? headerTransaction : headerDeposit
+        let translate = {
+            "Base Fare": "Harga Tiket",
+            "Passenger Count": "Jumlah Penumpang",
+            "Cabang Trayek": "Cabang",
+            "Origin": "Asal",
+            "Destination": "Tujuan"
+        }
+
 
         data = data.split("\n").filter(line => line.trim() !== "");
 
         if (data.length === 0) return;
 
         const csvHeader = parseCSVRow(data[0]);
-        const headerSet = new Set(header);
-        const keepIndexes = csvHeader.map((col, idx) => headerSet.has(col) ? idx : -1).filter(idx => idx !== -1);
+
+        // Map each desired header to its index in the CSV
+        const columnMapping = header.map(h => csvHeader.indexOf(h));
 
         // Table header
         tableExport += "<tr>";
-        header.forEach(h => { tableExport += `<th>${h}</th>`; });
+        header.forEach(h => { tableExport += `<th>${translate[h] || h}</th>`; });
         tableExport += "</tr>";
 
         // Column indexes we need
         const dateDeparture = csvHeader.indexOf("Date")
-        const trxDate = csvHeader.indexOf("Transaction Date")
+        const accAcount = csvHeader.indexOf("Nomor Rekening")
+        const dateDeposit = csvHeader.indexOf("Tanggal Setoran")
+        const baseFare = csvHeader.indexOf("Base Fare")
+        const passenger = csvHeader.indexOf("Passenger Count")
+        const totalFare = csvHeader.indexOf("Total Harga Tiket")
 
 
         for (let i = 1; i < data.length; i++) {
             let row = parseCSVRow(data[i]);
             if (row.length < csvHeader.length) continue;
 
+            if (dateDeposit !== -1 && type == "setoran") {
+                if (row[dateDeposit] == "-") {
+                    continue;
+                }
+            }
+
             if (dateDeparture !== -1) {
                 row[dateDeparture] = "'" + row[dateDeparture]
             }
 
-            if (trxDate !== -1) {
-                row[trxDate] = "'" + dateFilter.basicDate(new Date(row[trxDate])).normal + " " + dateFilter.getTime(new Date(row[trxDate]))
+            if (accAcount !== -1) {
+                row[accAcount] = "'" + row[accAcount]
             }
 
+            if (passenger !== -1 && baseFare !== -1 && totalFare !== -1) {
+                row[totalFare] = String(parseInt(row[baseFare] || "0", 10) * parseInt(row[passenger] || "0", 10))
+            }
 
             tableExport += "<tr>";
-            keepIndexes.forEach(idx => { tableExport += `<td>${row[idx] ?? ""}</td>`; });
+            columnMapping.forEach(idx => {
+                tableExport += `<td>${idx !== -1 ? (row[idx] ?? "") : ""}</td>`;
+            });
             tableExport += "</tr>";
         }
 
@@ -369,13 +401,13 @@ export default function ChannelExportModal(props = defaultProps) {
                     closeModal: props.closeModal
                 }}
             >
-                {/* <Row>
+                <Row>
                     <Col
                         withPadding
                         marginBottom
                     >
                         <Input
-                            title={"Berdasarkan Tanggal"}
+                            title={"Jenis Laporan"}
                             value={_selectedType.title}
                             suggestions={_typeTransaction}
                             suggestionField={'title'}
@@ -385,21 +417,7 @@ export default function ChannelExportModal(props = defaultProps) {
                         />
                     </Col>
 
-                    <Col
-                        withPadding
-                        marginBottom
-                    >
-                        <Input
-                            title={"Group"}
-                            value={_selectedGroup.title}
-                            suggestions={_groupTransaction}
-                            suggestionField={'title'}
-                            onSuggestionSelect={(value) => {
-                                _setSelectedGroup(value)
-                            }}
-                        />
-                    </Col>
-                </Row> */}
+                </Row>
 
 
                 <small
