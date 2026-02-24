@@ -305,47 +305,102 @@ export default function DepositDetail(props) {
         }
     }
 
+    // async function _assignedBus(deposit) {
+
+    //     let query = {
+    //         // "startFrom": 0,
+    //         // "length": 360,
+    //         "startDate": deposit?.assign_date,
+    //         "endDate": deposit?.assign_date,
+    //         "orderBy": "id",
+    //         "sortMode": "desc"
+    //     }
+
+    //     try {
+
+
+    //         const data = await postJSON(`/data/penugasan/list`, query, props.authData.token);
+
+    //         // Find the assignment by ID
+    //         let assignment = {}
+
+    //         data.data.forEach(function (val, key) {
+    //             if (val.assign_date === deposit.assign_date
+    //                 && val.traject_master_id === deposit.traject_master_id
+    //                 && val.bus_crew1_id === deposit.bus_crew1_id
+    //                 && val.bus_id === deposit.bus_id) {
+    //                 assignment = val
+    //             }
+    //         })
+
+    //         _updateFormSubmit({
+    //             "busCrew1Id": assignment?.bus_crew1_id,
+    //             "busCrew1Name": assignment?.bus_crew1_name,
+    //             "busCrew2Id": assignment?.bus_crew2_id,
+    //             "busCrew2Name": assignment?.bus_crew2_name,
+    //             "busCrew3Id": assignment?.bus_crew3_id,
+    //             "busCrew3Name": assignment?.bus_crew3_name
+    //         })
+
+    //         _setAssignedData(assignment)
+    //     } catch (error) {
+    //         popAlert({ message: error.message });
+    //         return null;
+    //     }
+    // }
+
     async function _assignedBus(deposit) {
 
-        let query = {
-            "startFrom": 0,
-            "length": 360,
-            "startDate": deposit?.assign_date,
-            "endDate": deposit?.assign_date,
-            "orderBy": "id",
-            "sortMode": "desc"
+        const query = {
+            startDate: deposit?.assign_date,
+            endDate: deposit?.assign_date,
+            orderBy: "id",
+            sortMode: "desc"
         }
 
         try {
+            const res = await postJSON(`/data/penugasan/list`, query, props.authData.token)
 
+            let assignment = null
 
-            const data = await postJSON(`/data/penugasan/list`, query, props.authData.token);
+            /**
+             * RESPONSE BARU:
+             * data = [ GROUP ]
+             * GROUP.penugasan = [ ASSIGNMENT ]
+             */
+            res.data.forEach(group => {
+                group.penugasan.forEach(val => {
 
-            // Find the assignment by ID
-            let assignment = {}
+                    const isMatch =
+                        val.assign_date === deposit.assign_date &&
+                        String(val.traject_master_id) === String(deposit.traject_master_id) &&
+                        String(val.bus_id) === String(deposit.bus_id)
 
-            data.data.forEach(function (val, key) {
-                if (val.assign_date === deposit.assign_date
-                    && val.traject_master_id === deposit.traject_master_id
-                    && val.bus_crew1_id === deposit.bus_crew1_id
-                    && val.bus_id === deposit.bus_id) {
-                    assignment = val
-                }
+                    if (isMatch) {
+                        assignment = val
+                    }
+                })
             })
 
+            if (!assignment) {
+                console.warn('Assignment tidak ditemukan')
+                return
+            }
+
             _updateFormSubmit({
-                "busCrew1Id": assignment?.bus_crew1_id,
-                "busCrew1Name": assignment?.bus_crew1_name,
-                "busCrew2Id": assignment?.bus_crew2_id,
-                "busCrew2Name": assignment?.bus_crew2_name,
-                "busCrew3Id": assignment?.bus_crew3_id,
-                "busCrew3Name": assignment?.bus_crew3_name
+                busCrew1Id: assignment?.bus_crew1_id,
+                busCrew1Name: assignment?.bus_crew1_name,
+                busCrew2Id: assignment?.bus_crew2_id,
+                busCrew2Name: assignment?.bus_crew2_name,
+                busCrew3Id: assignment?.bus_crew3_id,
+                busCrew3Name: assignment?.bus_crew3_name
             })
 
             _setAssignedData(assignment)
+
         } catch (error) {
-            popAlert({ message: error.message });
-            return null;
+            popAlert({ message: error.message })
+            return null
         }
     }
 
@@ -841,7 +896,7 @@ export default function DepositDetail(props) {
                                             className={styles.item}
                                         >
                                             <span>Tanggal</span>
-                                            <span> : {dateFilter.getMonthDate(new Date(_assignedData?.assign_date))}</span>
+                                            <span> : {dateFilter.getMonthDate(new Date(_setoranData?.data?.setoran?.transaction_date))}</span>
                                         </div>
                                         <div
                                             className={styles.item}
@@ -1470,6 +1525,7 @@ export default function DepositDetail(props) {
                                                 placeholder={`Rp`}
                                                 style={{
                                                     textAlign: "right"
+                                                    
                                                 }}
                                             />
                                         </Col>
@@ -1536,7 +1592,7 @@ export default function DepositDetail(props) {
                                                 value={currency(_form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage)}
                                                 placeholder={`Rp`}
                                                 style={{
-                                                    textAlign: "right"
+                                                    textAlign: "right",
                                                 }}
                                             />
                                         </Col>
@@ -1696,7 +1752,8 @@ export default function DepositDetail(props) {
                                             value={currency(_getAmountNetIncome())}
                                             placeholder={`Rp`}
                                             style={{
-                                                textAlign: "right"
+                                                textAlign: "right",
+                                                 color: _getAmountNetIncome() < 0 ? '#FF0000' : 'inherit'
                                             }}
                                         />
                                     </Col>
@@ -1748,9 +1805,10 @@ export default function DepositDetail(props) {
                                         <Input
                                             type="number"
                                             value={currency(_getFinalAmount())}
-                                            placeholder={`Rp`}
+                                            placeholder="Rp"
                                             style={{
-                                                textAlign: "right"
+                                                textAlign: "right",
+                                                color: _getFinalAmount() < 0 ? '#FF0000' : 'inherit'
                                             }}
                                         />
                                     </Col>
