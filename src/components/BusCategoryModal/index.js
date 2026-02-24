@@ -39,6 +39,7 @@ export default function BusCategoryModal(props = defaultProps) {
     const [_mediaCategories, _setMediaCategories] = useState([])
     const [_mediaRanges, _setMediaRanges] = useState([])
     const [_formMedia, _setFormMedia] = useState({})
+    const [_imageUrls, _setImageUrls] = useState([''])
     const [_facilityRanges, _setFacilityRanges] = useState([])
     const [_titleModal, _setTitleModal] = useState("Tambah Bus Kategori")
     const __seat_wrapper_ref = createRef()
@@ -181,6 +182,7 @@ export default function BusCategoryModal(props = defaultProps) {
 
     function _clearForm() {
         _setForm(CONFIG_PARAM)
+        _setImageUrls([''])
     }
 
     async function _getMedia() {
@@ -208,6 +210,12 @@ export default function BusCategoryModal(props = defaultProps) {
         try {
             const media = await get('/masterData/bus/kategori/image/' + props.data?.id, appContext.authData.token)
             _setMediaCategories(media.data)
+
+            // Load existing image URLs if available
+            if (media.data && media.data.length > 0) {
+                const urls = media.data.map(item => item.link || '')
+                _setImageUrls(urls.length > 0 ? urls : [''])
+            }
         } catch (e) {
             popAlert({ message: e.message })
         }
@@ -266,16 +274,11 @@ export default function BusCategoryModal(props = defaultProps) {
                 "bus_category_id": props.data?.id,
             }
 
-            // if(type == "fasilitas"){
-            //     query.traject_id = `${_selectedTraject[0].id}`
-            // }
-
             if (type == "image") {
-                let images = []
-                // _mediaCategories.forEach(function (val, key) {
-                //     images.push(val.imageId)
-                // })
-                // query.image_id = images.join()
+                // Filter out empty URLs and format for API
+                const validUrls = _imageUrls.filter(url => url.trim() !== '')
+                query.image_urls = validUrls
+
                 _cacheBusCategory("images/bus-category/" + props.data?.id)
             } else {
                 let facilities = []
@@ -288,7 +291,7 @@ export default function BusCategoryModal(props = defaultProps) {
                 _cacheBusCategory("facilities/bus-category/" + props.data?.id)
             }
 
-            const result = await postJSON('/masterData/bus/kategori/' + type + '/update', query, appContext.authData.token)
+            const result = await postJSON('/masterData/bus/kategori/' + type + '/update', query, appContext.authData.token, false, "PUT")
             props.refresh()
             if (result) props.closeModal()
             _clearForm()
@@ -354,10 +357,10 @@ export default function BusCategoryModal(props = defaultProps) {
         >
 
             <MinioModal
-            visible={_isOpenModalS3}
-            closeModal={() => {
-                _setIsOpenModalS3(false)
-            }}
+                visible={_isOpenModalS3}
+                closeModal={() => {
+                    _setIsOpenModalS3(false)
+                }}
             />
 
             <ModalContent
@@ -513,35 +516,50 @@ export default function BusCategoryModal(props = defaultProps) {
                 {
                     props.type == "media" && (
                         <>
-                            <Input
-                                title={"Gambar Bus"}
-                                withMargin
-                                placeholder={'Pilih Gambar'}
-                                value={_formMedia.image_title}
-                                suggestions={_mediaRanges}
-                                suggestionField={'title'}
-                                suggestionImage={'link'}
-                                onSuggestionSelect={(value) => {
-                                    _updateQuery(value, "media")
-                                }}
-                            />
-
-                            <Input
-                                title={"Link Gambar Bus"}
-                                withMargin
-                                placeholder={'Pilih Gambar'}
-                                value={_formMedia.image_title}
-                                onChange={(value) => {
-                                    _updateQuery(value, "media")
-                                }}
-                            />
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ fontWeight: 'bold', marginBottom: '0.5rem', display: 'block' }}>
+                                    Link Gambar Bus
+                                </label>
+                                {_imageUrls.map((url, index) => (
+                                    <div key={index} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                        <Input
+                                            withMargin
+                                            placeholder={`URL Gambar ${index + 1}`}
+                                            value={url}
+                                            onChange={(value) => {
+                                                const newUrls = [..._imageUrls]
+                                                newUrls[index] = value
+                                                _setImageUrls(newUrls)
+                                            }}
+                                        />
+                                        {_imageUrls.length > 1 && (
+                                            <Button
+                                                small
+                                                title={'Hapus'}
+                                                styles={Button.danger}
+                                                onClick={() => {
+                                                    const newUrls = _imageUrls.filter((_, i) => i !== index)
+                                                    _setImageUrls(newUrls)
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                                <Button
+                                    small
+                                    title={'+ Tambah URL'}
+                                    onClick={() => {
+                                        _setImageUrls([..._imageUrls, ''])
+                                    }}
+                                />
+                            </div>
 
                             <Button
-                            small
-                            title={'Media S3'}
-                            onClick={() => {
-                                _setIsOpenModalS3(true)
-                            }}
+                                small
+                                title={'Media S3'}
+                                onClick={() => {
+                                    _setIsOpenModalS3(true)
+                                }}
                             />
 
                             {
@@ -583,7 +601,7 @@ export default function BusCategoryModal(props = defaultProps) {
                                     </Row>
                                 )
                             }
-                            
+
 
                             <div
                                 style={{ "margin-top": "10rem" }}

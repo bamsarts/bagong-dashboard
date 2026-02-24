@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { postJSON } from '../../../../api/utils'
+import { objectToParams, postJSON, get } from '../../../../api/utils'
 import throttle from '../../../../utils/throttle'
 import { AiFillEdit, AiOutlineEllipsis, AiOutlineClose } from 'react-icons/ai'
 import Main, { popAlert } from '../../../../components/Main'
@@ -218,7 +218,7 @@ export default function Theme(props) {
         }
 
         try {
-            const result = await postJSON('/masterData/tematik/apps/list', params, props.authData.token)
+            const result = await get('/masterData/tematik/apps/list?'+objectToParams(params), props.authData.token)
 
             _setThemeLists(result.data)
 
