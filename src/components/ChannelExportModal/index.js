@@ -309,7 +309,11 @@ export default function ChannelExportModal(props = defaultProps) {
             "Passenger Count": "Jumlah Penumpang",
             "Cabang Trayek": "Cabang",
             "Origin": "Asal",
-            "Destination": "Tujuan"
+            "Destination": "Tujuan",
+            "Transaction ID": "Kode Transaksi",
+            "Date": "Tanggal Pembelian Tiket",
+            "Route": "Trayek",
+            "Bus Name": "Nopol"
         }
 
 
@@ -354,13 +358,22 @@ export default function ChannelExportModal(props = defaultProps) {
                 row[accAcount] = "'" + row[accAcount]
             }
 
-            if (passenger !== -1 && baseFare !== -1 && totalFare !== -1) {
-                row[totalFare] = String(parseInt(row[baseFare] || "0", 10) * parseInt(row[passenger] || "0", 10))
+            // Calculate Total Harga Tiket (Passenger Count * Base Fare)
+            let calculatedTotalFare = "";
+            if (passenger !== -1 && baseFare !== -1) {
+                const passengerCount = parseInt(row[passenger] || "0", 10);
+                const baseFareValue = parseInt(row[baseFare] || "0", 10);
+                calculatedTotalFare = String(passengerCount * baseFareValue);
             }
 
             tableExport += "<tr>";
             columnMapping.forEach(idx => {
-                tableExport += `<td>${idx !== -1 ? (row[idx] ?? "") : ""}</td>`;
+                if (idx === -1) {
+                    // This is the "Total Harga Tiket" column that doesn't exist in CSV
+                    tableExport += `<td>${calculatedTotalFare}</td>`;
+                } else {
+                    tableExport += `<td>${row[idx] ?? ""}</td>`;
+                }
             });
             tableExport += "</tr>";
         }
