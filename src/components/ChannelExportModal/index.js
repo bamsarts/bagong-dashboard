@@ -50,6 +50,14 @@ export default function ChannelExportModal(props = defaultProps) {
             title: "Setoran",
             value: "transaction"
         },
+        {
+            title: "Pendapatan Tunai",
+            value: "transaction"
+        },
+        {
+            title: "Pendapatan Non Tunai",
+            value: "transaction"
+        },
     ])
 
     const [_groupTransaction, _setGroupTransaction] = useState([
@@ -107,6 +115,11 @@ export default function ChannelExportModal(props = defaultProps) {
 
             if (_selectedType.title == "Transaksi") {
                 _downloadCsv(res, `Transaksi-${_date.start}-s.d-${_date.end}.csv`);
+
+            } else if (_selectedType.title == "Pendapatan Tunai") {
+                _downloadCsv(res, `Pendapatan-Tunai-${_date.start}-s.d-${_date.end}.csv`, "cashRevenue")
+            } else if (_selectedType.title == "Pendapatan Non Tunai") {
+                _downloadCsv(res, `Pendapatan-Non-Tunai-${_date.start}-s.d-${_date.end}.csv`, "cashlessRevenue")
             } else {
                 _downloadCsv(res, `Setoran-${_date.start}-s.d-${_date.end}.csv`, "setoran");
             }
@@ -287,6 +300,11 @@ export default function ChannelExportModal(props = defaultProps) {
         return result;
     }
 
+    function capitalizeFirstLetter(string) {
+    // Get the first character and convert to uppercase, then concatenate with the rest of the string
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
     function _downloadCsv(data, fileName, type = "transaction") {
         let template = document.createElement('template')
         let tableExport = "<table>"
@@ -303,7 +321,20 @@ export default function ChannelExportModal(props = defaultProps) {
             "Base Fare", "Total Harga Tiket", "Diskon", "Total Harga Setelah Discount", "MDR", "Payment Method",
             "Channel"];
 
-        let header = type == "transaction" ? headerTransaction : headerDeposit
+        const headerDepositCash = ["Date", "Route", "Passenger Count", "Tunai", "Fee BIS", "PPN"]
+
+        const headerDepositCashless = ["Date", "Route", "Passenger Count", "QRIS", "Emoney", "Fee BIS", "PPN"]
+
+        let header = headerTransaction
+
+        if (type == "setoran") {
+            header = headerDeposit
+        } else if (type == "cashRevenue") {
+            header = headerDepositCash
+        } else if (type == "cashlessRevenue") {
+            header = headerDepositCashless
+        }
+
         let translate = {
             "Base Fare": "Harga Tiket",
             "Passenger Count": "Jumlah Penumpang",
@@ -337,45 +368,167 @@ export default function ChannelExportModal(props = defaultProps) {
         const dateDeposit = csvHeader.indexOf("Tanggal Setoran")
         const baseFare = csvHeader.indexOf("Base Fare")
         const passenger = csvHeader.indexOf("Passenger Count")
-        const totalFare = csvHeader.indexOf("Total Harga Tiket")
+        const paymentMethod = csvHeader.indexOf("Payment Method")
 
+        // Handle cashRevenue grouping
+        if (type == "cashRevenue") {
+            const routeIdx = csvHeader.indexOf("Route");
+            const dateIdx = csvHeader.indexOf("Date");
+            const paymentTypeIdx = csvHeader.indexOf("Payment Type");
+            const totalAfterDiscountIdx = csvHeader.indexOf("Total Harga Setelah Discount");
+            const passengerIdx = csvHeader.indexOf("Passenger Count");
 
-        for (let i = 1; i < data.length; i++) {
-            let row = parseCSVRow(data[i]);
-            if (row.length < csvHeader.length) continue;
+            // Group transactions by Date + Route
+            const groups = {};
 
-            if (dateDeposit !== -1 && type == "setoran") {
-                if (row[dateDeposit] == "-") {
+            for (let i = 1; i < data.length; i++) {
+                let row = parseCSVRow(data[i]);
+                if (row.length < csvHeader.length) continue;
+
+                // Only include "Tunai" payment type
+                if (paymentTypeIdx !== -1 && row[paymentTypeIdx] !== "Tunai") {
                     continue;
                 }
-            }
 
-            if (dateDeparture !== -1) {
-                row[dateDeparture] = "'" + row[dateDeparture]
-            }
+                const date = row[dateIdx] || "";
+                const route = row[routeIdx] || "";
+                const groupKey = `${date}|${route}`;
 
-            if (accAcount !== -1) {
-                row[accAcount] = "'" + row[accAcount]
-            }
-
-            // Calculate Total Harga Tiket (Passenger Count * Base Fare)
-            let calculatedTotalFare = "";
-            if (passenger !== -1 && baseFare !== -1) {
-                const passengerCount = parseInt(row[passenger] || "0", 10);
-                const baseFareValue = parseInt(row[baseFare] || "0", 10);
-                calculatedTotalFare = String(passengerCount * baseFareValue);
-            }
-
-            tableExport += "<tr>";
-            columnMapping.forEach(idx => {
-                if (idx === -1) {
-                    // This is the "Total Harga Tiket" column that doesn't exist in CSV
-                    tableExport += `<td>${calculatedTotalFare}</td>`;
-                } else {
-                    tableExport += `<td>${row[idx] ?? ""}</td>`;
+                if (!groups[groupKey]) {
+                    groups[groupKey] = {
+                        date: date,
+                        route: route,
+                        passengerCount: 0,
+                        totalTunai: 0
+                    };
                 }
+
+                // Sum passenger count and total after discount
+                groups[groupKey].passengerCount += parseInt(row[passengerIdx] || "0", 10);
+                groups[groupKey].totalTunai += parseInt(row[totalAfterDiscountIdx] || "0", 10);
+            }
+
+            // Output grouped rows
+            Object.values(groups).forEach(group => {
+                const feeBIS = group.totalTunai * 0.012;
+                const ppn = feeBIS * (11 / 111);
+
+                tableExport += "<tr>";
+                tableExport += `<td>'${group.date}</td>`;
+                tableExport += `<td>${group.route}</td>`;
+                tableExport += `<td>${group.passengerCount}</td>`;
+                tableExport += `<td>${group.totalTunai}</td>`;
+                tableExport += `<td>${feeBIS}</td>`;
+                tableExport += `<td>${Math.floor(ppn)}</td>`;
+                tableExport += "</tr>";
             });
-            tableExport += "</tr>";
+
+        } else if (type == "cashlessRevenue") {
+            const routeIdx = csvHeader.indexOf("Route");
+            const dateIdx = csvHeader.indexOf("Date");
+            const paymentTypeIdx = csvHeader.indexOf("Payment Type");
+            const paymentMethodIdx = csvHeader.indexOf("Payment Method");
+            const totalAfterDiscountIdx = csvHeader.indexOf("Total Harga Setelah Discount");
+            const passengerIdx = csvHeader.indexOf("Passenger Count");
+
+            // Group transactions by Date + Route
+            const groups = {};
+
+            for (let i = 1; i < data.length; i++) {
+                let row = parseCSVRow(data[i]);
+                if (row.length < csvHeader.length) continue;
+
+                // Only include "Non-Tunai" payment type
+                if (paymentTypeIdx !== -1 && row[paymentTypeIdx] !== "Non-Tunai") {
+                    continue;
+                }
+
+                const date = row[dateIdx] || "";
+                const route = row[routeIdx] || "";
+                const paymentMethod = row[paymentMethodIdx] || "";
+                const groupKey = `${date}|${route}`;
+
+                if (!groups[groupKey]) {
+                    groups[groupKey] = {
+                        date: date,
+                        route: route,
+                        passengerCount: 0,
+                        qris: 0,
+                        emoney: 0
+                    };
+                }
+
+                // Sum passenger count
+                groups[groupKey].passengerCount += parseInt(row[passengerIdx] || "0", 10);
+
+                // Separate by payment method
+                const totalAmount = parseInt(row[totalAfterDiscountIdx] || "0", 10);
+                if (paymentMethod.toLowerCase() === "qris") {
+                    groups[groupKey].qris += totalAmount;
+                } else if (paymentMethod.toLowerCase() === "emoney") {
+                    groups[groupKey].emoney += totalAmount;
+                }
+            }
+
+            // Output grouped rows
+            Object.values(groups).forEach(group => {
+                const totalCashless = group.qris + group.emoney;
+                const feeBIS = totalCashless * 0.012;
+                const ppn = feeBIS * (11 / 111);
+
+                tableExport += "<tr>";
+                tableExport += `<td>'${group.date}</td>`;
+                tableExport += `<td>${group.route}</td>`;
+                tableExport += `<td>${group.passengerCount}</td>`;
+                tableExport += `<td>${group.qris}</td>`;
+                tableExport += `<td>${group.emoney}</td>`;
+                tableExport += `<td>${feeBIS}</td>`;
+                tableExport += `<td>${Math.floor(ppn)}</td>`;
+                tableExport += "</tr>";
+            });
+
+        } else {
+            // Original logic for transaction and setoran types
+            for (let i = 1; i < data.length; i++) {
+                let row = parseCSVRow(data[i]);
+                if (row.length < csvHeader.length) continue;
+
+                if (dateDeposit !== -1 && type == "setoran") {
+                    if (row[dateDeposit] == "-") {
+                        continue;
+                    }
+                }
+
+                if (dateDeparture !== -1) {
+                    row[dateDeparture] = "'" + row[dateDeparture]
+                }
+
+                if (accAcount !== -1) {
+                    row[accAcount] = "'" + row[accAcount]
+                }
+
+                row[paymentMethod] = row[paymentMethod] == "qris" ? "QRIS" : capitalizeFirstLetter(row[paymentMethod])
+                
+
+                // Calculate Total Harga Tiket (Passenger Count * Base Fare)
+                let calculatedTotalFare = "";
+                if (passenger !== -1 && baseFare !== -1) {
+                    const passengerCount = parseInt(row[passenger] || "0", 10);
+                    const baseFareValue = parseInt(row[baseFare] || "0", 10);
+                    calculatedTotalFare = String(passengerCount * baseFareValue);
+                }
+
+                tableExport += "<tr>";
+                columnMapping.forEach(idx => {
+                    if (idx === -1) {
+                        // This is the "Total Harga Tiket" column that doesn't exist in CSV
+                        tableExport += `<td>${calculatedTotalFare}</td>`;
+                    } else {
+                        tableExport += `<td>${row[idx] ?? ""}</td>`;
+                    }
+                });
+                tableExport += "</tr>";
+            }
         }
 
 

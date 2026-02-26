@@ -146,8 +146,6 @@ export default function DepositDetail(props) {
             const calculatedExpenses = _calculateTotalExpenses(_setoranData.data.biaya);
             _setTotalExpenses(isNaN(calculatedExpenses) ? 0 : calculatedExpenses)
 
-            console.log("oh")
-            console.log(_othersForm)
         }
 
     }, [_othersForm])
@@ -515,7 +513,7 @@ export default function DepositDetail(props) {
                 let passengers = 0
                 let amounts = 0
                 if (index == 0) {
-                    passengers = naik[i.pointName]?.pnp - (turun[i.pointName]?.pnp || 0)
+                    passengers = (naik[i.pointName]?.pnp || 0) - (turun[i.pointName]?.pnp || 0)
                     amounts = naik[i.pointName]?.amount || 0
                 } else {
                     passengers = lastPassenger + (naik[i.pointName]?.pnp || 0) - (turun[i.pointName]?.pnp || 0)
@@ -533,21 +531,26 @@ export default function DepositDetail(props) {
             })
         })
 
+        console.log("rsult riase", resultRitase)
+
         _setResultRitase(resultRitase)
     }
 
-    function _findMandoran(trajectId) {
+    function _findMandoran(trajectId, location) {
         let totalPnpCount = 0;
+        let isLocationMatch = false
 
         if (!_setoranData?.data?.manifest) return totalPnpCount;
 
         _setoranData.data.manifest.forEach(ritase => {
             if (ritase.traject_id === trajectId && ritase.category === "MANDOR") {
                 totalPnpCount += parseInt(ritase.pnp_count) || 0;
+
+                if(ritase.location == location) isLocationMatch = true
             }
         });
 
-        return totalPnpCount;
+        return  isLocationMatch ? totalPnpCount : 0;
     }
 
     function _findCrewKarcis(trajectId) {
@@ -578,7 +581,7 @@ export default function DepositDetail(props) {
                 // Use editable pnp if available, otherwise use calculated value
                 passengerCount = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findCrewKarcis(item.traject_id));
             } else if (item.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)") {
-                passengerCount = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id));
+                passengerCount = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id, item.desc));
             }
 
             if (item.name === "Mandoran fix") {
@@ -860,7 +863,7 @@ export default function DepositDetail(props) {
         }
     }
 
-    
+
 
 
     return (
@@ -1306,7 +1309,7 @@ export default function DepositDetail(props) {
                                             ?.filter(item => item.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)")
                                             .map((item, index) => {
 
-                                                let pnp = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id))
+                                                let pnp = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id, item.desc))
 
                                                 return (
                                                     <Row
@@ -1371,7 +1374,7 @@ export default function DepositDetail(props) {
                                             })
                                     }
 
-                                   {
+                                    {
                                         _setoranData.data.biaya &&
                                         _setoranData.data.biaya.length > 0 &&
                                         _setoranData.data.biaya[0].details
@@ -1393,7 +1396,7 @@ export default function DepositDetail(props) {
                                                         >
                                                             <span>{item.desc}</span>
                                                         </Col>
-                                                        
+
                                                         <Col
                                                             withPadding
                                                             column={1}
@@ -1525,13 +1528,13 @@ export default function DepositDetail(props) {
                                                 placeholder={`Rp`}
                                                 style={{
                                                     textAlign: "right"
-                                                    
+
                                                 }}
                                             />
                                         </Col>
 
                                     </Row>
- 
+
 
                                     {
                                         _setoranData.data.biaya && _setoranData.data.biaya.length > 0 && _setoranData.data.biaya[0].details
@@ -1612,11 +1615,11 @@ export default function DepositDetail(props) {
                                         _setoranData.data.biaya[0]?.details
                                             // ?.filter(item => (item.name.toUpperCase() === "CATATAN SAKU" || item.name.toUpperCase() == "SOLAR" || item.name.toUpperCase() == "TOL"))
                                             ?.filter(item =>
-                                                    ["CATATAN SAKU", "SOLAR", "TOL"].includes(item.name.toUpperCase())
-                                                )
+                                                ["CATATAN SAKU", "SOLAR", "TOL"].includes(item.name.toUpperCase())
+                                            )
                                             .sort((a, b) => {
                                                 if (a.sequence !== null && b.sequence !== null) {
-                                                return a.sequence - b.sequence
+                                                    return a.sequence - b.sequence
                                                 }
                                                 if (a.sequence !== null) return -1
                                                 if (b.sequence !== null) return 1
@@ -1753,7 +1756,7 @@ export default function DepositDetail(props) {
                                             placeholder={`Rp`}
                                             style={{
                                                 textAlign: "right",
-                                                 color: _getAmountNetIncome() < 0 ? '#FF0000' : 'inherit'
+                                                color: _getAmountNetIncome() < 0 ? '#FF0000' : 'inherit'
                                             }}
                                         />
                                     </Col>
