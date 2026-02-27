@@ -343,8 +343,11 @@ export default function ChannelExportModal(props = defaultProps) {
             "Destination": "Tujuan",
             "Transaction ID": "Kode Transaksi",
             "Date": "Tanggal Pembelian Tiket",
-            "Route": "Trayek",
-            "Bus Name": "Nopol"
+            "Route": "Rute",
+            "Bus Name": "Nopol",
+            "Payment Method": "Metode Pembayaran",
+            "Booking Code": "Kode Booking",
+            "Departure Date": "Tanggal Keberangkatan"
         }
 
 
@@ -369,6 +372,7 @@ export default function ChannelExportModal(props = defaultProps) {
         const baseFare = csvHeader.indexOf("Base Fare")
         const passenger = csvHeader.indexOf("Passenger Count")
         const paymentMethod = csvHeader.indexOf("Payment Method")
+        const depositStatus = csvHeader.indexOf("Status Setoran")
 
         // Handle cashRevenue grouping
         if (type == "cashRevenue") {
@@ -509,6 +513,9 @@ export default function ChannelExportModal(props = defaultProps) {
 
                 row[paymentMethod] = row[paymentMethod] == "qris" ? "QRIS" : capitalizeFirstLetter(row[paymentMethod])
                 
+                if(depositStatus !== -1){
+                    row[depositStatus] = row[depositStatus] == "Sudah Setoran" ? 'Done' : "Pending"
+                }
 
                 // Calculate Total Harga Tiket (Passenger Count * Base Fare)
                 let calculatedTotalFare = "";

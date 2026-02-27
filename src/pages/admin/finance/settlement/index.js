@@ -50,6 +50,11 @@ export default function Settlement(props) {
             customCell: (value) => dateFilter.convertISO(new Date(value), "date")
         },
         {
+            title: 'Tanggal Transaksi',
+            field: 'setoran_date',
+            customCell: (value) => dateFilter.convertISO(new Date(value), "date")
+        },
+        {
             title: 'Trayek',
             field: 'traject_name',
             textAlign: "left",
@@ -66,6 +71,14 @@ export default function Settlement(props) {
         },
         {
             title: 'Total Transaksi',
+            field: 'transaction_list',
+            textAlign: 'right',
+            customCell: (value, row) => {
+                return value.length
+            }
+        },
+         {
+            title: 'Nominal Transaksi',
             field: 'transaction_amount',
             textAlign: 'right',
             customCell: (value) => currency(value)
@@ -89,7 +102,7 @@ export default function Settlement(props) {
             customCell: (value) => currency(value)
         },
         {
-            title: 'Grand Total',
+            title: 'ODT',
             field: 'odt',
             textAlign: 'right',
             customCell: (value) => currency(value)
@@ -292,67 +305,28 @@ export default function Settlement(props) {
                                     )}
                                     headExport={[
                                         {
-                                            title: 'Tanggal Setoran',
+                                            title: 'Tanggal Transaksi',
                                             value: 'transaction_date',
                                             customCell: (value) => dateFilter.convertISO(new Date(value), "date")
+                                        },
+                                        {
+                                            title: 'Tanggal Setoran',
+                                            value: 'setoran_date',
+                                            customCell: (value) => dateFilter.convertISO(new Date(value), "date")
+                                        },
+                                        {
+                                            title: 'Nama PO',
+                                            value: 'transaction_date',
+                                            customCell: (value, row) => {
+                                                return 'Bagong'
+                                            }
                                         },
                                         {
                                             title: 'Trayek',
                                             value: 'traject_name',
                                         },
                                         {
-                                            title: 'Pembayaran',
-                                            value: 'payment_category',
-                                        },
-                                        {
-                                            title: 'Total Transaksi',
-                                            value: 'transaction_amount',
-                                        },
-                                        {
-                                            title: 'MDR',
-                                            value: 'mdr_amount',
-                                        },
-                                        {
-                                            title: 'Netto Transaksi',
-                                            value: 'net_after_mdr',
-                                        },
-                                        {
-                                            title: 'Fee',
-                                            value: 'fee_amount',
-                                        },
-                                        {
-                                            title: 'Grand Total',
-                                            value: 'odt',
-                                        },
-                                        {
-                                            title: 'Status',
-                                            value: 'status',
-                                            customCell: (value) => {
-                                                return value == "CREATED" ? "Settlement" : "Pending"
-                                            }
-                                        },
-                                        {
-                                            title: 'Rekening Bank',
-                                            value: 'traject_bank',
-                                            customCell: (value) => {
-
-                                                if (value.length > 0) {
-                                                    return value[0].bank_name
-                                                }
-                                            }
-                                        },
-                                        {
-                                            title: 'Nama Rekening',
-                                            value: 'traject_bank',
-                                            customCell: (value) => {
-
-                                                if (value.length > 0) {
-                                                    return value[0].bank_account_name
-                                                }
-                                            }
-                                        },
-                                        {
-                                            title: 'Nomor Rekening',
+                                            title: 'No Rekening',
                                             value: 'traject_bank',
                                             customCell: (value) => {
 
@@ -361,6 +335,42 @@ export default function Settlement(props) {
                                                 }
                                             }
                                         },
+                                        {
+                                            title: 'Pembayaran',
+                                            value: 'payment_category',
+                                        },
+                                        {
+                                            title: 'Nominal Transaksi',
+                                            value: 'transaction_amount',
+                                        },
+                                        {
+                                            title: 'MDR',
+                                            value: 'mdr_amount',
+                                        },
+                                        {
+                                            title: 'Fee BIS',
+                                            value: 'fee_amount',
+                                        },
+                                        {
+                                            title: 'ODT',
+                                            value: 'odt',
+                                        },
+                                        {
+                                            title: 'Transfer ke PO',
+                                            value: 'transfer_amount',
+                                        },
+                                        {
+                                            title: 'Tanggal Transfer ke PO',
+                                            value: 'transfer_date',
+                                        },
+                                        {
+                                            title: 'Status',
+                                            value: 'status',
+                                            customCell: (value) => {
+                                                return value == "CREATED" ? "Settle" : "Belum Settle"
+                                            }
+                                        },
+                                       
                                     ]}
                                     columns={__COLUMNS}
                                     records={_settlement}
