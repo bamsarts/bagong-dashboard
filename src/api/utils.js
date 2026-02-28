@@ -4,6 +4,9 @@ export const API_ENDPOINT = {
     development: 'https://uat.damri.bisku.id:8080',
     development2: 'http://103.132.239.124:3000',
     developmentBackup: 'http://139.59.223.142:3030',
+    production: 'https://api-damri-dashboard.bisku.id',
+    productionBackup: 'https://api2-damri-dashboard.bisku.id', //production backup
+    local: 'http://192.168.70.70:8080',
     ticketOrder: 'http://uat.damri.bisku.id:8585', //dev
     ticketOrderProd: "https://api3-dashboard.damri.bisku.id",
     settlement: 'http://uat.damri.bisku.id:8484', //dev
@@ -19,7 +22,7 @@ export const API_ENDPOINT = {
     dev_coreticket: "https://core-ticketing.bisku.id"
 }
 
-export const BASE_URL = API_ENDPOINT.bagong_prod
+export const BASE_URL = API_ENDPOINT.dev_coreticket
 export const SETTLEMENT_URL = API_ENDPOINT.settlement
 export const CACHE_URL = API_ENDPOINT.development
 export const DAMRI_APPS_URL = API_ENDPOINT.development

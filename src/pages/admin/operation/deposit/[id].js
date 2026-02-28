@@ -194,6 +194,7 @@ export default function DepositDetail(props) {
     useEffect(() => {
         console.log("mfa")
         console.log(_manifestCost)
+        console.log("setoran detail")
     }, [_manifestCost.tol, _manifestCost.others])
 
     function _getPaymentAmountTotal() {
@@ -531,8 +532,6 @@ export default function DepositDetail(props) {
             })
         })
 
-        console.log("rsult riase", resultRitase)
-
         _setResultRitase(resultRitase)
     }
 
@@ -546,11 +545,11 @@ export default function DepositDetail(props) {
             if (ritase.traject_id === trajectId && ritase.category === "MANDOR") {
                 totalPnpCount += parseInt(ritase.pnp_count) || 0;
 
-                if(ritase.location == location) isLocationMatch = true
+                if (ritase.location == location) isLocationMatch = true
             }
         });
 
-        return  isLocationMatch ? totalPnpCount : 0;
+        return isLocationMatch ? totalPnpCount : 0;
     }
 
     function _findCrewKarcis(trajectId) {
@@ -627,21 +626,27 @@ export default function DepositDetail(props) {
                 const min = parseInt(item.min) || 0;
                 const max = parseInt(item.max) || 0;
 
-                // Check if netIncome matches the criteria
-                // If max is 0, it means no upper limit
-                const meetsMinCriteria = netIncome >= min;
-                const meetsMaxCriteria = max === 0 || netIncome <= max;
+                // Check if netIncome is within or above the range
+                if (netIncome >= min) {
+                    let calculableAmount = 0;
 
-                if (meetsMinCriteria && meetsMaxCriteria) {
-                    // Calculate the difference from min threshold
-                    const difference = netIncome - min;
-                    // Apply percentage to the difference
-                    const percentageAmount = (difference * (parseInt(item.amount) || 0)) / 100;
+                    if (max === 0) {
+                        // No upper limit - calculate from min to netIncome
+                        calculableAmount = netIncome - min;
+                    } else if (netIncome <= max) {
+                        // Within range - calculate from min to netIncome
+                        calculableAmount = netIncome - min;
+                    } else {
+                        // Above range - calculate only the portion within this range
+                        calculableAmount = max - min;
+                    }
+
+                    // Apply percentage to the calculable amount
+                    const percentageAmount = (calculableAmount * (parseInt(item.amount) || 0)) / 100;
                     // Round to nearest thousand
                     const roundedAmount = Math.floor(percentageAmount / 1000) * 1000;
 
-                    item.percentageAmount = roundedAmount
-
+                    item.percentageAmount = roundedAmount;
                     total.incomeByPercentage += roundedAmount;
                 }
             }
@@ -706,6 +711,7 @@ export default function DepositDetail(props) {
             })
         }
 
+        console.log("tato", total)
         return total;
     }
 

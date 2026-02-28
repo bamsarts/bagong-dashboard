@@ -2075,12 +2075,17 @@ export default function Dashboard(props) {
                             {
                                 (props.role_id != "9" && !_accessMenu.Angkasapura && !_accessMenu.Divre2) && (
                                     <>
-                                        <Row>
+                                        <Row
+                                        
+                                        >
 
                                             {
                                                 !props.branch?.branchId && (
                                                     <Col
                                                         column={4}
+                                                        style={{
+                                                            display: "none"
+                                                        }}
                                                     >
                                                         <Card
                                                             title={'Penyedia Pembayaran'}
@@ -2459,6 +2464,120 @@ export default function Dashboard(props) {
                                                 </Card>
 
                                             </Col>
+
+                                            {
+                                                !props.branch?.branchId && (
+                                                    <Col
+                                                        column={2}
+                                                        mobileFullWidth
+                                                    >
+                                                        <Card
+                                                            title={"Top Volume"}
+                                                        >
+                                                            {
+                                                                _repeatOrder.map(function (val, key) {
+                                                                    return (
+                                                                        <Row
+                                                                            style={{
+                                                                                borderBottom: "1px solid gray",
+                                                                                padding: ".5rem"
+                                                                            }}
+                                                                            key={key}
+                                                                            marginBottom={key < (_repeatOrder.length - 1) ? true : false}
+                                                                        >
+
+                                                                            <Col
+                                                                                style={{
+                                                                                    width: "100%",
+                                                                                }}
+                                                                                column={6}
+                                                                            >
+                                                                                <Row
+                                                                                    spaceBetween
+                                                                                    verticalCenter
+                                                                                    style={{
+                                                                                        marginBottom: ".5rem"
+                                                                                    }}
+                                                                                >
+                                                                                    
+
+                                                                                    <Col
+                                                                                        style={{
+                                                                                            flexDirection: "inherit"
+                                                                                        }}
+                                                                                    >
+                                                                                        <img
+                                                                                            width={15}
+                                                                                            src="/assets/icons/user.svg" />
+
+                                                                                        <span
+                                                                                            style={{
+                                                                                                marginLeft: ".4rem"
+                                                                                            }}
+                                                                                        >
+                                                                                            {val.userName}
+                                                                                        </span>
+                                                                                    </Col>
+                                                                                </Row>
+
+
+                                                                                <Row
+                                                                                    spaceBetween
+                                                                                    verticalCenter
+                                                                                >
+                                                                                    <Col
+                                                                                        style={{
+                                                                                            flexDirection: "inherit"
+                                                                                        }}
+                                                                                    >
+                                                                                        <img
+                                                                                            width={20}
+                                                                                            src="/assets/icons/Tiket.svg" />
+
+                                                                                        <span
+                                                                                            style={{
+                                                                                                marginLeft: ".4rem"
+                                                                                            }}
+                                                                                        >
+                                                                                            {val.purchaseCount} Tiket
+                                                                                        </span>
+                                                                                    </Col>
+
+                                                                                    <Col
+                                                                                        style={{
+                                                                                            flexDirection: "inherit"
+                                                                                        }}
+                                                                                    >
+                                                                                        
+
+                                                                                        <span
+                                                                                            style={{
+                                                                                                marginLeft: ".4rem"
+                                                                                            }}
+                                                                                        >
+                                                                                            {currency(val.totalSpending, "Rp")}
+                                                                                        </span>
+                                                                                    </Col>
+
+                                                                                    
+                                                                                </Row>
+                                                                            </Col>
+                                                                        </Row>
+                                                                    )
+                                                                })
+                                                            }
+
+                                                            <div
+                                                                style={{
+                                                                    marginTop: "1rem"
+                                                                }}
+                                                            >
+                                                                <small>Penjualan berdasarkan tiket penumpang</small>
+                                                            </div>
+                                                        </Card>
+                                                    </Col>
+                                                )
+                                            }
                                         </Row>
 
 
@@ -3006,7 +3125,11 @@ export default function Dashboard(props) {
                                         }
 
 
-                                        <Row>
+                                        <Row
+                                        style={{
+                                            display: "none"
+                                        }}
+                                        >
                                             <Col
                                                 column={4}
                                             >
@@ -3057,123 +3180,7 @@ export default function Dashboard(props) {
                                                     </div>
                                                 </Card>
                                             </Col>
-                                            {
-                                                !props.branch?.branchId && (
-                                                    <Col
-                                                        column={2}
-                                                        mobileFullWidth
-                                                    >
-                                                        <Card
-                                                            title={"Pembelian Tiket Berulang"}
-                                                        >
-                                                            {
-                                                                _repeatOrder.map(function (val, key) {
-                                                                    return (
-                                                                        <Row
-                                                                            key={key}
-                                                                            marginBottom={key < (_repeatOrder.length - 1) ? true : false}
-                                                                        >
-
-                                                                            <Col
-                                                                                style={{
-                                                                                    width: "100%"
-                                                                                }}
-                                                                                column={6}
-                                                                            >
-                                                                                <Row
-                                                                                    spaceBetween
-                                                                                    verticalCenter
-                                                                                >
-                                                                                    <Col
-                                                                                        withPadding
-                                                                                        justifyCenter
-                                                                                        alignEnd
-                                                                                    >
-                                                                                        <span>{val.originCode}</span>
-                                                                                        <small
-                                                                                            style={{
-                                                                                                textAlign: "right"
-                                                                                            }}
-                                                                                        >
-                                                                                            {val.originName}
-                                                                                        </small>
-                                                                                    </Col>
-
-                                                                                    <BsArrowRight
-                                                                                        style={{
-                                                                                            margin: "0rem 1rem"
-                                                                                        }}
-                                                                                        size={21}
-                                                                                    />
-
-                                                                                    <Col
-                                                                                        withPadding
-                                                                                        justifyCenter
-                                                                                    >
-                                                                                        <span>{val.DestinationCode}</span>
-                                                                                        <small>{val.DestinationName}</small>
-                                                                                    </Col>
-                                                                                </Row>
-
-                                                                                <hr />
-
-                                                                                <Row
-                                                                                    spaceBetween
-                                                                                    verticalCenter
-                                                                                >
-                                                                                    <Col
-                                                                                        style={{
-                                                                                            flexDirection: "inherit"
-                                                                                        }}
-                                                                                    >
-                                                                                        <img
-                                                                                            width={20}
-                                                                                            src="/assets/icons/Tiket.svg" />
-
-                                                                                        <span
-                                                                                            style={{
-                                                                                                marginLeft: ".4rem"
-                                                                                            }}
-                                                                                        >
-                                                                                            {val.totalPurchase} Tiket
-                                                                                        </span>
-                                                                                    </Col>
-
-                                                                                    <Col
-                                                                                        style={{
-                                                                                            flexDirection: "inherit"
-                                                                                        }}
-                                                                                    >
-                                                                                        <img
-                                                                                            width={15}
-                                                                                            src="/assets/icons/user.svg" />
-
-                                                                                        <span
-                                                                                            style={{
-                                                                                                marginLeft: ".4rem"
-                                                                                            }}
-                                                                                        >
-                                                                                            {val.nama}
-                                                                                        </span>
-                                                                                    </Col>
-                                                                                </Row>
-                                                                            </Col>
-                                                                        </Row>
-                                                                    )
-                                                                })
-                                                            }
-
-                                                            <div
-                                                                style={{
-                                                                    marginTop: "1rem"
-                                                                }}
-                                                            >
-                                                                <small>Pembelian berdasarkan tiket penumpang</small>
-                                                            </div>
-                                                        </Card>
-                                                    </Col>
-                                                )
-                                            }
+                                           
                                         </Row>
 
                                         {/* <Row>
