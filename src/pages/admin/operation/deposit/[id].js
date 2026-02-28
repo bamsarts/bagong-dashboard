@@ -48,7 +48,7 @@ export default function DepositDetail(props) {
         "operan": {
             "title": "OPERAN",
             "value": 0,
-            "disabled": false
+            "disabled": true
         },
         "refund": {
             'title': "KEMBALI UANG",
@@ -105,9 +105,9 @@ export default function DepositDetail(props) {
     }, [id])
 
     useEffect(() => {
-        const operanValue = parseFloat(String(_form.operan.value).replace(".", "")) || 0;
-        const refundValue = parseFloat(String(_form.refund.value).replace(".", "")) || 0;
-        const newGrossAmount = _totalGrossAmount - operanValue - refundValue;
+        const operanValue = parseFloat(String(_form.operan.value).replace(/\./g, "")) || 0;
+        const refundValue = parseFloat(String(_form.refund.value).replace(/\./g, "")) || 0;
+        const newGrossAmount = _totalGrossAmount + operanValue + refundValue;
 
         _updateQuery({
             "grossAmount": {
@@ -116,7 +116,7 @@ export default function DepositDetail(props) {
                 "disabled": true
             }
         });
-    }, [_form.operan.value, _form.refund.value, _totalGrossAmount])
+    }, [_form.operan.value, _form.refund.value, _totalGrossAmount, _form])
 
 
     useEffect(() => {
@@ -228,8 +228,26 @@ export default function DepositDetail(props) {
             let totalGross = 0
             let startKm = data.data.setoran.km_awal
             let endKm = data.data.setoran.km_akhir
+            let operan = 0
+            let refund = 0
 
             _setSetoranData(data)
+
+            data.data.passengerTransfer.forEach(function (val, key) {
+                if (val.is_operan) {
+
+
+                    if (val.bus_id_asal == data.data.setoran.bus_id) {
+                        operan += val.amount
+                    }
+
+                    if (val.bus_id_tujuan == data.data.setoran.bus_id) {
+                        operan -= val.amount
+                    }
+                } else {
+                    refund = val.amount
+                }
+            })
 
             // Iterate through ritase and fetch trajectory tracks
             if (data.data.ritase && data.data.ritase.length > 0) {
@@ -242,6 +260,7 @@ export default function DepositDetail(props) {
 
                     totalGross += (ritase.cash_payment_amount + ritase.non_cash_payment_amount)
                 }
+                
                 _setTrajectTracks(tracks)
             }
 
@@ -255,12 +274,24 @@ export default function DepositDetail(props) {
                 })
             }
 
+
+
             _setTotalGrossAmount(totalGross)
 
             _updateQuery({
                 "grossAmount": {
                     "title": _form.grossAmount.title,
                     "value": totalGross
+                },
+                "operan": {
+                    "title": _form.operan.title,
+                    "value": operan,
+                    "disabled": true
+                },
+                "refund": {
+                    "title": _form.refund.title,
+                    "value": refund,
+                    "disabled": false
                 }
             })
 
@@ -1201,7 +1232,8 @@ export default function DepositDetail(props) {
                                                     >
                                                         <Input
                                                             style={{
-                                                                textAlign: "right"
+                                                                textAlign: "right",
+                                                                color: field.value < 0 ? "red" : "inherit"
                                                             }}
                                                             disabled={field.disabled}
                                                             type="currency"
