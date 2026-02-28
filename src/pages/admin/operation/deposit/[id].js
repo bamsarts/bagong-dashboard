@@ -245,7 +245,7 @@ export default function DepositDetail(props) {
                         operan -= val.amount
                     }
                 } else {
-                    refund = val.amount
+                    refund -= val.amount
                 }
             })
 
@@ -291,7 +291,7 @@ export default function DepositDetail(props) {
                 "refund": {
                     "title": _form.refund.title,
                     "value": refund,
-                    "disabled": false
+                    "disabled": true
                 }
             })
 
