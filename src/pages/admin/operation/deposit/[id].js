@@ -238,11 +238,11 @@ export default function DepositDetail(props) {
 
 
                     if (val.bus_id_asal == data.data.setoran.bus_id) {
-                        operan += val.amount
+                        operan -= val.amount
                     }
 
                     if (val.bus_id_tujuan == data.data.setoran.bus_id) {
-                        operan -= val.amount
+                        operan += val.amount
                     }
                 } else {
                     refund -= val.amount
