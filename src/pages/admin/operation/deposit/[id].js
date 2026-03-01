@@ -909,7 +909,7 @@ export default function DepositDetail(props) {
                 headerContent={(
                     <Button
                         title="Kembali"
-                        onClick={() => router.push('/admin/operation/deposit')}
+                        onClick={() => window.location.href = '/admin/operation/deposit'}
                         styles={Button.secondary}
                         small
                     />
