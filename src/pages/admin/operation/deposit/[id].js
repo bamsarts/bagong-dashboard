@@ -231,6 +231,18 @@ export default function DepositDetail(props) {
             let operan = 0
             let refund = 0
 
+            // Remove duplicate IDs from biaya details
+            if (data.data.biaya?.[0]?.details) {
+                const seenIds = new Set()
+                data.data.biaya[0].details = data.data.biaya[0].details.filter(item => {
+                    if (seenIds.has(item.id)) {
+                        return false
+                    }
+                    seenIds.add(item.id)
+                    return true
+                })
+            }
+
             _setSetoranData(data)
 
             data.data.passengerTransfer.forEach(function (val, key) {
@@ -260,7 +272,7 @@ export default function DepositDetail(props) {
 
                     totalGross += (ritase.cash_payment_amount + ritase.non_cash_payment_amount)
                 }
-                
+
                 _setTrajectTracks(tracks)
             }
 
