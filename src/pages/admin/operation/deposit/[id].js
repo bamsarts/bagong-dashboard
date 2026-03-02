@@ -286,8 +286,6 @@ export default function DepositDetail(props) {
                 })
             }
 
-
-
             _setTotalGrossAmount(totalGross)
 
             _updateQuery({

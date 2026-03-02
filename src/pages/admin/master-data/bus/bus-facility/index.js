@@ -7,7 +7,7 @@ import Input from '../../../../../components/Input'
 import { Col, Row } from '../../../../../components/Layout'
 import { AiFillEdit, AiFillDelete } from 'react-icons/ai'
 import Button from '../../../../../components/Button'
-import { postJSON } from '../../../../../api/utils'
+import { postJSON, get, objectToParams } from '../../../../../api/utils'
 import throttle from '../../../../../utils/throttle'
 import BusFacilityModal from '../../../../../components/BusFacilityModal'
 import styles from './BusFacility.module.scss'
@@ -123,7 +123,8 @@ export default function BusFacility(props){
         if (query) params.query = query
 
         try {
-            const data = await postJSON('/masterData/bus/fasilitas/list', params, props.authData.token)
+            const data = await get('/masterData/bus/fasilitas/list?'+objectToParams(params), props.authData.token)
+            
             _setBusFacility(data)
             _setPaginationConfig({
                 recordLength : data.totalFiltered,
