@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { postJSON } from '../../../../../api/utils'
+import { objectToParams, postJSON, get } from '../../../../../api/utils'
 import throttle from '../../../../../utils/throttle'
 import { AiFillEdit, AiFillDelete } from 'react-icons/ai'
 import Main, { popAlert } from '../../../../../components/Main'
@@ -127,7 +127,7 @@ export default function BusList(props) {
         if (query) params.query = query
 
         try {
-            const busLists = await postJSON('/masterData/bus/list', params, props.authData.token)
+            const busLists = await get('/masterData/bus/list?'+objectToParams(params), props.authData.token)
             _setBusLists(busLists)
             _setPaginationConfig({
                 recordLength : busLists.totalFiltered,

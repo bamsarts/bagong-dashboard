@@ -41,7 +41,6 @@ export default function DepositDetail(props) {
         "others": 0
     })
     const [_passengersOntheBus, _setPassengersOntheBus] = useState([])
-    const [_amountOntheBus, _setAmountOntheBus] = useState([])
     const [_resultRitase, _setResultRitase] = useState([])
     const [_editablePnp, _setEditablePnp] = useState({})
     const [_form, _setForm] = useState({
@@ -273,6 +272,7 @@ export default function DepositDetail(props) {
                     totalGross += (ritase.cash_payment_amount + ritase.non_cash_payment_amount)
                 }
 
+                console.log("tac", tracks)
                 _setTrajectTracks(tracks)
             }
 
@@ -528,6 +528,8 @@ export default function DepositDetail(props) {
                             }
                         }
 
+                        console.log("naik passenger", naik)
+
                         if (turun[destination.pointName]) {
                             turun[destination.pointName].pnp = turun[destination.pointName].pnp + parseInt(p.pnp_count)
                             turun[destination.pointName].amount = turun[destination.pointName].amount + parseInt(p.payment_amount)
@@ -539,8 +541,13 @@ export default function DepositDetail(props) {
                         }
                     })
 
+                    // console.log("naik", naik)
+
+
                     track.destinations.push(destination)
                 }
+
+
 
                 result.push(track)
             }
@@ -561,11 +568,15 @@ export default function DepositDetail(props) {
                     passengers = lastPassenger + (naik[i.pointName]?.pnp || 0) - (turun[i.pointName]?.pnp || 0)
                     amounts = lastAmount + (naik[i.pointName]?.amount || 0)
                 }
+
+                console.log("passnege", naik[i.pointName])
                 passengersInTheBus.push(passengers)
                 amountOntheBus.push(amounts)
                 lastPassenger = passengers
                 lastAmount = amounts
             })
+
+            // console.log("track", passengersInTheBus)
 
             resultRitase.push({
                 "passenger": passengersInTheBus,
@@ -752,7 +763,7 @@ export default function DepositDetail(props) {
             })
         }
 
-        console.log("tato", total)
+        // console.log("tato", total)
         return total;
     }
 
@@ -1059,15 +1070,17 @@ export default function DepositDetail(props) {
                                                     destination: ""
                                                 }
 
-                                                const detail = ritaseData.detail?.find(
+                                                const details = ritaseData.detail?.filter(
                                                     d => d.origin_name === originName && d.destination_name === destinationName
-                                                );
+                                                ) || [];
 
-                                                if (detail) {
-                                                    data.origin = detail?.origin_name
-                                                    data.destination = detail?.destination_name
-                                                    data.passengerCount += parseInt(detail?.pnp_count) || 0;
-                                                    data.ticketPrice += parseInt(detail?.payment_amount)
+                                                if (details.length > 0) {
+                                                    data.origin = details[0]?.origin_name
+                                                    data.destination = details[0]?.destination_name
+                                                    details.forEach(detail => {
+                                                        data.passengerCount += parseInt(detail?.pnp_count) || 0;
+                                                        data.ticketPrice += parseInt(detail?.payment_amount) || 0
+                                                    })
                                                 }
 
                                                 return data

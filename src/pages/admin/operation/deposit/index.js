@@ -1,6 +1,6 @@
 import { useEffect, useState, forwardRef } from 'react'
 import { useRouter } from 'next/router'
-import { postJSON } from '../../../../api/utils'
+import { objectToParams, postJSON, get } from '../../../../api/utils'
 import { BsCash } from 'react-icons/bs'
 import Main, { popAlert } from '../../../../components/Main'
 import AdminLayout from '../../../../components/AdminLayout'
@@ -300,7 +300,7 @@ export default function Deposit(props) {
         }
 
         try {
-            const result = await postJSON('/masterData/bus/list', params, props.authData.token)
+            const result = await get('/masterData/bus/list?'+objectToParams(params), props.authData.token)
 
             _setBusRange(result.data)
 
