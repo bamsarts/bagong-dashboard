@@ -72,6 +72,7 @@ export default function ChannelExportModal(props = defaultProps) {
     ])
 
     const [_dataExport, _setDataExport] = useState([])
+    const [_trajectBankData, _setTrajektBankData] = useState([])
 
     useEffect(() => {
         if (_selectedType.title == "Keberangkatan") {
@@ -85,6 +86,29 @@ export default function ChannelExportModal(props = defaultProps) {
         }
 
     }, [_selectedType.title])
+
+    // Fetch traject bank data on component mount
+    useEffect(() => {
+        const fetchTrajektBankData = async () => {
+            let params ={
+                startFrom: 0,
+                length: 360
+            }
+
+            try {
+                const res = await postJSON(`/masterData/trajectBank/list`, params, appContext.authData.token);
+                if (res && res.data) {
+                    _setTrajektBankData(res.data);
+                }
+            } catch (e) {
+                console.error("Failed to fetch traject bank data:", e);
+            }
+        };
+
+        if (appContext.authData?.token) {
+            fetchTrajektBankData();
+        }
+    }, [appContext.authData?.token])
 
     useEffect(() => {
         console.log(appContext)
@@ -301,8 +325,14 @@ export default function ChannelExportModal(props = defaultProps) {
     }
 
     function capitalizeFirstLetter(string) {
-    // Get the first character and convert to uppercase, then concatenate with the rest of the string
+        // Get the first character and convert to uppercase, then concatenate with the rest of the string
         return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    function getTrajektNameByAccountNumber(accountNumber) {
+        if (!accountNumber || !_trajectBankData.length) return "";
+        const match = _trajectBankData.find(item => item.bank_account_number === String(accountNumber));
+        return match ? match["traject_name_alias"] : "";
     }
 
     function _downloadCsv(data, fileName, type = "transaction") {
@@ -310,20 +340,20 @@ export default function ChannelExportModal(props = defaultProps) {
         let tableExport = "<table>"
 
         // Define desired columns in the order we want them in the export
-        const headerTransaction = ["Transaction ID", "Penyedia Pembayaran", "Date", "Kode Trayek", "Route", "Origin",
+        const headerTransaction = ["Transaction ID", "Penyedia Pembayaran", "Date", "Kode Trayek", "Trayek (Master)", "Route", "Origin",
             "Destination", "Bus Name", "Cabang Trayek", "Booking Code", "Departure Date", "Passenger Count",
-            "Base Fare", "Diskon", "Total Harga Setelah Discount", "MDR", "Payment Method",
+            "Base Fare", "Total Harga Tiket", "Diskon", "Total Harga Setelah Discount", "MDR", "Payment Method",
             "Channel", "Payment Status", "Status Setoran", "Nomor Rekening", "Nama Rekening"];
 
 
-        const headerDeposit = ["Transaction ID", "Penyedia Pembayaran", "Date", "Kode Trayek", "Route", "Origin",
+        const headerDeposit = ["Transaction ID", "Penyedia Pembayaran", "Date", "Kode Trayek", "Trayek (Master)", "Route", "Origin",
             "Destination", "Bus Name", "Cabang Trayek", "Booking Code", "Tanggal Setoran", "Passenger Count",
             "Base Fare", "Total Harga Tiket", "Diskon", "Total Harga Setelah Discount", "MDR", "Payment Method",
             "Channel"];
 
-        const headerDepositCash = ["Date", "Route", "Passenger Count", "Tunai", "Fee BIS", "PPN"]
+        const headerDepositCash = ["Date", "Trayek (Master)", "Route", "Passenger Count", "Tunai", "Fee BIS", "PPN"]
 
-        const headerDepositCashless = ["Date", "Route", "Passenger Count", "QRIS", "Emoney", "Fee BIS", "PPN"]
+        const headerDepositCashless = ["Date", "Trayek (Master)", "Route", "Passenger Count", "QRIS", "MDR Qris", "Emoney", "MDR Emoney", "Fee BIS", "PPN"]
 
         let header = headerTransaction
 
@@ -373,6 +403,8 @@ export default function ChannelExportModal(props = defaultProps) {
         const passenger = csvHeader.indexOf("Passenger Count")
         const paymentMethod = csvHeader.indexOf("Payment Method")
         const depositStatus = csvHeader.indexOf("Status Setoran")
+        const accNumber = csvHeader.indexOf("Nomor Rekening")
+        const accName = csvHeader.indexOf("Nama Rekening")
 
         // Handle cashRevenue grouping
         if (type == "cashRevenue") {
@@ -397,13 +429,15 @@ export default function ChannelExportModal(props = defaultProps) {
                 const date = row[dateIdx] || "";
                 const route = row[routeIdx] || "";
                 const groupKey = `${date}|${route}`;
+                const trajectMaster = getTrajektNameByAccountNumber(row[accNumber])
 
                 if (!groups[groupKey]) {
                     groups[groupKey] = {
                         date: date,
                         route: route,
                         passengerCount: 0,
-                        totalTunai: 0
+                        totalTunai: 0,
+                        trajectMaster: trajectMaster
                     };
                 }
 
@@ -419,6 +453,7 @@ export default function ChannelExportModal(props = defaultProps) {
 
                 tableExport += "<tr>";
                 tableExport += `<td>'${group.date}</td>`;
+                 tableExport += `<td>${group.trajectMaster}</td>`;
                 tableExport += `<td>${group.route}</td>`;
                 tableExport += `<td>${group.passengerCount}</td>`;
                 tableExport += `<td>${group.totalTunai}</td>`;
@@ -451,6 +486,7 @@ export default function ChannelExportModal(props = defaultProps) {
                 const route = row[routeIdx] || "";
                 const paymentMethod = row[paymentMethodIdx] || "";
                 const groupKey = `${date}|${route}`;
+                const trajectMaster = getTrajektNameByAccountNumber(row[accNumber])
 
                 if (!groups[groupKey]) {
                     groups[groupKey] = {
@@ -458,7 +494,8 @@ export default function ChannelExportModal(props = defaultProps) {
                         route: route,
                         passengerCount: 0,
                         qris: 0,
-                        emoney: 0
+                        emoney: 0,
+                        trajectMaster: trajectMaster
                     };
                 }
 
@@ -479,13 +516,19 @@ export default function ChannelExportModal(props = defaultProps) {
                 const totalCashless = group.qris + group.emoney;
                 const feeBIS = totalCashless * 0.012;
                 const ppn = feeBIS * (11 / 111);
+                const mdrQris = group.qris * 0.007
+                const mdrEmoney = group.emoney * 0.02
+
 
                 tableExport += "<tr>";
                 tableExport += `<td>'${group.date}</td>`;
+                tableExport += `<td>${group.trajectMaster}</td>`;
                 tableExport += `<td>${group.route}</td>`;
                 tableExport += `<td>${group.passengerCount}</td>`;
                 tableExport += `<td>${group.qris}</td>`;
+                tableExport += `<td>${mdrQris}</td>`;
                 tableExport += `<td>${group.emoney}</td>`;
+                tableExport += `<td>${mdrEmoney}</td>`;
                 tableExport += `<td>${feeBIS}</td>`;
                 tableExport += `<td>${Math.floor(ppn)}</td>`;
                 tableExport += "</tr>";
@@ -496,6 +539,7 @@ export default function ChannelExportModal(props = defaultProps) {
             for (let i = 1; i < data.length; i++) {
                 let row = parseCSVRow(data[i]);
                 if (row.length < csvHeader.length) continue;
+                let tempAccNumber = row[accNumber]
 
                 if (dateDeposit !== -1 && type == "setoran") {
                     if (row[dateDeposit] == "-") {
@@ -512,8 +556,14 @@ export default function ChannelExportModal(props = defaultProps) {
                 }
 
                 row[paymentMethod] = row[paymentMethod] == "qris" ? "QRIS" : capitalizeFirstLetter(row[paymentMethod])
-                
-                if(depositStatus !== -1){
+
+                if (row[paymentMethod] == "Cash") {
+                    row[accNumber] = ""
+                    row[accName] = ""
+                }
+
+
+                if (depositStatus !== -1) {
                     row[depositStatus] = row[depositStatus] == "Sudah Setoran" ? 'Done' : "Pending"
                 }
 
@@ -526,10 +576,14 @@ export default function ChannelExportModal(props = defaultProps) {
                 }
 
                 tableExport += "<tr>";
-                columnMapping.forEach(idx => {
-                    if (idx === -1) {
+                columnMapping.forEach((idx, colIndex) => {
+                    if (header[colIndex] === "Total Harga Tiket") {
                         // This is the "Total Harga Tiket" column that doesn't exist in CSV
                         tableExport += `<td>${calculatedTotalFare}</td>`;
+                    } else if (header[colIndex] === "Trayek (Master)") {
+                        // This is the "Trayek (Master)" column - get from bank data
+                        const trajektName = getTrajektNameByAccountNumber(tempAccNumber);
+                        tableExport += `<td>${trajektName}</td>`;
                     } else {
                         tableExport += `<td>${row[idx] ?? ""}</td>`;
                     }

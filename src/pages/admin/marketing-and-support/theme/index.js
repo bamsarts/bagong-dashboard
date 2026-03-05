@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { objectToParams, postJSON, get } from '../../../../api/utils'
+import { objectToParams, get } from '../../../../api/utils'
 import throttle from '../../../../utils/throttle'
 import { AiFillEdit, AiOutlineEllipsis, AiOutlineClose } from 'react-icons/ai'
 import Main, { popAlert } from '../../../../components/Main'
@@ -44,22 +44,13 @@ export default function Theme(props) {
                         >
                             {value}
                         </span>
-                        <Label
-                            activeIndex={true}
-                            labels={[
-                                {
-                                    "class": isValidUrl(row.mainLogo) ? 'primary' : "warning",
-                                    "title": isValidUrl(row.mainLogo) ? 'Homescreeen' : "Promo",
-                                    "value": true
-                                }
-                            ]}
-                        />
+                        
                     </>
                 )
             }
         },
         {
-            title: 'Logo Homescreen/Promo',
+            title: 'Logo Homescreen',
             field: 'mainLogo',
             textAlign: 'left',
             customCell: (value, row) => {
@@ -72,7 +63,33 @@ export default function Theme(props) {
                     }
                 }
 
-                const imageResult = isValidUrl(value) ? value : row.promo_logo
+                const imageResult = isValidUrl(value)
+
+                return (
+                    <img
+                        src={value}
+                        width={"100"}
+                        height={"auto"}
+                    />
+                )
+            }
+        },
+        {
+            title: 'Background Homescreen',
+            field: 'mainScreen',
+            textAlign: 'left',
+            customCell: (value, row) => {
+
+                 const isValidUrl = (string) => {
+                    try {
+                        new URL(string)
+                        return true
+                    } catch (_) {
+                        return false
+                    }
+                }
+
+                const imageResult = isValidUrl(value) ? value : row.promo_banner
 
                 return (
                     <img
@@ -84,8 +101,33 @@ export default function Theme(props) {
             }
         },
         {
-            title: 'Background Homescreen/Promo',
-            field: 'mainScreen',
+            title: 'Logo Promo',
+            field: 'promo_logo',
+            textAlign: 'left',
+            customCell: (value, row) => {
+                const isValidUrl = (string) => {
+                    try {
+                        new URL(string)
+                        return true
+                    } catch (_) {
+                        return false
+                    }
+                }
+
+                const imageResult = isValidUrl(value)
+
+                return (
+                    <img
+                        src={imageResult}
+                        width={"100"}
+                        height={"auto"}
+                    />
+                )
+            }
+        },
+        {
+            title: 'Background Promo',
+            field: 'promo_banner',
             textAlign: 'left',
             customCell: (value, row) => {
 

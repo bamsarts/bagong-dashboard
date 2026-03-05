@@ -26,6 +26,10 @@ export default function BankTraject(props) {
                 )
         },
         {
+            title : 'Trayek Rekening',
+            field : 'traject_name_alias',
+        },
+        {
             title : 'Trayek',
             field : 'traject_master.name',
         },

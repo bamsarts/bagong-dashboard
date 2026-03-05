@@ -31,7 +31,8 @@ export default function BankTrajectModal(props = defaultProps) {
         bank_account_name: '',
         bank_account_number: '',
         companyId: appContext.authData.companyId,
-        traject: {}
+        traject: {},
+        traject_name_alias: ''
     }
 
     const [_form, _setForm] = useState(CONFIG_PARAM)
@@ -118,7 +119,8 @@ export default function BankTrajectModal(props = defaultProps) {
                 bankName: _form.bank_name,
                 bankAccountName: _form.bank_account_name,
                 bankAccountNumber: _form.bank_account_number,
-                isActive: true
+                isActive: true,
+                trajectNameAlias: _form.traject_name_alias
             }
 
             let url = '/data/masterData/trajectBank/add'
@@ -172,6 +174,15 @@ export default function BankTrajectModal(props = defaultProps) {
                             traject_master_id: data.value,
                             traject: data
                         })
+                    }
+                />
+
+                <Input
+                    withMargin
+                    title="Trayek Rekening"
+                    value={_form.traject_name_alias}
+                    onChange={value =>
+                        _updateQuery({ traject_name_alias: value })
                     }
                 />
 

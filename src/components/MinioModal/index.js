@@ -141,9 +141,7 @@ export default function MinioModal(props = MinioModal.defaultProps) {
                     <Row
                     spaceBetween
                     >
-                        <Col>
-                            <h2>Bucket damri</h2>
-                        </Col>
+                       
                         <Col
                         alignEnd
                         >
