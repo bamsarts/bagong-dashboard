@@ -388,13 +388,13 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
         if(data != undefined){
             data.forEach(function(val, key){
 
-                if(val.status){
+                // if(val.status){
                     if(isValidTime(val.departureTime)){
                         val.departureTime = val.departureTime.slice(0, -3)
                     }
                     // val.fare = currency(val.fare)
                     editData.push(val)
-                }
+                // }
                
             })
         }
@@ -577,6 +577,7 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
                 crew2Name: false
             })
             _getLmb()
+            console.log("propstrac", props.data.trajectTracks)
             _setFareTrajectRanges(validateTrajectRanges(props.data?.trajectTracks, true))
     
             _updateQuery({
