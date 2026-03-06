@@ -4,7 +4,7 @@ import Input from '../Input'
 import { popAlert } from '../Main'
 import styles from '../ScheduleModal/ScheduleModal.module.scss'
 import Button from '../Button'
-import { postJSON, postFormData } from '../../api/utils'
+import { postJSON, postFormData, get, objectToParams } from '../../api/utils'
 import AppContext from '../../context/app'
 import generateClasses from '../../utils/generateClasses'
 import Label from '../Label'
@@ -195,7 +195,7 @@ export default function ScheduleAirportModal(props = defaultProps){
         }
         
         try {
-            const busCategory = await postJSON(`/masterData/bus/kategori/list`, params, appContext.authData.token)
+            const busCategory = await get(`/masterData/bus/kategori/list?`+objectToParams(params), appContext.authData.token)
             _setBusCategoryRange(busCategory.data)
         } catch (e) {
             console.log(e)

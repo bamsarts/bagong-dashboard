@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, createRef } from 'react'
 
-import { postJSON } from '../../api/utils'
+import { postJSON, get, objectToParams } from '../../api/utils'
 import AppContext from '../../context/app'
 
 import Input from '../Input'
@@ -525,7 +525,7 @@ export default function ScheduleTemplateModal(props = ScheduleTemplateModal.defa
         }
 
         try {
-            const busCategory = await postJSON(`/masterData/bus/kategori/list`, params, appContext.authData.token)
+            const busCategory = await get(`/masterData/bus/kategori/list?`+objectToParams(params), appContext.authData.token)
             let busCategoryRange = [];
             busCategory.data.forEach(function (val, key) {
                 busCategoryRange.push({
