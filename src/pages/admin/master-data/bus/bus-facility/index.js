@@ -125,13 +125,16 @@ export default function BusFacility(props){
         try {
             const data = await get('/masterData/bus/fasilitas/list?'+objectToParams(params), props.authData.token)
             
-            _setBusFacility(data)
-            _setPaginationConfig({
-                recordLength : data.totalFiltered,
-                recordsPerPage : pagination.length,
-                activePage : (pagination.startFrom / pagination.length) + 1,
-                totalPages : Math.ceil(data.totalFiltered / pagination.length)  
-            })
+            if(data.data){
+                _setBusFacility(data)
+                _setPaginationConfig({
+                    recordLength : data.totalFiltered,
+                    recordsPerPage : pagination.length,
+                    activePage : (pagination.startFrom / pagination.length) + 1,
+                    totalPages : Math.ceil(data.totalFiltered / pagination.length)  
+                })
+            }
+            
         } catch (e) {
             popAlert({ message : e.message })
         }
