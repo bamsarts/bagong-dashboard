@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, createRef } from 'react'
 
-import { postJSON } from '../../api/utils'
+import { postJSON, get, BASE_URL, objectToParams } from '../../api/utils'
 import AppContext from '../../context/app'
 
 import Input from '../Input'
@@ -525,7 +525,12 @@ export default function ScheduleTemplateModal(props = ScheduleTemplateModal.defa
         }
 
         try {
-            const busCategory = await postJSON(`/masterData/bus/kategori/list`, params, appContext.authData.token)
+            // const busCategory = await postJSON(`/masterData/bus/kategori/list`, params, appContext.authData.token)
+            const busCategory = await get(
+                {url: BASE_URL + `/data/masterData/bus/kategori/list?${objectToParams(params)}`},
+                appContext.authData.token
+            )
+            console.log("BUS CATEGORY:", busCategory)
             let busCategoryRange = [];
             busCategory.data.forEach(function (val, key) {
                 busCategoryRange.push({
@@ -538,8 +543,9 @@ export default function ScheduleTemplateModal(props = ScheduleTemplateModal.defa
         } catch (e) {
             console.log(e)
         }
+        
     }
-
+    
     async function _getFareTraject() {
         const params = {
             "startFrom": 0,
@@ -679,6 +685,8 @@ export default function ScheduleTemplateModal(props = ScheduleTemplateModal.defa
         }
 
     }
+
+    
 
     return (
         <Modal

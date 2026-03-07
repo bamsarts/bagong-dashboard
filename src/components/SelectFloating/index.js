@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import Input from '../Input'
 
 export default function SelectFloating({
     row,
-    role,
     ranges = [],
     placeholder = 'Pilih',
     value = '',
@@ -19,16 +18,21 @@ export default function SelectFloating({
     const [search, setSearch] = useState('')
     const [rect, setRect] = useState(null)
 
+    /* ================= FILTER ================= */
     const filtered = ranges.filter(item =>
-        item.title.toLowerCase().includes(search.toLowerCase())
+        item.title?.toLowerCase().includes(search.toLowerCase())
     )
+
+    /* ================= UPDATE POSITION ================= */
+    const updatePosition = useCallback(() => {
+        if (!inputRef.current) return
+        const r = inputRef.current.getBoundingClientRect()
+        setRect(r)
+    }, [])
 
     /* ================= OPEN ================= */
     function openDropdown() {
-        const r = inputRef.current?.getBoundingClientRect()
-        if (!r) return
-
-        setRect(r)
+        updatePosition()
         setSearch('')
         setOpen(true)
     }
@@ -38,15 +42,43 @@ export default function SelectFloating({
         function handleClick(e) {
             if (
                 dropdownRef.current &&
-                !dropdownRef.current.contains(e.target)
+                !dropdownRef.current.contains(e.target) &&
+                inputRef.current &&
+                !inputRef.current.contains(e.target)
             ) {
                 setOpen(false)
             }
         }
 
-        if (open) document.addEventListener('mousedown', handleClick)
-        return () => document.removeEventListener('mousedown', handleClick)
+        if (open) {
+            document.addEventListener('mousedown', handleClick)
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClick)
+        }
     }, [open])
+
+    /* ================= SCROLL & RESIZE FIX ================= */
+    useEffect(() => {
+        if (!open) return
+
+        function handleScroll() {
+            updatePosition()
+        }
+
+        function handleResize() {
+            updatePosition()
+        }
+
+        window.addEventListener('scroll', handleScroll, true)
+        window.addEventListener('resize', handleResize)
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll, true)
+            window.removeEventListener('resize', handleResize)
+        }
+    }, [open, updatePosition])
 
     return (
         <>
@@ -57,13 +89,11 @@ export default function SelectFloating({
                     value={value}
                     readOnly
                     onClick={openDropdown}
-                    style={{
-                        padding: 0
-                    }}
+                    style={{ padding: 0 }}
                 />
             </div>
 
-            {/* DROPDOWN PORTAL */}
+            {/* DROPDOWN */}
             {open && rect &&
                 createPortal(
                     <div

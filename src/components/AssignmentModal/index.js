@@ -4,7 +4,7 @@ import Input from '../Input'
 import { popAlert } from '../Main'
 import styles from './AssignmentModal.module.scss'
 import Button from '../Button'
-import { get, postJSON } from '../../api/utils'
+import { BASE_URL, get, objectToParams, postJSON } from '../../api/utils'
 import AppContext from '../../context/app'
 import { dateFilter } from '../../utils/filters'
 import { Col, Row } from '../Layout'
@@ -27,7 +27,27 @@ function buildGroupedRecords(source) {
   const result = []
   if (!source?.data?.length) return result
 
-  source.data.forEach(group => {
+  // ✅ hitung sequence terkecil tiap group
+  const groups = source.data.map(group => {
+    let minSequence = Infinity
+
+    group.templates.forEach(item => {
+      const seq = Number(item.sequence)
+      if (!isNaN(seq) && seq < minSequence) {
+        minSequence = seq
+      }
+    })
+
+    return {
+      ...group,
+      minSequence
+    }
+  })
+
+  // ✅ urutkan group berdasarkan sequence bus
+  groups.sort((a, b) => a.minSequence - b.minSequence)
+
+  groups.forEach(group => {
     result.push({
       __type: 'GROUP',
       title: group.group_key_display || group.group_key
@@ -43,8 +63,9 @@ function buildGroupedRecords(source) {
           bus_id: item.bus_id,
           bus: item.bus_name,
           group_ritase: item.group_ritase,
+          sequence: Number(item.sequence),
           ritaseJamMap: {},
-          items:[]
+          items: []
         }
       }
 
@@ -62,8 +83,13 @@ function buildGroupedRecords(source) {
       }
     })
 
-    Object.values(map).forEach(row => {
-      // ⬅️ PENTING: JANGAN sort
+    const rows = Object.values(map)
+
+    // ✅ urutkan bus berdasarkan sequence
+    rows.sort((a, b) => a.sequence - b.sequence)
+
+    rows.forEach(row => {
+      // ⬅️ tetap gunakan urutan group_ritase (tidak diubah)
       const ritaseOrder = row.group_ritase
         .split('&')
         .map(r => r.trim())
@@ -76,6 +102,8 @@ function buildGroupedRecords(source) {
         __type: 'ROW',
         bus_id: row.bus_id,
         bus: row.bus,
+        bus_inap: group.group_key,
+        sequence: row.sequence,
         group_ritase: row.group_ritase,
         departure_time: jamOrdered.join(' & '),
         items: row.items
@@ -96,6 +124,7 @@ function rowKey(row) {
 
 export default function AssignmentModal(props = defaultProps) {
   const { authData } = useContext(AppContext)
+  const appContext = useContext(AppContext)
 
   const [_records, _setRecords] = useState([])
   const [_loading, _setLoading] = useState(false)
@@ -103,13 +132,14 @@ export default function AssignmentModal(props = defaultProps) {
   const [_driverRanges, _setDriverRanges] = useState([])
   const [_kondekturRanges, _setKondekturRanges] = useState([])
   const [_kernetRanges, _setKernetRanges] = useState([])
+  const [_busRanges, _setBusRanges] = useState([])
 
   const [_trajectRange, _setTrajectRange] = useState([])
   const [_trajectFilterValue, _setTrajectFilterValue] = useState('')
   const [_selectedTraject, _setSelectedTraject] = useState(null)
 
   const [_crewInput, _setCrewInput] = useState({})
-  const [_selectedDate, _setSelectedDate] = useState(new Date())
+  const [_selectedDate, _setSelectedDate] = useState(getTomorrow())
 
   /* ================= DATE PICKER ================= */
 
@@ -124,6 +154,12 @@ export default function AssignmentModal(props = defaultProps) {
   ))
 
   /* ================= HANDLERS ================= */
+
+  function getTomorrow() {
+    const d = new Date()
+    d.setDate(d.getDate() + 1)
+    return d
+  }
 
   function updateCrew(row, role, data) {
     const key = rowKey(row)
@@ -143,7 +179,7 @@ export default function AssignmentModal(props = defaultProps) {
 
   function clearForm() {
     _setCrewInput({})
-    _setSelectedDate(new Date())
+    _setSelectedDate(getTomorrow())
     _setSelectedTraject(null)
     _setTrajectFilterValue('')
     _setRecords([])
@@ -152,6 +188,29 @@ export default function AssignmentModal(props = defaultProps) {
   function handleCloseModal() {
     clearForm()
     props.closeModal()
+  }
+
+  function resetRow(row) {
+    // pastikan hanya berlaku untuk row data
+    if (!row || row.__type !== 'ROW') return
+
+    const key = rowKey(row)
+    if (!key) return
+
+    // optional: konfirmasi reset
+    const confirmReset = window.confirm('Reset data crew pada baris ini?')
+    if (!confirmReset) return
+
+    _setCrewInput(prev => {
+      const newState = { ...prev }
+
+      // hapus data crew pada row tersebut
+      if (newState[key]) {
+        delete newState[key]
+      }
+
+      return newState
+    })
   }
 
   /* ================= COLUMNS ================= */
@@ -177,11 +236,34 @@ export default function AssignmentModal(props = defaultProps) {
   const COLUMNS = [
     {
       title: 'BUS / NOPOL',
-      field: 'bus',
-      customCell: (value, row) =>
-        row.__type === 'GROUP'
-          ? <strong>Bus Inap {row.title}</strong>
-          : value
+      customCell: (_, row) => {
+        if (row.__type === 'GROUP') {
+          return <strong>Bus Inap {row.title}</strong>
+        }
+
+        return (
+          <SelectFloating
+            row={row}
+            role="bus"
+            ranges={_busRanges}
+            placeholder="Pilih Bus"
+            value={row.bus}
+            onSelect={item => {
+              _setRecords(prev =>
+                prev.map(r =>
+                  r === row
+                    ? {
+                        ...r,
+                        bus: item.title,
+                        bus_id: item.value
+                      }
+                    : r
+                )
+              )
+            }}
+          />
+        )
+      }
     },
     crewColumn('driver', _driverRanges, 'Pilih Driver'),
     crewColumn('kondektur', _kondekturRanges, 'Pilih Kondektur'),
@@ -218,6 +300,21 @@ export default function AssignmentModal(props = defaultProps) {
           />
         )
       }
+    },
+    {
+      title: 'RESET',
+      customCell: (_, row) => {
+        if (row.__type === 'GROUP') return null
+
+        return (
+          <Button
+            small
+            title="Reset"
+            type="secondary"
+            onClick={() => resetRow(row)}
+          />
+        )
+      }
     }
   ]
 
@@ -228,6 +325,7 @@ export default function AssignmentModal(props = defaultProps) {
     getCrewList(19)
     getCrewList(18)
     getTraject()
+    _getBusList() 
   }, [])
 
   useEffect(() => {
@@ -263,6 +361,42 @@ export default function AssignmentModal(props = defaultProps) {
       popAlert({ message: e.message })
     } finally {
       _setLoading(false)
+    }
+  }
+
+  async function _getBusList() {
+    try {
+      const params = {
+        "companyId": appContext.authData.companyId,
+        "startFrom": 0,
+        "length": 999,
+        "orderBy": "id",
+        "sortMode": "desc"
+      }
+
+      const result = await get(
+        {url: BASE_URL + `/data/masterData/bus/list?${objectToParams(params)}`},
+        appContext.authData.token
+      )
+
+      _setBusRanges(
+        result.data.map(v => ({
+          title: v.name,
+          value: v.id,
+          data: v
+        }))
+      )
+
+    } catch (err) {
+      console.log('API ERROR:', err)
+
+      const message =
+        err?.response?.data?.message ||
+        err?.data?.message ||
+        err?.message ||
+        'Terjadi kesalahan saat mengambil data bus'
+
+      popAlert({ message })
     }
   }
 
@@ -308,31 +442,6 @@ export default function AssignmentModal(props = defaultProps) {
   }
 
   /* ================= SUBMIT ================= */
-
-  function handleSubmit() {
-    const assignDate = (_selectedDate)
-
-    const payload = _records
-      .filter(row => row.__type === 'ROW')
-      .map(row => {
-        const crew = _crewInput[rowKey(row)]
-        if (!crew?.driver || !crew?.kondektur) return null
-
-        return {
-          assignDate,
-          companyId: 2,
-          busId: row.bus_id,
-          crew1_id: crew.driver.id,
-          crew2_id: crew.kondektur.id,
-          crew3_id: crew.kernet?.id || null,
-          group_ritase: row.group_ritase,
-          items: row.items || []
-        }
-      })
-      .filter(Boolean)
-
-    console.log('PAYLOAD FINAL:', payload)
-  }
 
 
   function isSubmitDisabled() {
@@ -396,6 +505,8 @@ export default function AssignmentModal(props = defaultProps) {
           assignDate,
           companyId: 2,
           busId: row.bus_id,
+          sequence: row.sequence,
+          bus_inap: row.bus_inap,
 
           crew1_id: hasKondektur ? data.kondektur.id : null,
           crew2_id: hasDriver ? data.driver.id : null,
@@ -500,10 +611,6 @@ export default function AssignmentModal(props = defaultProps) {
                     </Row>
                 </>
             )}
-
-            
-
-            
           </div>
         </ModalContent>
       </div>

@@ -11,6 +11,10 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { postJSON } from '../../../../api/utils'
 import { dateFilter } from '../../../../utils/filters'
 import AssignmentModal from '../../../../components/AssignmentModal'
+import AssigmentEditModal from '../../../../components/AssigmentEditModal'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+
 
 /* ================= HELPERS ================= */
 
@@ -18,7 +22,39 @@ function buildGroupedReadonlyRecords(apiResponse) {
   const result = []
   if (!apiResponse?.data?.length) return result
 
-  apiResponse.data.forEach(group => {
+  // pola urutan ritase
+  const ritaseOrderMap = {
+    '1 & 2': 1,
+    '3 & 1': 2,
+    '2 & 3': 3,
+    '3 & 4': 4,
+    '4 & 1': 5
+  }
+
+  const normalize = g => g.replace(/\s+/g, ' ').trim()
+
+  // ================= HITUNG SEQUENCE TERKECIL GROUP =================
+  const groups = apiResponse.data.map(group => {
+    let minSequence = Infinity
+
+    group.penugasan.forEach(item => {
+      const seq = Number(item.sequence)
+      if (!isNaN(seq) && seq < minSequence) {
+        minSequence = seq
+      }
+    })
+
+    return {
+      ...group,
+      minSequence
+    }
+  })
+
+  // ================= SORT GROUP BERDASARKAN SEQUENCE =================
+  groups.sort((a, b) => a.minSequence - b.minSequence)
+
+  groups.forEach(group => {
+
     // ================= GROUP HEADER =================
     result.push({
       __type: 'GROUP',
@@ -34,42 +70,59 @@ function buildGroupedReadonlyRecords(apiResponse) {
       if (!map[key]) {
         map[key] = {
           __type: 'ROW',
-          bus_id: Number(item.bus_id),          // 🔑 cast ke number
+          bus_id: Number(item.bus_id),
           bus: item.bus_name,
+          sequence: Number(item.sequence), // simpan sequence
           group_ritase: item.group_ritase,
           traject_name: item.traject_master_name,
 
-          // sesuai kontrak backend kamu
           driver: item.bus_crew2_name,
+          driverId: item.bus_crew2_id,
           kondektur: item.bus_crew1_name,
+          kondekturId: item.bus_crew1_id,
           kernet: item.bus_crew3_name,
+          kernetId: item.bus_crew3_id,
 
           notes: item.notes || '',
-          ritaseJamMap: {}
+
+          ritaseJamMap: {},
+          penugasanMap: {}
         }
       }
 
+      // simpan jam
       if (item.ritase && item.departure_time) {
         map[key].ritaseJamMap[item.ritase] =
           item.departure_time.slice(0, 5)
+      }
+
+      if (item.ritase && item.id) {
+        map[key].penugasanMap[item.ritase] = item
       }
     })
 
     // ================= BUILD ROWS =================
     Object.values(map)
       .sort((a, b) => {
-        // 1️⃣ sort BUS dulu
+
+        // 1️⃣ sort SEQUENCE bus dulu
+        if (a.sequence !== b.sequence) {
+          return a.sequence - b.sequence
+        }
+
+        // 2️⃣ fallback bus_id
         if (a.bus_id !== b.bus_id) {
           return a.bus_id - b.bus_id
         }
 
-        // 2️⃣ sort RITASE (1&2 < 3&4)
-        const aR = Number(a.group_ritase.split('&')[0])
-        const bR = Number(b.group_ritase.split('&')[0])
+        // 3️⃣ sort berdasarkan pola ritase
+        const orderA = ritaseOrderMap[normalize(a.group_ritase)] ?? 999
+        const orderB = ritaseOrderMap[normalize(b.group_ritase)] ?? 999
 
-        return aR - bR
+        return orderA - orderB
       })
       .forEach(row => {
+
         const ritaseOrder = row.group_ritase
           .split('&')
           .map(v => v.trim())
@@ -93,13 +146,16 @@ function buildGroupedReadonlyRecords(apiResponse) {
 export default function Assignment(props) {
   const [_records, _setRecords] = useState([])
   const [_loading, _setLoading] = useState(false)
-  const [_modalVisible, _setModalVisible] = useState(false)
+  const [_createModalVisible, _setCreateModalVisible] = useState(false)
+  const [_editModalVisible, _setEditModalVisible] = useState(false)
 
   const [_selectedDate, _setSelectedDate] = useState(new Date())
 
   const [_trajectRange, _setTrajectRange] = useState([])
   const [_trajectFilterValue, _setTrajectFilterValue] = useState('')
   const [_selectedTraject, _setSelectedTraject] = useState(null)
+  const [_selectedRow, _setSelectedRow] = useState(null)
+  const [_orientation, _setOrientation] = useState('portrait')
 
   /* ================= DATE PICKER ================= */
 
@@ -155,7 +211,25 @@ export default function Assignment(props) {
       title: 'Keterangan',
       field: 'notes',
       customCell: (_, row) =>
-        row.__type === 'GROUP' ? null : (row.notes || '-')
+        row.__type === 'GROUP' ? null : (row.notes)
+    },
+    {
+      title: 'AKSI',
+      field: 'aksi',
+      customCell: (_, row) => {
+        if (row.__type === 'GROUP') return null
+
+        return (
+          <Button
+            small
+            title="Edit"
+            onClick={() => {
+              _setSelectedRow(row)
+              _setEditModalVisible(true)
+            }}
+          />
+        )
+      }
     }
   ]
 
@@ -163,7 +237,6 @@ export default function Assignment(props) {
 
   useEffect(() => {
     getTraject()
-    fetchData()
   }, [])
 
   async function getTraject() {
@@ -182,13 +255,18 @@ export default function Assignment(props) {
   async function fetchData() {
     if (_loading) return
 
+    if (!_selectedTraject) {
+      popAlert({ message: 'Silakan pilih trayek terlebih dahulu' })
+      return
+    }
+
     try {
       _setLoading(true)
 
       const params = {
         startDate: dateFilter.basicDate(_selectedDate).normal,
         endDate: dateFilter.basicDate(_selectedDate).normal,
-        traject_master_id: _selectedTraject?.id || null,
+        traject_master_id: _selectedTraject.id,
         groupBy: 'bus_inap',
         sortMode: 'asc'
       }
@@ -200,6 +278,7 @@ export default function Assignment(props) {
       )
 
       _setRecords(buildGroupedReadonlyRecords(res))
+
     } catch (e) {
       popAlert({ message: e.message })
     } finally {
@@ -207,14 +286,100 @@ export default function Assignment(props) {
     }
   }
 
+  /* ================= EXPORT PDF ================= */
+
+  function exportPDF() {
+
+    const doc = new jsPDF({
+      orientation: _orientation,
+      unit: 'mm',
+      format: [210, 330] // F4
+    })
+
+    const trajectName = _selectedTraject?.name || '-'
+    const tanggal = dateFilter.getMonthDate(_selectedDate)
+
+    /* ================= HEADER ================= */
+
+    doc.setFontSize(10)
+    doc.text('ROASTER CREW BUS', 105, 10, { align: 'center' })
+
+    doc.setFontSize(10)
+    doc.text(`Trayek : ${trajectName}`, 105, 16, { align: 'center' })
+    doc.text(`Tanggal : ${tanggal}`, 105, 21, { align: 'center' })
+
+    const rows = []
+
+    _records.forEach(row => {
+      if (row.__type === 'GROUP') {
+        rows.push([
+          {
+            content: `Bus Inap ${row.title}`,
+            colSpan: 7,
+            styles: { fontStyle: 'bold', halign: 'left' }
+          }
+        ])
+      } else {
+        rows.push([
+          row.bus || '-',
+          row.driver || '-',
+          row.kondektur || '-',
+          row.kernet || '-',
+          row.group_ritase || '-',
+          row.departure_time || '-',
+          row.notes 
+        ])
+      }
+    })
+
+    autoTable(doc, {
+      head: [[
+        'BUS / NOPOL',
+        'DRIVER',
+        'KONDEKTUR',
+        'KERNET',
+        'RITASE',
+        'JAM',
+        'KETERANGAN'
+      ]],
+
+      body: rows,
+      theme: 'grid',
+
+      startY: 28, // ⬅️ penting supaya tabel turun dari header
+
+      margin: {
+        left: 5,
+        right: 5
+      },
+
+      styles: {
+        fontSize: 7,
+        cellPadding: 1
+      }
+    })
+
+    const date = dateFilter.basicDate(_selectedDate).normal
+    doc.save(`Laporan_roaster_${trajectName}_${date}.pdf`)
+  }
+
+
   /* ================= RENDER ================= */
 
   return (
     <Main>
 
       <AssignmentModal
-        visible={_modalVisible}
-        closeModal={() => _setModalVisible(false)}
+        visible={_createModalVisible}
+        closeModal={() => _setCreateModalVisible(false)}
+        onSuccess={fetchData}
+      />
+
+      <AssigmentEditModal
+        visible={_editModalVisible}
+        closeModal={() => _setEditModalVisible(false)}
+        records={_selectedRow?.penugasanMap}
+        authToken={props.authData.token}
         onSuccess={fetchData}
       />
 
@@ -223,13 +388,13 @@ export default function Assignment(props) {
           <Button
             title="Tambah Penugasan"
             styles={Button.secondary}
-            onClick={() => _setModalVisible(true)}
+            onClick={() => _setCreateModalVisible(true)}
           />
         )}
       >
         <Card noPadding>
           <Row verticalEnd withPadding>
-            <Col column={2} withPadding mobileFullWidth>
+            <Col column={1} withPadding mobileFullWidth>
               <DatePicker
                 selected={_selectedDate}
                 onChange={_setSelectedDate}
@@ -237,7 +402,7 @@ export default function Assignment(props) {
               />
             </Col>
 
-            <Col column={3} withPadding mobileFullWidth>
+            <Col column={2} withPadding mobileFullWidth>
               <Input
                 title="Trayek"
                 placeholder="Pilih Trayek"
@@ -258,7 +423,34 @@ export default function Assignment(props) {
                 styles={Button.secondary}
                 onClick={fetchData}
                 small
-                disabled={_loading}
+                disabled={_loading || !_selectedTraject}
+              />
+            </Col>
+            <Col withPadding>
+              <div style={{ marginTop: 8 }}>
+                <label>
+                  <input
+                    type="radio"
+                    value="portrait"
+                    checked={_orientation === 'portrait'}
+                    onChange={(e) => _setOrientation(e.target.value)}
+                  />
+                  Portrait
+                </label>
+
+                <label style={{ marginLeft: 15 }}>
+                  <input
+                    type="radio"
+                    value="landscape"
+                    checked={_orientation === 'landscape'}
+                    onChange={(e) => _setOrientation(e.target.value)}
+                  />
+                  Landscape
+                </label>
+              </div>
+              <Button
+                title="Export PDF"
+                onClick={exportPDF}
               />
             </Col>
           </Row>

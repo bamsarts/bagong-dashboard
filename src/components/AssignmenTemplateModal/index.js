@@ -4,7 +4,7 @@ import Input from '../Input'
 import { popAlert } from '../Main'
 import styles from './AssignmentTemplateModal.module.scss'
 import Button from '../Button'
-import { postJSON } from '../../api/utils'
+import { postJSON, get, BASE_URL, objectToParams } from '../../api/utils'
 import AppContext from '../../context/app'
 import { dateFilter } from '../../utils/filters'
 import { Col, Row } from '../Layout'
@@ -43,6 +43,7 @@ export default function AssignmentTemplateModal(props = defaultProps) {
   const [_scheduleRanges, _setScheduleRanges] = useState([])
 
   const [_trajectRange, _setTrajectRange] = useState([])
+  
 
 
   /* ================= HELPERS ================= */
@@ -98,6 +99,12 @@ export default function AssignmentTemplateModal(props = defaultProps) {
     {
       'name': '4 & 1'
     },
+    {
+      'name': '2 & 1'
+    },
+    {
+      'name': '3 & 1'
+    },
   ]
 
   /* ================= EFFECT ================= */
@@ -132,22 +139,40 @@ export default function AssignmentTemplateModal(props = defaultProps) {
     _setIsComplete(!valid)
   }, [_form])
 
-  /* ================= API ================= */
-
   async function _getBusList() {
-    const res = await postJSON(
-      '/masterData/bus/list',
-      { startFrom: 0, length: 99999, companyId: appContext.authData.companyId },
-      appContext.authData.token
-    )
+    try {
+      const params = {
+        "companyId": appContext.authData.companyId,
+        "startFrom": 0,
+        "length": 999,
+        "orderBy": "id",
+        "sortMode": "desc"
+      }
 
-    _setBusRanges(
-      res.data.map(v => ({
-        title: v.name,
-        value: v.id,
-        data: v
-      }))
-    )
+      const result = await get(
+        {url: BASE_URL + `/data/masterData/bus/list?${objectToParams(params)}`},
+        appContext.authData.token
+      )
+
+      _setBusRanges(
+        result.data.map(v => ({
+          title: v.name,
+          value: v.id,
+          data: v
+        }))
+      )
+
+    } catch (err) {
+      console.log('API ERROR:', err)
+
+      const message =
+        err?.response?.data?.message ||
+        err?.data?.message ||
+        err?.message ||
+        'Terjadi kesalahan saat mengambil data bus'
+
+      popAlert({ message })
+    }
   }
 
   async function _getScheduleList() {
