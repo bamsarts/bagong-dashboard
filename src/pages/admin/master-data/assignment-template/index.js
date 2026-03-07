@@ -16,7 +16,28 @@ function buildGroupedRecords(source) {
     const result = []
     if (!source?.data?.length) return result
 
-    source.data.forEach(group => {
+    // ✅ Hitung sequence terkecil tiap group
+    const groups = source.data.map(group => {
+        let minSequence = Infinity
+
+        group.templates.forEach(item => {
+            const seq = Number(item.sequence)
+            if (!isNaN(seq) && seq < minSequence) {
+                minSequence = seq
+            }
+        })
+
+        return {
+            ...group,
+            minSequence
+        }
+    })
+
+    // ✅ SORT GROUP BERDASARKAN SEQUENCE BUS
+    groups.sort((a, b) => a.minSequence - b.minSequence)
+
+    groups.forEach(group => {
+
         result.push({
             __type: 'GROUP',
             title: group.group_key_display || group.group_key
@@ -29,9 +50,10 @@ function buildGroupedRecords(source) {
 
             if (!map[key]) {
                 map[key] = {
-                    bus_id: item.bus_id,      // 🔑 ID
-                    bus_name: item.bus_name,  // 👀 display
+                    bus_id: item.bus_id,
+                    bus_name: item.bus_name,
                     group_ritase: item.group_ritase,
+                    sequence: Number(item.sequence),
                     jam: new Set()
                 }
             }
@@ -41,11 +63,16 @@ function buildGroupedRecords(source) {
             }
         })
 
-        Object.values(map).forEach(row => {
+        const rows = Object.values(map)
+
+        // ✅ URUTKAN BUS BERDASARKAN SEQUENCE
+        rows.sort((a, b) => a.sequence - b.sequence)
+
+        rows.forEach(row => {
             result.push({
                 __type: 'ROW',
-                bus_id: row.bus_id,          // 🔑
-                bus: row.bus_name,           // 👀 render
+                bus_id: row.bus_id,
+                bus: row.bus_name,
                 group_ritase: row.group_ritase,
                 departure_time: Array.from(row.jam).join(' & ')
             })
