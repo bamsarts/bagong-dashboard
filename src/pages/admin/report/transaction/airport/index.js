@@ -11,6 +11,7 @@ import { currency, dateFilter } from '../../../../../utils/filters'
 import styles from './Airport.module.scss'
 import Datepicker from '../../../../../components/Datepicker'
 import { BsChevronRight } from 'react-icons/bs'
+import ReportAirportModal from '../../../../../components/ReportAirportModal'
 
 export default function Sales(props) {
     const [_date, _setDate] = useState({
@@ -26,6 +27,42 @@ export default function Sales(props) {
         total_passengers: 0,
         total_amount: 0,
     })
+    const [_openModalDetail, _setOpenModalDetail] = useState(false)
+    const [_detailData, _setDetailData] = useState({})
+    const [_detailTransactions, _setDetailTransactions] = useState([])
+    const [_isLoadingDetail, _setIsLoadingDetail] = useState(false)
+
+    async function _getSalesReportDetail(busData) {
+        _setIsLoadingDetail(true)
+        _setDetailData(busData)
+
+        const params = new URLSearchParams({
+            companyId: props.authData.companyId,
+            busId: busData.bus_id,
+            startDate: _date.start,
+            endDate: _date.end,
+            dateBy: 'transaction',
+            paymentStatus: 'PAID',
+            startFrom: 0,
+            length: 370,
+            sortBy: 'created_at',
+            sortMode: 'desc'
+        })
+
+        try {
+            const res = await get(`/data/laporan/monitoring/transactions/by-bus/detail?${params}`, props.authData.token)
+
+            _setDetailTransactions(res.data || [])
+            _setIsLoadingDetail(false)
+
+            if (!res.data || res.data.length === 0) {
+                popAlert({ message: 'Tidak ada detail transaksi', type: 'info' })
+            }
+        } catch (e) {
+            popAlert({ message: e.message })
+            _setIsLoadingDetail(false)
+        }
+    }
 
     async function _getSalesReport() {
         _setIsProcessing(true)
@@ -240,52 +277,53 @@ export default function Sales(props) {
                 </Card>
 
                 <div
-                className={styles.item_container}
-                >   
+                    className={styles.item_container}
+                >
                     {
                         _salesReport.map((val, key) => {
                             return (
                                 <div
-                                className={styles.column}
-                                >   
+                                    key={key}
+                                    className={styles.column}
+                                >
                                     <Row
-                                    spaceBetween
+                                        spaceBetween
                                     >
                                         <small>{dateFilter.getMonthDate(new Date(val.date))}</small>
                                         <small>Ritase {val.ritase}</small>
                                     </Row>
 
-                                   
+
 
                                     <div
-                                    className={styles.title}
-                                    onClick={() => {
-                                        _setOpenModalDetail(true)
-                                        _getSalesReportDetail(val)
-                                    }}
+                                        className={styles.title}
+                                        onClick={() => {
+                                            _setOpenModalDetail(true)
+                                            _getSalesReportDetail(val)
+                                        }}
                                     >
                                         <strong>{val.bus_name}</strong>
                                         <div>
-                                            <BsChevronRight/>
+                                            <BsChevronRight />
                                         </div>
                                     </div>
-                                    
+
                                     <Row>
                                         <Col
-                                        column={3}
-                                        style={{
-                                            "display": "grid"
-                                        }}
+                                            column={3}
+                                            style={{
+                                                "display": "grid"
+                                            }}
                                         >
                                             <small>Penumpang</small>
                                             <span>{val.total_passengers}</span>
                                         </Col>
-        
+
                                         <Col
-                                        column={3}
-                                        style={{
-                                            "display": "grid"
-                                        }}
+                                            column={3}
+                                            style={{
+                                                "display": "grid"
+                                            }}
                                         >
                                             <small>Penjualan</small>
                                             <span>{currency(val.amount)}</span>
@@ -295,8 +333,16 @@ export default function Sales(props) {
                             )
                         })
                     }
-                    
+
                 </div>
+
+                <ReportAirportModal
+                    visible={_openModalDetail}
+                    closeModal={() => _setOpenModalDetail(false)}
+                    busInfo={_detailData}
+                    transactions={_detailTransactions}
+                    isLoading={_isLoadingDetail}
+                />
 
 
             </AdminLayout>
