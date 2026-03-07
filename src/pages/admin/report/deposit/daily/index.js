@@ -13,7 +13,6 @@
     import 'react-datepicker/dist/react-datepicker.css'
 
     import { dateFilter, currency } from '../../../../../utils/filters'
-    import ReportDailyModal from '../../../../../components/ReportDailyModal'
 
     /* ================= HELPER ================= */
 
@@ -345,12 +344,7 @@
 
     return (
         <Main>
-            <ReportDailyModal
-                visible={_modalOpen}
-                closeModal={_closeModal}
-                selectedRow={_selectedRow}   // ⬅️ kirim row yang diklik
-                onSuccess={_getData}
-            />
+           
         <AdminLayout>
 
             <Card>
