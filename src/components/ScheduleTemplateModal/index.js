@@ -525,16 +525,9 @@ export default function ScheduleTemplateModal(props = ScheduleTemplateModal.defa
         }
 
         try {
-<<<<<<< HEAD
+
             const busCategory = await get(`/masterData/bus/kategori/list?`+objectToParams(params), appContext.authData.token)
-=======
-            // const busCategory = await postJSON(`/masterData/bus/kategori/list`, params, appContext.authData.token)
-            const busCategory = await get(
-                {url: BASE_URL + `/data/masterData/bus/kategori/list?${objectToParams(params)}`},
-                appContext.authData.token
-            )
-            console.log("BUS CATEGORY:", busCategory)
->>>>>>> 2d2bbcd8b50a3fee67c46f5baead2a0654cea9aa
+
             let busCategoryRange = [];
             busCategory.data.forEach(function (val, key) {
                 busCategoryRange.push({
