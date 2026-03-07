@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { postJSON, get } from '../../../../../../api/utils'
+import { postJSON, get, objectToParams } from '../../../../../../api/utils'
 
 import Main, { popAlert } from '../../../../../../components/Main'
 import AdminLayout from '../../../../../../components/AdminLayout'
@@ -84,7 +84,7 @@ export default function AddFacility(props) {
             length : 470,
         }
         try {
-            const bus = await postJSON('/masterData/bus/kategori/list', params, props.authData.token)
+            const bus = await get('/masterData/bus/kategori/list?'+objectToParams(params), props.authData.token)
 
             _setBusCategoryRange(filterDuplicates(bus.data, "name"))
             _setAllBusCategory(bus.data)

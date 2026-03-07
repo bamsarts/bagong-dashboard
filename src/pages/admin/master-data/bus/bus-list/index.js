@@ -128,13 +128,17 @@ export default function BusList(props) {
 
         try {
             const busLists = await get('/masterData/bus/list?'+objectToParams(params), props.authData.token)
-            _setBusLists(busLists)
-            _setPaginationConfig({
-                recordLength : busLists.totalFiltered,
-                recordsPerPage : pagination.length,
-                activePage : (pagination.startFrom / pagination.length) + 1,
-                totalPages : Math.ceil(busLists.totalFiltered / pagination.length)  
-            })
+
+            if(busLists.data){
+                _setBusLists(busLists || [])
+                _setPaginationConfig({
+                    recordLength : busLists?.totalFiltered,
+                    recordsPerPage : pagination.length,
+                    activePage : (pagination.startFrom / pagination.length) + 1,
+                    totalPages : Math.ceil(busLists?.totalFiltered / pagination.length)  
+                })
+            }
+            
         } catch (e) {
             popAlert({ message : e.message })
         }

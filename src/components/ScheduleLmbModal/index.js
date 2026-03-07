@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, createRef } from 'react'
 
-import { postJSON } from '../../api/utils'
+import { postJSON, get, objectToParams } from '../../api/utils'
 import AppContext from '../../context/app'
 
 import Input from '../Input'
@@ -123,7 +123,7 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
         },
         
         {
-            title : 'Damri Apps',
+            title : 'Apps',
             field : "isDamriApps",
             customCell : (value, row, key) => {
                 return (
@@ -220,7 +220,8 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
                 "departureTime": val.departureTime,
                 "isOTA": val.isOTA,
                 "isDamriApps": val.isDamriApps,
-                "isCounter": val.isCounter
+                "isCounter": val.isCounter,
+                "duration": 0
             })
         })
 
@@ -323,25 +324,24 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
         }
     }
 
-    async function _getBus(){
+   
+
+
+    async function _getBus() {
+    
         const params = {
             "startFrom": 0,
-            "length": 1900,
+            "length": 360
         }
-        
+
         try {
-            const bus = await postJSON(`/masterData/bus/list`, params, appContext.authData.token)
-            let busRange = [];
-            bus.data.forEach(function(val, key){
-                busRange.push({
-                    "title": val.code,
-                    "value": val.id,
-                    ...val
-                })
-            })
-            _setBusRanges(busRange)
+            const result = await get('/masterData/bus/list?'+objectToParams(params), appContext.authData.token)
+
+            _setBusRanges(result.data)
+
         } catch (e) {
-            console.log(e)
+            popAlert({ message: e.message })
+            return []
         }
     }
 
@@ -388,13 +388,15 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
         if(data != undefined){
             data.forEach(function(val, key){
 
-                if(val.status){
+                // if(val.status){
                     if(isValidTime(val.departureTime)){
                         val.departureTime = val.departureTime.slice(0, -3)
                     }
+                    val.duration = 0
+                    val.departureTime = "00:00"
                     // val.fare = currency(val.fare)
                     editData.push(val)
-                }
+                // }
                
             })
         }
@@ -577,6 +579,7 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
                 crew2Name: false
             })
             _getLmb()
+            console.log("propstrac", props.data.trajectTracks)
             _setFareTrajectRanges(validateTrajectRanges(props.data?.trajectTracks, true))
     
             _updateQuery({
@@ -701,14 +704,13 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
                             title={"Kode Bis"}
                             placeholder={'Pilih Bis'}
                             value={_form.busCode}
-                            suggestions={_lmbRanges}
-                            suggestionField={'busCode'}
+                            suggestions={_busRanges}
+                            suggestionField={'name'}
                             onSuggestionSelect={(value) => {
                                 _updateQuery({
-                                    "lmbCode": value.idLmb,
-                                    "busCode": value.busCode,
-                                    "busCrew1Name": value.busCrew1Name,
-                                    "busCrew2Name": value.busCrew2Name
+                                    "lmbCode": value.code,
+                                    "busCode": value.name,
+                                
                                 })
                             }}
                             />

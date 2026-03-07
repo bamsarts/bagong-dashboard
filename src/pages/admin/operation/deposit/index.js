@@ -46,7 +46,7 @@ export default function Deposit(props) {
             title: 'Bus',
             field: 'bus_id',
             customCell: (value, row) => {
-                const bus = _busRange.find(t => t.id === value)
+                const bus = _busRange.find(t => String(t.id) === value)
                 return bus?.name || bus?.code || '-'
             }
         },

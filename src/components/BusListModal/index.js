@@ -2,7 +2,7 @@ import AppContext from '../../context/app'
 import Modal, { ModalContent } from '../Modal'
 import { useEffect, useState, useContext } from 'react'
 import Input from '../Input'
-import { postJSON } from '../../api/utils'
+import { objectToParams, postJSON, get } from '../../api/utils'
 import Button from '../Button'
 import styles from './BusListModal.module.scss'
 import { popAlert } from '../Main'
@@ -92,9 +92,8 @@ export default function BusListModal(props = defaultProps) {
         const params = { startFrom: 0, length: 60 }
 
         try {
-            const category = await postJSON(
-                `/masterData/bus/kategori/list`,
-                params,
+            const category = await get(
+                `/masterData/bus/kategori/list?`+objectToParams(params),
                 appContext.authData.token
             )
 

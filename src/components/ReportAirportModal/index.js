@@ -1,168 +1,101 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect } from 'react'
 import { Col, Row } from '../Layout'
 import Modal, { ModalContent } from '../Modal'
 import Table from '../Table'
 import styles from './ReportAirportModal.module.scss'
-import { dateFilter, currency, paymentProvider } from '../../utils/filters'
-import generateClasses from '../../utils/generateClasses'
-import { TbRefresh } from 'react-icons/tb'
-import { postJSON, SETTLEMENT_URL } from '../../api/utils'
-import { popAlert } from '../Main'
+import { dateFilter, currency } from '../../utils/filters'
 import Input from '../Input'
-import { getLocalStorage, setLocalStorage } from '../../utils/local-storage'
 
 ReportAirportModal.defaultProps = {
     visible: false,
     closeModal: null,
-    rowInfo: {},
-    report: [],
-    role: ""
+    busInfo: {},
+    transactions: [],
+    isLoading: false
 }
 
 export default function ReportAirportModal(props = ReportAirportModal.defaultProps) {
 
     const [_search, _setSearch] = useState("")
     const [_summary, _setSummary] = useState({
-        totalPnp: 0,
+        totalTransactions: 0,
+        totalPassengers: 0,
         totalAmount: 0,
-        repeatTicket: 0,
-        emoney: 0,
-        debit: 0,
-        credit: 0,
         cash: 0,
-        QRIS: 0,
-        kredit: 0,
-        EDCBankBNI: 0,
-        EDCBankMandiri: 0,
-        EDCBankBCA: 0,
-        EDCBankBRI: 0,
-        EDCBankBTN: 0,
-        QrisTap: 0
+        other: 0
     })
-    const [_defaultReport, _setDefaultReport] = useState([])
-    const [_report, _setReport] = useState([])
-    const [_access, _setAccess] = useState({
-        "resetPrint": props.role == "2" ? false : true
-    })
+    const [_defaultTransactions, _setDefaultTransactions] = useState([])
+    const [_filteredTransactions, _setFilteredTransactions] = useState([])
 
     useEffect(() => {
+        if (props.transactions && props.transactions.length > 0) {
+            
+            let data = []
+            console.log(props.busInfo)
 
-        if (props.report?.data) {
-            // Filter duplicate transactionId from props.report.data
-            const uniqueData = props.report.data.filter((item, index, self) =>
-                index === self.findIndex(t => t.ticket === item.ticket)
-            )
-            _setReport(uniqueData)
+            // Calculate summary
+            let totalAmount = 0
+            let cash = 0
+            let other = 0
 
-            let totalAmount, totalPnp
-            let data = uniqueData
-            let repeatTicket = 0
+            props.transactions.forEach(transaction => {
+                let date = transaction.tanggal_transaksi.split("T")
 
-            totalAmount = 0
-            totalPnp = data.length
-
-            if (data.length > 0) {
-
-                let payment = {
-                    emoney: 0,
-                    credit: 0,
-                    debit: 0,
-                    credit: 0,
-                    QRIS: 0,
-                    cash: 0,
-                    kredit: 0,
-                    EDCBankBNI: 0,
-                    EDCBankMandiri: 0,
-                    EDCBankBCA: 0,
-                    EDCBankBRI: 0,
-                    EDCBankBTN: 0,
-                    QrisTap: 0
-                }
-
-                data.forEach(item => {
-                    totalAmount += item.amountTransactionDetail
-                    payment[item.pembayaran.replace(/\s/g, '')] += item.amountTransactionDetail
-
-                    if (item.printCount > 1) {
-                        repeatTicket += 1
+                if((parseInt(transaction.ritase) == parseInt(props.busInfo.ritase)) && date[0] == props.busInfo.date){
+                    const amount = parseInt(transaction.harga_akhir) || 0
+                    totalAmount += amount
+                    
+                    if (transaction.metode_pembayaran === 'cash') {
+                        cash += amount
+                    } else {
+                        other += amount
                     }
-                })
 
-                _setSummary({
-                    totalPnp,
-                    totalAmount,
-                    repeatTicket,
-                    ...payment
-                })
-            }
-
-            if (typeof window !== 'undefined') {
-                // Perform localStorage action
-
-                let storage = getLocalStorage("access_menu_damri")
-
-                if (storage == null) {
-                    window.location.href = "/sign-in"
-                } else {
-                    const item = JSON.parse(storage)
-                    item.forEach(function (val, key) {
-                        if (val.menu == "Laporan>Transaksi>Penjualan Bandara") {
-                            _setAccess({
-                                "resetPrint": !val.updateRole
-                            })
-                        }
-                    })
+                    data.push(transaction)
                 }
-            }
-        }
+                
+            })
 
-    }, [props.report])
+            _setDefaultTransactions(data)
+            _setFilteredTransactions(data)
 
-
-    useEffect(() => {
-        if (_search != "") {
-            if (_defaultReport.length == 0) {
-                _setDefaultReport(_report)
-            }
-
-            let suggestions = [..._report].filter(suggestion =>
-                suggestion.ticket != null ? suggestion.ticket.toLowerCase().includes(_search.toLowerCase()) : ""
-            )
-
-            if (suggestions.length > 0) {
-                _setReport(suggestions)
-            } else {
-                let dataBooking = []
-
-                _report.forEach(function (val, key) {
-                    if (val.bookingCode.toLowerCase() == _search.toLocaleLowerCase()) {
-                        dataBooking.push(val)
-                    }
-                })
-
-                _setReport(dataBooking)
-
-            }
-
+            _setSummary({
+                totalTransactions: data.length,
+                totalPassengers: props.transactions.length, // Each transaction represents one passenger
+                totalAmount,
+                cash,
+                other
+            })
         } else {
-            _setReport(_defaultReport)
+            _setDefaultTransactions([])
+            _setFilteredTransactions([])
+            _setSummary({
+                totalTransactions: 0,
+                totalPassengers: 0,
+                totalAmount: 0,
+                cash: 0,
+                other: 0
+            })
         }
-    }, [_search])
+    }, [props.transactions])
 
-    async function _resetPrintCount(ticket) {
-
-        try {
-            const url = "/print-count/reset/" + ticket
-            const res = await postJSON({ url: "/api/api-server-side?url=" + SETTLEMENT_URL + url }, "", "")
-
-            if (res) {
-                popAlert({ message: 'Berhasil reset print count', type: 'success' })
+    useEffect(() => {
+        if (_search !== "") {
+            if (_defaultTransactions.length === 0) {
+                _setDefaultTransactions(_filteredTransactions)
             }
 
-        } catch (e) {
-            console.log(e)
+            const filtered = _defaultTransactions.filter(transaction =>
+                transaction.nomor_tiket?.toLowerCase().includes(_search.toLowerCase()) ||
+                transaction.nama_penumpang?.toLowerCase().includes(_search.toLowerCase()) ||
+                transaction.transaction_id?.toLowerCase().includes(_search.toLowerCase())
+            )
+
+            _setFilteredTransactions(filtered)
+        } else {
+            _setFilteredTransactions(_defaultTransactions)
         }
-    }
+    }, [_search, _defaultTransactions])
 
     return (
         <Modal
@@ -173,7 +106,7 @@ export default function ReportAirportModal(props = ReportAirportModal.defaultPro
         >
             <ModalContent
                 header={{
-                    title: ``,
+                    title: `Detail Transaksi - ${props.busInfo.bus_name || 'Bus'}`,
                     closeModal: props.closeModal
                 }}
             >
@@ -184,8 +117,8 @@ export default function ReportAirportModal(props = ReportAirportModal.defaultPro
                         className={styles.detail_modal}
                     >
                         <div>
-                            <span>Petugas</span>
-                            <strong>{props.rowInfo.userName}</strong>
+                            <span>Bus</span>
+                            <strong>{props.busInfo.bus_name || '-'}</strong>
                         </div>
                     </Col>
 
@@ -195,65 +128,8 @@ export default function ReportAirportModal(props = ReportAirportModal.defaultPro
                         className={styles.detail_modal}
                     >
                         <div>
-                            <span>Total Penumpang</span>
-                            <strong>{currency(_summary.totalPnp)}</strong>
-                        </div>
-                    </Col>
-
-                    <Col
-                        column={1}
-                        withPadding
-                        className={styles.detail_modal}
-                    >
-                        <div>
-                            <span>Cetak Berulang</span>
-                            <strong>{_summary.repeatTicket} Tiket</strong>
-                        </div>
-                    </Col>
-                </Row>
-
-                <Row>
-                    <Col
-                        column={1}
-                        withPadding
-                        className={styles.detail_modal}
-                    >
-                        <div>
-                            <span>Debit</span>
-                            <strong>{currency(_summary.debit, 'Rp')}</strong>
-                        </div>
-                    </Col>
-
-                    <Col
-                        column={1}
-                        withPadding
-                        className={styles.detail_modal}
-                    >
-                        <div>
-                            <span>Kredit</span>
-                            <strong>{currency((_summary.credit + _summary.kredit), 'Rp')}</strong>
-                        </div>
-                    </Col>
-
-                    <Col
-                        column={1}
-                        withPadding
-                        className={styles.detail_modal}
-                    >
-                        <div>
-                            <span>QRIS</span>
-                            <strong>{currency(_summary.QRIS, 'Rp')}</strong>
-                        </div>
-                    </Col>
-
-                    <Col
-                        column={1}
-                        withPadding
-                        className={styles.detail_modal}
-                    >
-                        <div>
-                            <span>Emoney</span>
-                            <strong>{currency(_summary.emoney, 'Rp')}</strong>
+                            <span>Trayek</span>
+                            <strong>{_filteredTransactions[0]?.trayek || '-'}</strong>
                         </div>
                     </Col>
 
@@ -274,67 +150,24 @@ export default function ReportAirportModal(props = ReportAirportModal.defaultPro
                         className={styles.detail_modal}
                     >
                         <div>
-                            <span>QRIS Tap</span>
-                            <strong>{currency(_summary.QrisTap, 'Rp')}</strong>
+                            <span>Non-Tunai</span>
+                            <strong>{currency(_summary.other, 'Rp')}</strong>
                         </div>
                     </Col>
-                </Row>
 
-                <Row>
+                    
                     <Col
                         column={1}
                         withPadding
                         className={styles.detail_modal}
                     >
                         <div>
-                            <span>EDC Bank BNI</span>
-                            <strong>{currency(_summary.EDCBankBNI, 'Rp')}</strong>
+                            <span>Total Transaksi</span>
+                            <strong>{_summary.totalTransactions}</strong>
                         </div>
                     </Col>
 
-                    <Col
-                        column={1}
-                        withPadding
-                        className={styles.detail_modal}
-                    >
-                        <div>
-                            <span>EDC Bank BRI</span>
-                            <strong>{currency((_summary.EDCBankBRI), 'Rp')}</strong>
-                        </div>
-                    </Col>
-
-                    <Col
-                        column={1}
-                        withPadding
-                        className={styles.detail_modal}
-                    >
-                        <div>
-                            <span>EDC Bank Mandiri</span>
-                            <strong>{currency(_summary.EDCBankMandiri, 'Rp')}</strong>
-                        </div>
-                    </Col>
-
-                    <Col
-                        column={1}
-                        withPadding
-                        className={styles.detail_modal}
-                    >
-                        <div>
-                            <span>EDC Bank BCA</span>
-                            <strong>{currency(_summary.EDCBankBCA, 'Rp')}</strong>
-                        </div>
-                    </Col>
-
-                    <Col
-                        column={1}
-                        withPadding
-                        className={styles.detail_modal}
-                    >
-                        <div>
-                            <span>EDC Bank BTN</span>
-                            <strong>{currency(_summary.EDCBankBTN, 'Rp')}</strong>
-                        </div>
-                    </Col>
+                    
 
                     <Col
                         column={1}
@@ -348,9 +181,11 @@ export default function ReportAirportModal(props = ReportAirportModal.defaultPro
                     </Col>
                 </Row>
 
+                
+
                 <div className={styles.table_container}>
                     <Table
-                        fileName={"Penjualan-bandara-" + props.rowInfo.userName + "-tgl-" + props.rowInfo.dateTransaction}
+                        fileName={`Detail-Transaksi-${props.busInfo.bus_name}-${dateFilter.basicDate(new Date()).normal}`}
                         headerContent={(
                             <Row
                                 verticalEnd
@@ -361,10 +196,10 @@ export default function ReportAirportModal(props = ReportAirportModal.defaultPro
                                     mobileFullWidth
                                 >
                                     <Input
-                                        title={`Cari Tiket`}
+                                        title={`Cari Tiket/Penumpang`}
                                         value={_search}
-                                        onChange={ticket => {
-                                            _setSearch(ticket)
+                                        onChange={value => {
+                                            _setSearch(value)
                                         }}
                                     />
                                 </Col>
@@ -372,281 +207,202 @@ export default function ReportAirportModal(props = ReportAirportModal.defaultPro
                         )}
                         columns={[
                             {
-                                field: 'dateTransaction',
-                                title: 'Tanggal',
-                                customCell: (value) => dateFilter.convertISO(new Date(value), "date")
-                            },
-                            {
-                                field: 'dateTransaction',
-                                title: 'Waktu',
-                                customCell: (value) => dateFilter.convertISO(new Date(value), "time")
-                            },
-                            {
-                                field: 'originName',
-                                title: 'Asal',
-                                textAlign: 'left',
-                                customCell: (value) => {
-                                    return value || '-'
+                                field: 'tanggal_transaksi',
+                                title: 'Tanggal Transaksi',
+                                customCell: (value, row) => {
+                                    return dateFilter.convertISO(new Date(value), "fulldate", true)
                                 }
                             },
                             {
-                                field: 'destinationName',
-                                title: 'Tujuan',
-                                textAlign: 'left'
-                            },
-                            {
-                                field: 'bookingCode',
-                                title: 'Kode Booking',
-                                textAlign: 'left'
-                            },
-                            {
-                                field: 'ticket',
-                                title: 'Tiket',
+                                field: 'nomor_tiket',
+                                title: 'Nomor Tiket',
                                 textAlign: 'left',
-                                minWidth: '120px',
+                                minWidth: '150px',
                                 headCol: {
                                     backgroundColor: "#fff",
                                     position: "sticky",
                                     left: "0px",
                                     zIndex: "100",
-                                    minWidth: "120px",
+                                    minWidth: "150px",
                                 },
                                 style: {
                                     backgroundColor: "#fff",
                                     position: "sticky",
                                     left: "0px",
                                     zIndex: "100",
-                                    minWidth: "120px",
-                                    maxWidth: "120px",
+                                    minWidth: "150px",
+                                    maxWidth: "150px",
                                 },
                             },
                             {
-                                field: 'phoneNumber',
-                                title: 'No Telpon Pembeli',
-                                textAlign: 'left'
-                            },
-                            {
-                                field: 'name',
-                                title: 'Nama Pembeli',
-                                minWidth: '90px',
-                                textAlign: 'left'
-                            },
-                            {   //beforeChange baseFare
-                                field: 'amountTransactionDetail',
-                                title: 'Harga Tiket (Rp)',
-                                customCell: (value) => currency(value),
-                                textAlign: 'right',
-                                minWidth: '90px',
-                            },
-                            {
-                                field: 'pembayaran',
-                                title: 'Metode Bayar',
-                                minWidth: '90px',
-                            },
-                            {
-                                field: 'paymentProviderId',
-                                title: 'Penyedia Pembayaran',
-                                minWidth: '90px',
-                                customCell: (value) => paymentProvider(value)
-                            },
-                            {
-                                field: 'pembayaranDetail',
-                                title: 'Bank',
+                                field: 'nama_penumpang',
+                                title: 'Nama Penumpang',
                                 textAlign: 'left',
-                                minWidth: '70px',
-                                customCell: (value) => value == null ? '-' : value,
+                                minWidth: '120px'
                             },
                             {
-                                field: 'departureDate',
+                                field: 'ritase',
+                                title: 'Ritase',
+                                textAlign: 'left',
+                                customCell: (value) => value === '0' ? '-' : value
+                            },
+                            {
+                                field: 'asal',
+                                title: 'Asal',
+                                textAlign: 'left'
+                            },
+                            {
+                                field: 'tujuan',
+                                title: 'Tujuan',
+                                textAlign: 'left'
+                            },
+                            {
+                                field: 'tanggal_keberangkatan',
                                 title: 'Tanggal Keberangkatan',
-                                customCell: (value) => {
-                                    if (value != null) {
-                                        const date = new Date(value)
-                                        return dateFilter.getMonthDate(date)
-                                    } else {
-                                        return ''
-                                    }
-                                }
-                            },
-                            // {
-                            //     field : 'scanAt',
-                            //     title : 'Tanggal Validasi',
-                            //     minWidth: '120px',
-                            //     customCell : (value) => {
-                            //         if(value != null){
-                            //             const date = new Date(value)
-                            //             return dateFilter.getMonthDate(date)
-                            //         }else{
-                            //             return ''
-                            //         }
-                            //     }
-                            // },
-                            {
-                                field: 'printCount',
-                                title: 'Jumlah Cetak',
-                                minWidth: '70px',
-                                customCell: (value, row) => {
-                                    return (
-                                        <Col
-                                            alignCenter
-                                            style={{
-                                                cursor: "pointer"
-                                            }}
-                                        >
-                                            <span className={styles.count_circle}>{parseInt(value) > 2 ? 2 : value}</span>
-
-                                            {
-                                                row.reprintAt && (
-                                                    <span>{dateFilter.convertISO(new Date(row.reprintAt), "date") + dateFilter.convertISO(new Date(row.reprintAt), "time")}</span>
-                                                )
-                                            }
-                                        </Col>
-                                    )
-                                }
+                                customCell: (value) => dateFilter.getMonthDate(new Date(value))
                             },
                             {
-                                title: 'Reset Print',
-                                field: 'ticket',
-                                minWidth: '60px',
-                                hide: _access.resetPrint,
-                                customCell: (value, row) => {
-
-                                    return (
-                                        <div
-                                            title={"Reset Print Count"}
-                                            className={generateClasses([
-                                                styles.button_action,
-                                                styles.text_warning
-                                            ])}
-                                            onClick={() => {
-                                                _resetPrintCount(row.ticket)
-                                            }}
-                                        >
-                                            <TbRefresh />
-                                        </div>
-                                    )
-                                }
+                                field: 'jam_keberangkatan',
+                                title: 'Jam Keberangkatan',
+                                textAlign: 'center'
+                            },
+                            {
+                                field: 'harga',
+                                title: 'Harga',
+                                customCell: (value) => currency(value),
+                                textAlign: 'right'
+                            },
+                            {
+                                field: 'metode_pembayaran',
+                                title: 'Metode Pembayaran',
+                                textAlign: 'center'
+                            },
+                            {
+                                field: 'status_pembayaran',
+                                title: 'Status Pembayaran',
+                                textAlign: 'center',
+                                customCell: (value) => (
+                                    <span className={value === 'PAID' ? styles.status_paid : styles.status_unpaid}>
+                                        {value}
+                                    </span>
+                                )
+                            },
+                            {
+                                field: 'waktu_boarding',
+                                title: 'Waktu Bording',
+                                textAlign: 'center'
                             }
                         ]}
                         headExport={[
                             {
-                                title: "Tanggal",
-                                value: "dateTransaction",
-                                customCell: (value) => dateFilter.convertISO(new Date(value), "date")
+                                title: "Tanggal Transaksi",
+                                value: "tanggal_transaksi",
+                                customCell: (value) => dateFilter.convertISO(new Date(value), "fulldate", true)
                             },
                             {
-                                title: "Waktu",
-                                value: "dateTransaction",
-                                customCell: (value) => dateFilter.convertISO(new Date(value), "time")
+                                title: "Nomor Tiket",
+                                value: "nomor_tiket"
+                            },
+                            {
+                                title: "Nama Penumpang",
+                                value: "nama_penumpang"
+                            },
+                            {
+                                title: "No. Telepon",
+                                value: "nomor_telepon"
                             },
                             {
                                 title: "Asal",
-                                value: "originName",
+                                value: "asal"
                             },
                             {
                                 title: "Tujuan",
-                                value: "destinationName",
+                                value: "tujuan"
                             },
                             {
-                                title: "Kode Booking",
-                                value: "bookingCode",
+                                title: "Tanggal Keberangkatan",
+                                value: "tanggal_keberangkatan"
                             },
                             {
-                                title: "Tiket",
-                                value: "ticket",
+                                title: "Jam Keberangkatan",
+                                value: "jam_keberangkatan"
                             },
                             {
-                                title: "Harga Tiket",
-                                value: "baseFare",
+                                title: "Harga",
+                                value: "harga"
+                            },
+                            {
+                                title: "Diskon",
+                                value: "diskon"
+                            },
+                            {
+                                title: "Harga Akhir",
+                                value: "harga_akhir"
                             },
                             {
                                 title: "Metode Pembayaran",
-                                value: "pembayaran",
+                                value: "metode_pembayaran"
                             },
                             {
-                                value: 'paymentProviderId',
-                                title: 'Penyedia Pembayaran',
-                                customCell: (value) => paymentProvider(value)
+                                title: "Status Pembayaran",
+                                value: "status_pembayaran"
                             },
                             {
-                                value: 'pembayaranDetail',
-                                title: 'Bank',
-                                customCell: (value) => value == null ? '-' : value,
-                            },
-                            {
-                                value: 'departureDate',
-                                title: 'Tanggal Keberangkatan',
-                                customCell: (value) => {
-                                    if (value != null) {
-                                        const date = new Date(value)
-                                        return dateFilter.getMonthDate(date)
-                                    } else {
-                                        return ''
-                                    }
-                                }
-                            },
-                            {
-                                title: "Jumlah Cetak",
-                                value: "printCount",
-                                customCell: (value) => {
-                                    return parseInt(value) > 2 ? 2 : value
-                                }
-                            },
+                                title: "Status Boarding",
+                                value: "status_boarding"
+                            }
                         ]}
                         insertExport={[
                             {
-                                title: "Petugas",
-                                value: props.rowInfo.userName
+                                title: "Bus",
+                                value: props.busInfo.bus_name
                             },
                             {
-                                title: "Debit",
-                                value: _summary.debit
-                            },
-                            {
-                                title: "Kredit",
-                                value: _summary.credit + _summary.kredit
-                            },
-                            {
-                                title: "QRIS",
-                                value: _summary.QRIS
-                            },
-                            {
-                                title: "Emoney",
-                                value: _summary.emoney
-                            },
-                            {
-                                title: "Tunai",
-                                value: _summary.cash
+                                title: "Total Transaksi",
+                                value: _summary.totalTransactions
                             },
                             {
                                 title: "Total Penjualan",
                                 value: _summary.totalAmount
                             },
                             {
-                                title: "Total Penumpang",
-                                value: _summary.totalPnp
+                                title: "Tunai",
+                                value: _summary.cash
                             },
                             {
-                                title: "Cetak Berulang",
-                                value: _summary.repeatTicket
+                                title: "Non-Tunai",
+                                value: _summary.other
                             }
                         ]}
-                        records={_report}
+                        records={_filteredTransactions}
                     />
                 </div>
 
                 {
-                    !_report && (
+                    props.isLoading && (
                         <div
                             style={{
-                                "text-align": "center"
+                                "textAlign": "center",
+                                "padding": "20px"
                             }}
                         >
-                            <span>Memuat data..</span>
+                            <span>Memuat data transaksi...</span>
                         </div>
                     )
                 }
 
+                {
+                    !props.isLoading && _filteredTransactions.length === 0 && (
+                        <div
+                            style={{
+                                "textAlign": "center",
+                                "padding": "20px"
+                            }}
+                        >
+                            <span>Tidak ada data transaksi</span>
+                        </div>
+                    )
+                }
 
             </ModalContent>
         </Modal>

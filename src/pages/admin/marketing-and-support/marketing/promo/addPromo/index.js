@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { DAMRI_APPS_URL, postJSON, TICKET_ORDER_URL } from '../../../../../../api/utils'
+import { DAMRI_APPS_URL, objectToParams, postJSON, TICKET_ORDER_URL, get } from '../../../../../../api/utils'
 
 import Main, { popAlert } from '../../../../../../components/Main'
 import AdminLayout from '../../../../../../components/AdminLayout'
@@ -559,7 +559,7 @@ export default function AddPromo(props) {
             length: 470,
         }
         try {
-            const bus = await postJSON('/masterData/bus/kategori/list', params, props.authData.token)
+            const bus = await get('/masterData/bus/kategori/list?'+objectToParams(params), props.authData.token)
             let filteredBus = filterDuplicates(bus.data, "name")
 
             _setBusCategoryRange(filteredBus)
