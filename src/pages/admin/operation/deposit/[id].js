@@ -589,19 +589,16 @@ export default function DepositDetail(props) {
 
     function _findMandoran(trajectId, location) {
         let totalPnpCount = 0;
-        let isLocationMatch = false
 
         if (!_setoranData?.data?.manifest) return totalPnpCount;
 
         _setoranData.data.manifest.forEach(ritase => {
-            if (ritase.traject_id === trajectId && ritase.category === "MANDOR") {
+            if (ritase.traject_id === trajectId && ritase.category === "MANDOR" && ritase.location === location) {
                 totalPnpCount += parseInt(ritase.pnp_count) || 0;
-
-                if (ritase.location == location) isLocationMatch = true
             }
         });
 
-        return isLocationMatch ? totalPnpCount : 0;
+        return totalPnpCount;
     }
 
     function _findCrewKarcis(trajectId) {
@@ -1371,6 +1368,7 @@ export default function DepositDetail(props) {
                                             .map((item, index) => {
 
                                                 let pnp = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id, item.desc))
+
 
                                                 return (
                                                     <Row
