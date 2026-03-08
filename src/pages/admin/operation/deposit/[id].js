@@ -47,7 +47,7 @@ export default function DepositDetail(props) {
         "operan": {
             "title": "OPERAN",
             "value": 0,
-            "disabled": true
+            "disabled": false
         },
         "refund": {
             'title': "KEMBALI UANG",
@@ -296,12 +296,12 @@ export default function DepositDetail(props) {
                 "operan": {
                     "title": _form.operan.title,
                     "value": operan,
-                    "disabled": true
+                    "disabled": false
                 },
                 "refund": {
                     "title": _form.refund.title,
                     "value": refund,
-                    "disabled": true
+                    "disabled": false
                 }
             })
 
@@ -870,7 +870,7 @@ export default function DepositDetail(props) {
 
             for (const key in _form) {
                 if (_form.hasOwnProperty(key)) {
-                    if ((key == "operan" || key == "refund") && _form[key].value > 0) {
+                    if ((key == "operan" || key == "refund")) {
                         payload.customValue.push({
                             id: 0,
                             name: key,
@@ -907,7 +907,9 @@ export default function DepositDetail(props) {
             })
 
             // Navigate back to index page to restore filter state
-            router.push('/admin/operation/deposit')
+            setTimeout(() => {
+                window.location.href = "/admin/operation/deposit"
+            }, 1000);
         } catch (e) {
             popAlert({
                 message: e.message || 'Gagal menerima setoran',
@@ -1256,13 +1258,13 @@ export default function DepositDetail(props) {
                                                                 color: field.value < 0 ? "red" : "inherit"
                                                             }}
                                                             disabled={field.disabled}
-                                                            type="currency"
-                                                            value={currency(String(field.value).replace(/\./g, ''))}
+                                                            type="text"
+                                                            value={field.value}
                                                             onChange={(value) => {
                                                                 _updateQuery({
                                                                     [key]: {
                                                                         ...field,
-                                                                        value: parseFloat(String(value).replace(/\./g, '')) || 0
+                                                                        value: currency(parseFloat(String(value).replace(/\./g, '')) || 0)
                                                                     }
                                                                 });
                                                             }}
