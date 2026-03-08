@@ -301,12 +301,14 @@ export default function Assignment(props) {
 
     /* ================= HEADER ================= */
 
-    doc.setFontSize(10)
-    doc.text('ROASTER CREW BUS', 105, 10, { align: 'center' })
+    const pageWidth = doc.internal.pageSize.getWidth()
 
     doc.setFontSize(10)
-    doc.text(`Trayek : ${trajectName}`, 105, 16, { align: 'center' })
-    doc.text(`Tanggal : ${tanggal}`, 105, 21, { align: 'center' })
+    doc.text('ROSTER CREW BUS', pageWidth / 2, 10, { align: 'center' })
+
+    doc.setFontSize(10)
+    doc.text(`Trayek : ${trajectName}`, pageWidth / 2, 16, { align: 'center' })
+    doc.text(`Tanggal : ${tanggal}`, pageWidth / 2, 21, { align: 'center' })
 
     const rows = []
 
