@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { get, postFormData, postJSON } from '../../../../api/utils'
+import { get, postFormData, postJSON, objectToParams } from '../../../../api/utils'
 import Main, { popAlert } from '../../../../components/Main'
 import AdminLayout from '../../../../components/AdminLayout'
 import Card from '../../../../components/Card'
@@ -8,6 +8,7 @@ import Button from '../../../../components/Button'
 import { Row, Col } from '../../../../components/Layout'
 import Input from '../../../../components/Input'
 import Modal, { ModalContent } from '../../../../components/Modal'
+import SwitchButton from '../../../../components/SwitchButton'
 import styles from './Deposit.module.scss'
 import Image from 'next/image'
 import { currency, dateFilter } from '../../../../utils/filters'
@@ -89,6 +90,29 @@ export default function DepositDetail(props) {
         { label: 'Jumlah' },
         { label: 'Total (Ribuan)' }
     ];
+
+    const [_movementPassengerForm, _setMovementPassengerForm] = useState([
+        {
+            "transferDate": "",
+            "trajectId": 0,
+            "ritase": 0,
+            "busIdAsal": 0,
+            "busIdTujuan": "",
+            "pnpCount": 0,
+            "amount": 0,
+            "isOperan": true
+        }
+    ])
+    const [_showMovementModal, _setShowMovementModal] = useState(false)
+    const [_movementFormData, _setMovementFormData] = useState({
+        "transferDate": "",
+        "busIdTujuan": "",
+        "pnpCount": 0,
+        "amount": 0,
+        "isOperan": true
+    })
+    const [_busRange, _setBusRange] = useState([])
+    const [_movementTableData, _setMovementTableData] = useState([])
 
     const cellStyle = {
         padding: '8px',
@@ -657,6 +681,75 @@ export default function DepositDetail(props) {
         return total + othersAmount;
     }
 
+    async function _getBus() {
+
+        const params = {
+            "startFrom": 0,
+            "length": 360
+        }
+
+        try {
+            const result = await get('/masterData/bus/list?' + objectToParams(params), props.authData.token)
+
+            _setBusRange(result.data)
+
+        } catch (e) {
+            popAlert({ message: e.message })
+            return []
+        }
+    }
+
+    function _openMovementModal() {
+        _getBus()
+        _setMovementFormData({
+            "transferDate": "",
+            "busIdTujuan": "",
+            "pnpCount": 0,
+            "amount": 0,
+            "isOperan": true
+        })
+        _setShowMovementModal(true)
+    }
+
+    function _updateMovementFormField(field, value) {
+        _setMovementFormData(prev => ({
+            ...prev,
+            [field]: value
+        }))
+    }
+
+    function _addMovementRecord() {
+        if (!_movementFormData.transferDate || !_movementFormData.busIdTujuan || _movementFormData.pnpCount <= 0 || _movementFormData.amount <= 0) {
+            popAlert({ message: 'Semua field harus diisi dengan benar', type: 'error' })
+            return
+        }
+
+        const newRecord = {
+            id: Date.now(),
+            ..._movementFormData,
+            busIdTujuanName: _busRange.find(b => b.id == _movementFormData.busIdTujuan)?.name || ''
+        }
+
+        _setMovementTableData(prev => [...prev, newRecord])
+        _setShowMovementModal(false)
+    }
+
+    function _deleteMovementRecord(id) {
+        _setMovementTableData(prev => prev.filter(item => item.id !== id))
+    }
+
+    function _editMovementRecord(record) {
+        _setMovementFormData({
+            "transferDate": record.transferDate,
+            "busIdTujuan": record.busIdTujuan,
+            "pnpCount": record.pnpCount,
+            "amount": record.amount,
+            "isOperan": record.isOperan
+        })
+        _deleteMovementRecord(record.id)
+        _setShowMovementModal(true)
+    }
+
     function _calculateIncomeByPercentage() {
         let total = {
             "incomeByPercentage": 0,
@@ -899,6 +992,9 @@ export default function DepositDetail(props) {
                 }
             );
 
+            console.log(payload)
+            return false
+
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
             popAlert({
@@ -907,9 +1003,9 @@ export default function DepositDetail(props) {
             })
 
             // Navigate back to index page to restore filter state
-            setTimeout(() => {
-                window.location.href = "/admin/operation/deposit"
-            }, 1000);
+            // setTimeout(() => {
+            //     window.location.href = "/admin/operation/deposit"
+            // }, 1000);
         } catch (e) {
             popAlert({
                 message: e.message || 'Gagal menerima setoran',
@@ -1180,6 +1276,71 @@ export default function DepositDetail(props) {
                                         })
                                     }
                                 </Row>
+
+                                {/* <Row>
+
+                                    <Button
+                                        title="Perpindahan"
+                                        styles={Button.error}
+                                        small
+                                        onClick={(e) => {
+                                            _openMovementModal()
+                                        }}
+                                    />
+                                </Row> */}
+
+                                {_movementTableData.length > 0 && (
+                                    <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+                                        <h4>Data Perpindahan Penumpang</h4>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
+                                            <thead>
+                                                <tr style={{ backgroundColor: '#f0f0f0' }}>
+                                                    <th style={{ ...cellStyle, textAlign: 'left' }}>Tanggal Transfer</th>
+                                                    <th style={{ ...cellStyle, textAlign: 'left' }}>Bus Tujuan</th>
+                                                    <th style={{ ...cellStyle, textAlign: 'right' }}>Jumlah Penumpang</th>
+                                                    <th style={{ ...cellStyle, textAlign: 'right' }}>Jumlah Uang</th>
+                                                    <th style={{ ...cellStyle, textAlign: 'center' }}>Tipe</th>
+                                                    <th style={{ ...cellStyle, textAlign: 'center' }}>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {_movementTableData.map((record, index) => (
+                                                    <tr key={record.id}>
+                                                        <td style={cellStyle}>{record.transferDate}</td>
+                                                        <td style={cellStyle}>{record.busIdTujuanName}</td>
+                                                        <td style={{ ...cellStyle, textAlign: 'right' }}>{record.pnpCount}</td>
+                                                        <td style={{ ...cellStyle, textAlign: 'right' }}>{currency(record.amount)}</td>
+                                                        <td style={{ ...cellStyle, textAlign: 'center' }}>
+                                                            <span style={{
+                                                                padding: '4px 8px',
+                                                                borderRadius: '4px',
+                                                                backgroundColor: record.isOperan ? '#e3f2fd' : '#fff3e0',
+                                                                fontSize: '12px'
+                                                            }}>
+                                                                {record.isOperan ? 'Pindah Bus' : 'Kembali Uang'}
+                                                            </span>
+                                                        </td>
+                                                        <td style={{ ...cellStyle, textAlign: 'center' }}>
+                                                            <Button
+                                                                title="Edit"
+                                                                styles={Button.primary}
+                                                                small
+                                                                onClick={() => _editMovementRecord(record)}
+                                                                style={{ marginRight: '5px' }}
+                                                            />
+                                                            <Button
+                                                                title="Hapus"
+                                                                styles={Button.error}
+                                                                small
+                                                                onClick={() => _deleteMovementRecord(record.id)}
+                                                            />
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
 
                                 <div
                                     style={{
@@ -2293,6 +2454,97 @@ export default function DepositDetail(props) {
                                     styles={Button.primary}
                                     onClick={_submitUpdate}
                                     onProcess={_isUpdating}
+                                />
+                            </Col>
+                        </Row>
+                    </ModalContent>
+                </Modal>
+
+                <Modal
+                    visible={_showMovementModal}
+                    centeredContent
+                >
+                    <ModalContent
+                        header={{
+                            title: "Tambah Perpindahan Penumpang",
+                            closeModal: () => _setShowMovementModal(false)
+                        }}
+                    >
+                        <div style={{ padding: '20px 0' }}>
+                            <div style={{ marginBottom: '20px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>
+                                    Tanggal Transfer
+                                </label>
+                                <Input
+                                    type="datetime-local"
+                                    value={_movementFormData.transferDate}
+                                    onChange={(value) => _updateMovementFormField('transferDate', value)}
+                                    placeholder="Pilih tanggal dan waktu"
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '20px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>
+                                    Bus Tujuan
+                                </label>
+                                <Input
+                                    value={_busRange.find(b => b.id == _movementFormData.busIdTujuan)?.name || ''}
+                                    onClick={() => { }}
+                                    suggestions={_busRange.map(bus => ({ id: bus.id, title: bus.name, value: bus.id }))}
+                                    suggestionField="title"
+                                    onSuggestionSelect={(suggestion) => _updateMovementFormField('busIdTujuan', suggestion.id)}
+                                    placeholder="Pilih bus tujuan"
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '20px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>
+                                    Jumlah Penumpang
+                                </label>
+                                <Input
+                                    type="number"
+                                    value={_movementFormData.pnpCount}
+                                    onChange={(value) => _updateMovementFormField('pnpCount', value)}
+                                    placeholder="Masukkan jumlah penumpang"
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '20px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>
+                                    Jumlah Uang (Rp)
+                                </label>
+                                <Input
+                                    type="number"
+                                    value={_movementFormData.amount}
+                                    onChange={(value) => _updateMovementFormField('amount', value)}
+                                    placeholder="Masukkan jumlah uang"
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <label style={{ fontSize: '14px', fontWeight: 'bold' }}>
+                                    {_movementFormData.isOperan ? 'Pindah Bus' : 'Kembali Uang'}
+                                </label>
+                                <SwitchButton
+                                    checked={_movementFormData.isOperan}
+                                    onClick={() => _updateMovementFormField('isOperan', !_movementFormData.isOperan)}
+                                />
+                            </div>
+                        </div>
+
+                        <Row spaceBetween>
+                            <Col>
+                                <Button
+                                    title="Batal"
+                                    styles={Button.secondary}
+                                    onClick={() => _setShowMovementModal(false)}
+                                />
+                            </Col>
+                            <Col alignEnd>
+                                <Button
+                                    title="Tambah"
+                                    styles={Button.primary}
+                                    onClick={_addMovementRecord}
                                 />
                             </Col>
                         </Row>

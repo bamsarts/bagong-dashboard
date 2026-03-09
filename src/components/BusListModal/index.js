@@ -174,6 +174,7 @@ export default function BusListModal(props = defaultProps) {
         try {
             let typeUrl = 'add'
             let query = { ..._form }
+            let typeMethod = "POST"
 
             delete query.category
             delete query.trajectType
@@ -196,6 +197,7 @@ export default function BusListModal(props = defaultProps) {
 
             if (props.data.id) {
                 typeUrl = 'update'
+                typeMethod = "PUT"
             } else {
                 delete query.id
             }
@@ -203,7 +205,9 @@ export default function BusListModal(props = defaultProps) {
             const result = await postJSON(
                 `/masterData/bus/${typeUrl}`,
                 query,
-                appContext.authData.token
+                appContext.authData.token,
+                false,
+                typeMethod
             )
 
             props.refresh()
