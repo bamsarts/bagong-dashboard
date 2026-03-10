@@ -9,6 +9,7 @@ import { Row, Col } from '../../../../components/Layout'
 import Input from '../../../../components/Input'
 import Modal, { ModalContent } from '../../../../components/Modal'
 import SwitchButton from '../../../../components/SwitchButton'
+import SelectFloating from '../../../../components/SelectFloating'
 import styles from './Deposit.module.scss'
 import Image from 'next/image'
 import { currency, dateFilter } from '../../../../utils/filters'
@@ -64,11 +65,11 @@ export default function DepositDetail(props) {
 
     const [_formSubmit, _setFormSubmit] = useState({
         "id": 0,
-        "busCrew1Id": 0,
+        "busCrew1Id": 0,  //kondektur
         "busCrew1Name": "",
-        "busCrew2Id": 0,
+        "busCrew2Id": 0,     //driver
         "busCrew2Name": "",
-        "busCrew3Id": 0,
+        "busCrew3Id": 0,  //kernet
         "busCrew3Name": "",
         "kmAwal": 0,
         "kmAkhir": 0,
@@ -109,7 +110,8 @@ export default function DepositDetail(props) {
         "busIdTujuan": "",
         "pnpCount": 0,
         "amount": 0,
-        "isOperan": true
+        "isOperan": true,
+        "ritase": ""
     })
     const [_busRange, _setBusRange] = useState([])
     const [_movementTableData, _setMovementTableData] = useState([])
@@ -139,7 +141,7 @@ export default function DepositDetail(props) {
                 "disabled": true
             }
         });
-    }, [_form.operan.value, _form.refund.value, _totalGrossAmount, _form])
+    }, [_form.operan.value, _form.refund.value, _totalGrossAmount])
 
 
     useEffect(() => {
@@ -175,14 +177,14 @@ export default function DepositDetail(props) {
 
     // Initialize _othersForm with default value from biaya details where name == "Lainnya"
     useEffect(() => {
-        if (_setoranData?.data?.biaya?.[0]?.details) {
+        if (_setoranData?.data?.biaya?.[0]?.details && _othersForm === 0) {
             let lainnyaItem = _setoranData.data.biaya[0].details.find(item => (item.name === "Lainnya" || item.name == "Lain-lain"));
 
             if (_setoranData?.data?.setoran?.status == "CREATED") {
                 lainnyaItem = _setoranData.data.images.find(item => item.title === "Lainnya")
             }
 
-            if (lainnyaItem && _othersForm === 0) {
+            if (lainnyaItem) {
                 _setOthersForm(parseInt(lainnyaItem.amount) || 0);
             }
         }
@@ -212,7 +214,7 @@ export default function DepositDetail(props) {
             generateTrack()
 
         }
-    }, [_setoranData, _totalGrossAmount, _totalExpenses, _editablePnp])
+    }, [_setoranData, _totalGrossAmount, _totalExpenses])
 
     useEffect(() => {
         console.log("mfa")
@@ -706,7 +708,8 @@ export default function DepositDetail(props) {
             "busIdTujuan": "",
             "pnpCount": 0,
             "amount": 0,
-            "isOperan": true
+            "isOperan": true,
+            "ritase": ""
         })
         _setShowMovementModal(true)
     }
@@ -719,7 +722,7 @@ export default function DepositDetail(props) {
     }
 
     function _addMovementRecord() {
-        if (!_movementFormData.transferDate || !_movementFormData.busIdTujuan || _movementFormData.pnpCount <= 0 || _movementFormData.amount <= 0) {
+        if (!_movementFormData.ritase || !_movementFormData.transferDate || !_movementFormData.busIdTujuan || _movementFormData.pnpCount <= 0 || _movementFormData.amount <= 0) {
             popAlert({ message: 'Semua field harus diisi dengan benar', type: 'error' })
             return
         }
@@ -744,7 +747,8 @@ export default function DepositDetail(props) {
             "busIdTujuan": record.busIdTujuan,
             "pnpCount": record.pnpCount,
             "amount": record.amount,
-            "isOperan": record.isOperan
+            "isOperan": record.isOperan,
+            "ritase": record.ritase
         })
         _deleteMovementRecord(record.id)
         _setShowMovementModal(true)
@@ -927,7 +931,9 @@ export default function DepositDetail(props) {
                 ..._formSubmit,
                 id: parseInt(id),
                 totalSetoran: (parseInt(String(_getFinalAmount()).replace(/\./g, ''))),
-                customValue: []
+                customValue: [],
+                passengerTransfer: _movementTableData
+
             }
 
             payload.status = status
@@ -961,19 +967,27 @@ export default function DepositDetail(props) {
                 }
             }
 
-            for (const key in _form) {
-                if (_form.hasOwnProperty(key)) {
-                    if ((key == "operan" || key == "refund")) {
-                        payload.customValue.push({
-                            id: 0,
-                            name: key,
-                            desc: _form[key].title,
-                            amount: _form[key].value,
-                            count: 0
-                        });
-                    }
-                }
-            }
+            // for (const key in _form) {
+            //     if (_form.hasOwnProperty(key)) {
+            //         if ((key == "operan" || key == "refund")) {
+            //             payload.customValue.push({
+            //                 id: 0,
+            //                 name: key,
+            //                 desc: _form[key].title,
+            //                 amount: _form[key].value,
+            //                 count: 0
+            //             });
+            //         }
+            //     }
+            // }
+
+            payload.passengerTransfer.forEach(function (val, key) {
+                delete val.id
+                delete val.busIdTujuanName
+                val.busIdAsal = val.ritase.bus_id
+                val.trajectId = val.ritase.traject_id
+                val.ritase = val.ritase.ritase
+            })
 
             payload.customValue.push(
                 // {
@@ -992,6 +1006,9 @@ export default function DepositDetail(props) {
                 }
             );
 
+            console.log(payload)
+            // return false
+
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
             popAlert({
@@ -1000,9 +1017,9 @@ export default function DepositDetail(props) {
             })
 
             // Navigate back to index page to restore filter state
-            setTimeout(() => {
-                window.location.href = "/admin/operation/deposit"
-            }, 1000);
+            // setTimeout(() => {
+            //     window.location.href = "/admin/operation/deposit"
+            // }, 1000);
         } catch (e) {
             popAlert({
                 message: e.message || 'Gagal menerima setoran',
@@ -1274,7 +1291,7 @@ export default function DepositDetail(props) {
                                     }
                                 </Row>
 
-                                {/* <Row>
+                                <Row>
 
                                     <Button
                                         title="Perpindahan"
@@ -1284,7 +1301,7 @@ export default function DepositDetail(props) {
                                             _openMovementModal()
                                         }}
                                     />
-                                </Row> */}
+                                </Row>
 
                                 {_movementTableData.length > 0 && (
                                     <div style={{ marginTop: '20px', marginBottom: '20px' }}>
@@ -1296,6 +1313,7 @@ export default function DepositDetail(props) {
                                                     <th style={{ ...cellStyle, textAlign: 'left' }}>Bus Tujuan</th>
                                                     <th style={{ ...cellStyle, textAlign: 'right' }}>Jumlah Penumpang</th>
                                                     <th style={{ ...cellStyle, textAlign: 'right' }}>Jumlah Uang</th>
+                                                    <th style={{ ...cellStyle, textAlign: 'right' }}>Ritase</th>
                                                     <th style={{ ...cellStyle, textAlign: 'center' }}>Tipe</th>
                                                     <th style={{ ...cellStyle, textAlign: 'center' }}>Aksi</th>
                                                 </tr>
@@ -1307,6 +1325,7 @@ export default function DepositDetail(props) {
                                                         <td style={cellStyle}>{record.busIdTujuanName}</td>
                                                         <td style={{ ...cellStyle, textAlign: 'right' }}>{record.pnpCount}</td>
                                                         <td style={{ ...cellStyle, textAlign: 'right' }}>{currency(record.amount)}</td>
+                                                        <td style={{ ...cellStyle, textAlign: 'right' }}>{currency(record.ritase)}</td>
                                                         <td style={{ ...cellStyle, textAlign: 'center' }}>
                                                             <span style={{
                                                                 padding: '4px 8px',
@@ -2515,6 +2534,25 @@ export default function DepositDetail(props) {
                                     value={_movementFormData.amount}
                                     onChange={(value) => _updateMovementFormField('amount', value)}
                                     placeholder="Masukkan jumlah uang"
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '20px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>
+                                    Trayek
+                                </label>
+                                <SelectFloating
+                                    row={{ __type: 'FIELD' }}
+                                    ranges={_setoranData?.data?.ritase?.map(ritase => ({
+                                        value: ritase,
+                                        title: `Ritase ${ritase.ritase} - ${ritase.traject_name}`
+                                    })) || []}
+                                    placeholder="Pilih trayek"
+                                    value={_movementFormData.ritase ?
+                                        `Ritase ${_movementFormData.ritase.ritase} - ${_setoranData?.data?.ritase?.find(r => r.ritase == _movementFormData.ritase.ritase)?.traject_name || ''}`
+                                        : ''
+                                    }
+                                    onSelect={(item) => _updateMovementFormField('ritase', item.value)}
                                 />
                             </div>
 

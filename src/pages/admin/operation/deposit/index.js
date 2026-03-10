@@ -23,6 +23,8 @@ export default function Deposit(props) {
     const [_trajectRange, _setTrajectRange] = useState([])
     const [_busRange, _setBusRange] = useState([])
     const [_userCrew, _setUserCrew] = useState([])
+    const [_selectedTrayek, _setSelectedTrayek] = useState(null)
+    const [_trayekFilterValue, _setTrayekFilterValue] = useState('')
 
     const __COLUMNS = [
         {
@@ -102,14 +104,14 @@ export default function Deposit(props) {
 
                 return (
                     <Label
-                    activeIndex={true}
-                    labels={[
-                        {
-                            "class": data.class,
-                            "title": data.title,
-                            "value": true
-                        }
-                    ]}
+                        activeIndex={true}
+                        labels={[
+                            {
+                                "class": data.class,
+                                "title": data.title,
+                                "value": true
+                            }
+                        ]}
                     />
                 )
             }
@@ -163,7 +165,7 @@ export default function Deposit(props) {
             justifyCenter
         >
             <Input
-                title={"Tanggal Penugasan Awal"}
+                title={"Penugasan Awal"}
                 onClick={onClick}
                 ref={ref}
                 value={_assignDate == "" ? "" : dateFilter.getMonthDate(_assignDate)}
@@ -179,7 +181,7 @@ export default function Deposit(props) {
             justifyCenter
         >
             <Input
-                title={"Tanggal Penugasan Akhir"}
+                title={"Penugasan Akhir"}
                 onClick={onClick}
                 ref={ref}
                 value={_assignEndDate == "" ? "" : dateFilter.getMonthDate(_assignEndDate)}
@@ -191,7 +193,7 @@ export default function Deposit(props) {
     ));
 
     useEffect(() => {
-        _getTraject()
+        _getTrayek()
         _restoreFilterState()
     }, [])
 
@@ -201,14 +203,14 @@ export default function Deposit(props) {
 
     useEffect(() => {
         _getData()
-    }, [_assignDate, _assignEndDate, _selectedBus])
+    }, [_assignDate, _assignEndDate, _selectedBus, _selectedTrayek])
 
-    function _statusLabel(value){
+    function _statusLabel(value) {
         let data = {
             class: "primary",
             title: value.status
         }
-        
+
         switch (value?.status) {
             case "CREATED":
                 data.title = "Belum Diterima"
@@ -227,10 +229,10 @@ export default function Deposit(props) {
                 data.class = "secondary"
                 break
         }
-        
+
         return data
     }
-    
+
 
     function _toggleModal(visible, data = {}) {
         _setModalVisible(visible)
@@ -254,7 +256,8 @@ export default function Deposit(props) {
             ...pagination,
             startDate: dateFilter.basicDate(new Date(_assignDate)).normal,
             endDate: dateFilter.basicDate(new Date(_assignEndDate)).normal,
-            ..._selectedBus && { busId: _selectedBus.id }
+            ..._selectedBus && { busId: _selectedBus.id },
+            ..._selectedTrayek && { trajectId: _selectedTrayek.id }
         }
 
         try {
@@ -271,16 +274,15 @@ export default function Deposit(props) {
         }
     }
 
-    async function _getTraject() {
+    async function _getTrayek() {
 
         const params = {
-            "companyId": props.authData.companyId,
             "startFrom": 0,
             "length": 360
         }
 
         try {
-            const result = await postJSON('/masterData/trayek/list', params, props.authData.token)
+            const result = await postJSON('/masterData/trayekMaster/list', params, props.authData.token)
 
             _setTrajectRange(result.data)
 
@@ -300,7 +302,7 @@ export default function Deposit(props) {
         }
 
         try {
-            const result = await get('/masterData/bus/list?'+objectToParams(params), props.authData.token)
+            const result = await get('/masterData/bus/list?' + objectToParams(params), props.authData.token)
 
             _setBusRange(result.data)
 
@@ -334,6 +336,8 @@ export default function Deposit(props) {
             assignEndDate: _assignEndDate,
             selectedBus: _selectedBus,
             busFilterValue: _busFilterValue,
+            selectedTrayek: _selectedTrayek,
+            trayekFilterValue: _trayekFilterValue,
             page: _page,
             paginationConfig: _paginationConfig
         }
@@ -350,6 +354,8 @@ export default function Deposit(props) {
                 _setAssignEndDate(new Date(filterState.assignEndDate))
                 _setSelectedBus(filterState.selectedBus)
                 _setBusFilterValue(filterState.busFilterValue || '')
+                _setSelectedTrayek(filterState.selectedTrayek)
+                _setTrayekFilterValue(filterState.trayekFilterValue || '')
                 _setPage(filterState.page)
                 _setPaginationConfig(filterState.paginationConfig)
             } catch (e) {
@@ -402,7 +408,7 @@ export default function Deposit(props) {
 
                             <Row>
                                 <Col
-                                    column={2}
+                                    column={1}
                                     withPadding
                                 >
                                     <DatePicker
@@ -420,7 +426,7 @@ export default function Deposit(props) {
                                 </Col>
 
                                 <Col
-                                    column={2}
+                                    column={1}
                                     withPadding
                                 >
                                     <DatePicker
@@ -454,18 +460,38 @@ export default function Deposit(props) {
                                 </Col>
 
                                 <Col
+                                    column={2}
+                                    withPadding
+                                >
+                                    <Input
+                                        title="Trayek"
+                                        placeholder="Pilih Trayek"
+                                        value={_trayekFilterValue}
+                                        onChange={(value) => _setTrayekFilterValue(value)}
+                                        suggestions={_trajectRange}
+                                        suggestionField="name"
+                                        onSuggestionSelect={(trayek) => {
+                                            _setSelectedTrayek(trayek)
+                                            _setTrayekFilterValue(trayek.name || trayek.code || '')
+                                        }}
+                                    />
+                                </Col>
+
+                                <Col
                                     column={1}
                                     withPadding
                                     alignEnd
                                     justifyEnd
                                 >
-                                    {_selectedBus && (
+                                    {(_selectedBus || _selectedTrayek) && (
                                         <Button
                                             title="Hapus Filter"
                                             styles={Button.secondary}
                                             onClick={() => {
                                                 _setSelectedBus(null)
                                                 _setBusFilterValue('')
+                                                _setSelectedTrayek(null)
+                                                _setTrayekFilterValue('')
                                             }}
                                             small
                                         />

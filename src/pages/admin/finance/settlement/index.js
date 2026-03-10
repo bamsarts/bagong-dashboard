@@ -45,14 +45,16 @@ export default function Settlement(props) {
 
     let __COLUMNS = [
         {
-            title: 'Tanggal Setoran',
+            title: 'Tanggal Transaksi',
             field: 'transaction_date',
             customCell: (value) => dateFilter.convertISO(new Date(value), "date")
         },
         {
-            title: 'Tanggal Transaksi',
+            title: 'Tanggal Setoran',
             field: 'setoran_date',
-            customCell: (value) => dateFilter.convertISO(new Date(value), "date")
+            customCell: (value, row) => {
+                return value ? dateFilter.convertISO(new Date(value), "date") : ""
+            }
         },
         {
             title: 'Trayek',
@@ -158,8 +160,28 @@ export default function Settlement(props) {
     ]
 
     const [_settlement, _setSettlement] = useState([])
+    const [_trajectBankData, _setTrajectBankData] = useState([])
 
     useEffect(() => {
+        const fetchTrajektBankData = async () => {
+            let params ={
+                startFrom: 0,
+                length: 360
+            }
+
+            try {
+                const res = await postJSON(`/masterData/trajectBank/list`, params, appContext.authData.token);
+                if (res && res.data) {
+                    _setTrajectBankData(res.data);
+                }
+            } catch (e) {
+                console.error("Failed to fetch traject bank data:", e);
+            }
+        };
+    }, [])
+
+    useEffect(() => {
+
         _getTrayekMaster()
         _getSettlement()
     }, [_startDate, _endDate])
@@ -214,6 +236,13 @@ export default function Settlement(props) {
                 return status;
         }
 
+    }
+
+    
+    function getTrajektNameByAccountNumber(accountNumber) {
+        if (!accountNumber || !_trajectBankData.length) return "";
+        const match = _trajectBankData.find(item => item.bank_account_number === String(accountNumber));
+        return match ? match["traject_name_alias"] : "";
     }
 
     async function _getSettlement() {
@@ -312,13 +341,22 @@ export default function Settlement(props) {
                                         {
                                             title: 'Tanggal Setoran',
                                             value: 'setoran_date',
-                                            customCell: (value) => dateFilter.convertISO(new Date(value), "date")
+                                            customCell: (value, row) => {
+                                                return value ?  dateFilter.convertISO(new Date(value), "date") : "" 
+                                            } 
                                         },
                                         {
                                             title: 'Nama PO',
                                             value: 'transaction_date',
                                             customCell: (value, row) => {
                                                 return 'Bagong'
+                                            }
+                                        },
+                                        {
+                                            title: 'Trayek (Master)',
+                                            value: 'traject_bank',
+                                            customCell: (value, row) => {
+                                                return getTrajektNameByAccountNumber(value[0].bank_account_number)
                                             }
                                         },
                                         {
@@ -331,7 +369,7 @@ export default function Settlement(props) {
                                             customCell: (value) => {
 
                                                 if (value.length > 0) {
-                                                    return value[0].bank_account_number
+                                                    return "'"+value[0].bank_account_number
                                                 }
                                             }
                                         },

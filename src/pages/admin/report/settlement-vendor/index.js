@@ -8,66 +8,45 @@ import Button from '../../../../components/Button'
 import { Col, Row } from '../../../../components/Layout'
 import Table from '../../../../components/Table'
 import Datepicker from '../../../../components/Datepicker'
-import Link from 'next/link'
 import { dateFilter, currency } from '../../../../utils/filters'
-import { FaRoute, FaUsers } from 'react-icons/fa'
-import generateClasses from '../../../../utils/generateClasses'
-import InsuranceModal from '../../../../components/InsuranceModal'
-import { AiFillEye } from 'react-icons/ai'
-import { writeXLSX, utils, writeFile } from 'xlsx'
+import { utils, writeFile } from 'xlsx'
 
 export default function SettlementVendor(props) {
 
-    const webApp = ["web.damri.bisku.id"]
-    const mobileApp = ["uat.damri.bisku.id", "8080.ilham.dev", "api.damri.bisku.id", "api.damri.ck.bisku.top"]
-
     const __COLUMNS = [
         {
-            title: 'Channel',
-            field: 'counter',
-            customCell: (value, row) => {
-
-
-                // Validate if data comes from webApp or mobileApp
-                if (webApp.includes(value)) {
-                    return "Web Reservasi"
-                } else if (mobileApp.includes(value)) {
-                    return "DAMRI Apps"
-                } else {
-                    return value // Return original value if not found in either array
-                }
-            }
-        },
-        {
-            title: 'Penyedia',
-            field: 'provider_name',
+            title: 'Penyedia Pembayaran',
+            field: 'payment_provider_name',
         },
         {
             title: 'Pembayaran',
-            field: 'metode_pembayaran',
-            textAlign: "left"
+            field: 'payment_provider_detail_name',
         },
         {
-            title: 'Tanggal Pembelian',
-            field: 'tanggal',
-            customCell: (value) => {
-                return dateFilter.getMonthDate(new Date(value))
-            }
+            title: 'Jumlah Transaksi',
+            field: 'transactionCount',
+            textAlign: "center"
+        },
+        {
+            title: 'Total Penumpang',
+            field: 'totalPassengers',
+            textAlign: "center"
         },
         {
             title: 'Nominal',
-            field: 'total_transaksi',
+            field: 'totalAmount',
             textAlign: 'right',
             customCell: (value) => currency(value)
         },
         {
             title: 'MDR',
-            field: 'biaya_mdr',
-            textAlign: "right"
+            field: 'totalMdr',
+            textAlign: "right",
+            customCell: (value) => currency(value)
         },
         {
             title: 'Nett Nominal',
-            field: 'total_setelah_mdr',
+            field: 'netAmount',
             textAlign: "right",
             customCell: (value) => currency(value)
         }
@@ -77,24 +56,25 @@ export default function SettlementVendor(props) {
         start: dateFilter.basicDate(new Date()).normal,
         end: dateFilter.basicDate(new Date()).normal
     })
+    const [_paymentProviderId, _setPaymentProviderId] = useState([2, 3])
     const [_isProcessing, _setIsProcessing] = useState(false)
     const [_report, _setReport] = useState([])
+    const [_reportXlsx, _setReportXlsx] = useState([])
 
-    async function _getReport(type = "LIST") {
+    async function _getReport(id) {
         _setIsProcessing(true)
         try {
             const param = {
+                companyId: props.authData.companyId,
                 startDate: _date.start,
                 endDate: _date.end,
-                typeResponse: type
+                paymentProviderId: id
             }
-            const res = await postJSON('/laporan/dashboard/data/settlement/list', param, props.authData.token, type == "CSV" ? true : false)
 
-            if (type == "CSV") {
-                _downloadCsv(res, `Settlement-penyedia-${_date.start}-s.d-${_date.end}.csv`);
-            } else {
-                _setReport(res.data)
-            }
+            const res = await postJSON('/laporan/dashboard/data/settlement/list', param, props.authData.token)
+
+            updateReport(res.summary)
+            _setReportXlsx(prev => [...prev, ...(res.transactions || [])])
 
             _setIsProcessing(false)
         } catch (e) {
@@ -103,54 +83,64 @@ export default function SettlementVendor(props) {
         }
     }
 
-    function _downloadCsv(data, fileName) {
-        let template = document.createElement('template')
-        let tableExport = "<table>"
+    
 
-        data = data.split("\n")
-        let headerRow = null
-        let counterColumnIndex = -1
+    
+    function _downloadTransactionsCsv(transactions, fileName) {
+        // Transform transactions data into worksheet format
+        const worksheetData = transactions.map(transaction => ({
+            'ID': transaction.id,
+            'Transaction Reference': transaction.transaction_reference || '',
+            'Partner Booking Code': transaction.partner_booking_code,
+            'Created At': new Date(transaction.created_at).toLocaleString(),
+            'Departure Date': transaction.departure_date,
+            'Traject Name': transaction.traject_name,
+            'Origin': transaction.origin_name,
+            'Destination': transaction.destination_name,
+            'Quantity': transaction.quantity,
+            'Amount': parseFloat(transaction.amount),
+            'Total Amount': parseFloat(transaction.total_amount),
+            'Discount': transaction.discount ? parseFloat(transaction.discount) : 0,
+            'Insurance': parseFloat(transaction.insurance),
+            'MDR': transaction.mdr,
+            'Payment Status': transaction.payment_status,
+            'Payment Provider': transaction.payment_provider_name,
+            'Payment Method': transaction.payment_provider_detail_name,
+            'Transaction Type': transaction.transaction_type
+        }));
 
-        data.forEach(function (val, key) {
-            let row = val.split(",")
+        // Create workbook and worksheet
+        const wb = utils.book_new();
+        const ws = utils.json_to_sheet(worksheetData);
 
-            // Find the counter column index from header row
-            if (key === 0) {
-                headerRow = row
-                counterColumnIndex = row.findIndex(header => header.toLowerCase().includes('counter') || header.toLowerCase().includes('channel'))
-            }
+        // Add worksheet to workbook
+        utils.book_append_sheet(wb, ws, 'Settlement Transactions');
 
-            tableExport += "<tr>"
-
-            row.forEach(function (i, j) {
-                let cellValue = i
-
-                // Transform counter column values if this is the counter column and not the header row
-                if (j === counterColumnIndex && key > 0) {
-                    if (webApp.includes(cellValue)) {
-                        cellValue = "Web Reservasi"
-                    } else if (mobileApp.includes(cellValue)) {
-                        cellValue = "DAMRI Apps"
-                    }
-                }
-
-                tableExport += "<td>" + cellValue + "</td>"
-            })
-
-            tableExport += "</tr>"
-
-        })
-
-        tableExport += "</table>"
-        template.innerHTML = tableExport
-
-        const wb = utils.table_to_book(template.content.firstChild)
-        return writeFile(wb, `${fileName.replace(".csv", "")}.xlsx`)
+        // Write file
+        return writeFile(wb, fileName);
     }
 
+    function updateReport(data = []) {
+        _setReport(oldQuery => {
+            return [
+                ...oldQuery,
+                ...data
+            ]
+        })
+    }
+
+
     useEffect(() => {
-        _getReport("LIST")
-    }, [])
+        
+        
+
+        _setReport([]) // Clear previous data on mount
+        _setReportXlsx([])
+        _paymentProviderId.forEach(id => {
+            _getReport(id)
+        });
+
+    }, [_date.start, _date.end]) // Re-fetch when dates change
 
     return (
         <Main>
@@ -201,7 +191,11 @@ export default function SettlementVendor(props) {
                                 title={'Cari Settlement'}
                                 onProcess={_isProcessing}
                                 onClick={() => {
-                                    _getReport("LIST")
+                                    _setReport([]) // Clear previous data
+                                    _setReportXlsx([])
+                                    _paymentProviderId.forEach(id => {
+                                        _getReport(id)
+                                    });
                                 }}
                             />
                         </Col>
@@ -216,7 +210,7 @@ export default function SettlementVendor(props) {
                                 title={'Export Xls'}
                                 onProcess={_isProcessing}
                                 onClick={() => {
-                                    _getReport("CSV")
+                                    _downloadTransactionsCsv(_reportXlsx, `Settlement-penyedia-${_date.start}-s.d-${_date.end}.xlsx`)
                                 }}
                             />
                         </Col>
