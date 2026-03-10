@@ -322,12 +322,12 @@ export default function DepositDetail(props) {
                 "operan": {
                     "title": _form.operan.title,
                     "value": operan,
-                    "disabled": false
+                    "disabled": true
                 },
                 "refund": {
                     "title": _form.refund.title,
                     "value": refund,
-                    "disabled": false
+                    "disabled": true
                 }
             })
 
@@ -1290,8 +1290,8 @@ export default function DepositDetail(props) {
                                         })
                                     }
                                 </Row>
-
-                                <Row>
+ 
+                                {/* <Row>
 
                                     <Button
                                         title="Perpindahan"
@@ -1301,7 +1301,7 @@ export default function DepositDetail(props) {
                                             _openMovementModal()
                                         }}
                                     />
-                                </Row>
+                                </Row> */}
 
                                 {_movementTableData.length > 0 && (
                                     <div style={{ marginTop: '20px', marginBottom: '20px' }}>

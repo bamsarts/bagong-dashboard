@@ -163,21 +163,7 @@ export default function Settlement(props) {
     const [_trajectBankData, _setTrajectBankData] = useState([])
 
     useEffect(() => {
-        const fetchTrajektBankData = async () => {
-            let params ={
-                startFrom: 0,
-                length: 360
-            }
-
-            try {
-                const res = await postJSON(`/masterData/trajectBank/list`, params, appContext.authData.token);
-                if (res && res.data) {
-                    _setTrajectBankData(res.data);
-                }
-            } catch (e) {
-                console.error("Failed to fetch traject bank data:", e);
-            }
-        };
+        
     }, [])
 
     useEffect(() => {
@@ -189,6 +175,23 @@ export default function Settlement(props) {
     useEffect(() => {
         // Get role access from localStorage
         const accessMenuDamri = getLocalStorage('access_menu_damri')
+
+        const fetchTrajektBankData = async () => {
+            let params ={
+                startFrom: 0,
+                length: 360
+            }
+
+            try {
+                const res = await postJSON(`/masterData/trajectBank/list`, params, props.authData.token);
+                if (res && res.data) {
+                    _setTrajectBankData(res.data);
+                }
+            } catch (e) {
+                console.error("Failed to fetch traject bank data:", e);
+            }
+        };
+
         if (accessMenuDamri) {
             try {
                 const roleData = JSON.parse(accessMenuDamri)
@@ -203,6 +206,8 @@ export default function Settlement(props) {
                 console.error('Error parsing role data:', e)
             }
         }
+
+        fetchTrajektBankData()
     }, [])
 
     async function _getTrayekMaster() {
