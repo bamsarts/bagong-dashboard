@@ -141,7 +141,7 @@ export default function DepositDetail(props) {
                 "disabled": true
             }
         });
-    }, [_form.operan.value, _form.refund.value, _totalGrossAmount])
+    }, [_form.operan.value, _form.refund.value, _totalGrossAmount, _form])
 
 
     useEffect(() => {
@@ -214,7 +214,7 @@ export default function DepositDetail(props) {
             generateTrack()
 
         }
-    }, [_setoranData, _totalGrossAmount, _totalExpenses])
+    }, [_setoranData, _totalGrossAmount, _totalExpenses, _editablePnp])
 
     useEffect(() => {
         console.log("mfa")
@@ -1006,9 +1006,7 @@ export default function DepositDetail(props) {
                 }
             );
 
-            console.log(payload)
-            // return false
-
+         
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
             popAlert({
@@ -1017,9 +1015,9 @@ export default function DepositDetail(props) {
             })
 
             // Navigate back to index page to restore filter state
-            // setTimeout(() => {
-            //     window.location.href = "/admin/operation/deposit"
-            // }, 1000);
+            setTimeout(() => {
+                window.location.href = "/admin/operation/deposit"
+            }, 1000);
         } catch (e) {
             popAlert({
                 message: e.message || 'Gagal menerima setoran',
