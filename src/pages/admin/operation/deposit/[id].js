@@ -141,7 +141,7 @@ export default function DepositDetail(props) {
                 "disabled": true
             }
         });
-    }, [_form.operan.value, _form.refund.value, _totalGrossAmount])
+    }, [_form.operan.value, _form.refund.value, _totalGrossAmount, _form])
 
 
     useEffect(() => {
@@ -214,7 +214,8 @@ export default function DepositDetail(props) {
             generateTrack()
 
         }
-    }, [_setoranData, _totalGrossAmount, _totalExpenses])
+    }, [_setoranData, _totalGrossAmount, _totalExpenses, _editablePnp])
+
 
     useEffect(() => {
         console.log("mfa")
@@ -1291,7 +1292,7 @@ export default function DepositDetail(props) {
                                     }
                                 </Row>
 
-                                <Row>
+                                {/* <Row>
 
                                     <Button
                                         title="Perpindahan"
@@ -1301,7 +1302,7 @@ export default function DepositDetail(props) {
                                             _openMovementModal()
                                         }}
                                     />
-                                </Row>
+                                </Row> */}
 
                                 {_movementTableData.length > 0 && (
                                     <div style={{ marginTop: '20px', marginBottom: '20px' }}>
@@ -2585,6 +2586,8 @@ export default function DepositDetail(props) {
                         </Row>
                     </ModalContent>
                 </Modal>
+
+                
             </AdminLayout>
         </Main>
     )
