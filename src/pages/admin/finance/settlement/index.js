@@ -169,7 +169,7 @@ export default function Settlement(props) {
     useEffect(() => {
 
         _getTrayekMaster()
-        _getSettlement()
+        _getSettlement(_page)
     }, [_startDate, _endDate])
 
     useEffect(() => {
@@ -250,18 +250,16 @@ export default function Settlement(props) {
         return match ? match["traject_name_alias"] : "";
     }
 
-    async function _getSettlement() {
+    async function _getSettlement(pagination = _page) {
         try {
             // Build query parameters
             const params = {
+                ...pagination,
                 startDate: dateFilter.basicDate(_startDate).normal,
                 endDate: dateFilter.basicDate(_endDate).normal,
-                orderBy: _orderBy,
-                startFrom: _startFrom.toString(),
-                length: _length.toString(),
-                sortMode: "desc",
-                query: null,
-                paymentCategory: "non_tunai"
+                paymentCategory: "non_tunai",
+                "orderBy": "transaction_date",
+                "sortMode": "asc",
             }
 
             const res = await postJSON("/data/settlement/list", params, props.authData.token)
@@ -271,6 +269,13 @@ export default function Settlement(props) {
                 _setSettlement([])
             } else {
                 _setSettlement(res.data)
+
+                _setPaginationConfig({
+                    recordLength : res?.totalFiltered,
+                    recordsPerPage : pagination.length,
+                    activePage : (pagination.startFrom / pagination.length) + 1,
+                    totalPages : Math.ceil(res?.totalFiltered / pagination.length)  
+                })
             }
 
         } catch (e) {
@@ -287,7 +292,7 @@ export default function Settlement(props) {
                 popAlert({ message: res.message, type: 'success' })
                 _setShowSettlementModal(false)
                 _setSelectedSettlement(null)
-                _getSettlement() // Refresh the data
+                _getSettlement(_page) // Refresh the data
             } else {
                 popAlert({ message: res.message || 'Gagal membuat settlement' })
             }
@@ -297,6 +302,16 @@ export default function Settlement(props) {
         } finally {
             _setIsProcessing(false)
         }
+    }
+
+    function _setPagination(pagination) {
+        _setPage(oldData => {
+            return {
+                ...oldData,
+                ...pagination
+            }
+        })
+        _getSettlement(pagination)
     }
 
     return (
@@ -418,12 +433,8 @@ export default function Settlement(props) {
                                     columns={__COLUMNS}
                                     records={_settlement}
                                     noPadding
-                                    onPageChange={(page) => {
-                                        _setPagination({ ..._page, page: page })
-                                    }}
-                                    onRecordsPerPageChange={(perPage) => {
-                                        _setPagination({ limit: perPage, page: 1 })
-                                    }}
+                                    onRecordsPerPageChange={perPage => _setPagination({ length : perPage, startFrom : 0 })}
+                                    onPageChange={page => _setPagination({ ..._page, startFrom : (page - 1) * _page.length })}
                                 />
                             </Card>
                         </>

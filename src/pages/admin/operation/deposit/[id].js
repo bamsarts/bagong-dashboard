@@ -209,8 +209,6 @@ export default function DepositDetail(props) {
                 "others": data.others
             })
 
-            console.log("manifestCost", data)
-
             generateTrack()
 
         }
@@ -298,7 +296,7 @@ export default function DepositDetail(props) {
                     totalGross += (ritase.cash_payment_amount + ritase.non_cash_payment_amount)
                 }
 
-                console.log("tac", tracks)
+
                 _setTrajectTracks(tracks)
             }
 
@@ -769,31 +767,46 @@ export default function DepositDetail(props) {
 
         _setoranData.data.biaya[0].details.forEach(item => {
             if (item.format_amount === "PERCENTAGE" && item.name == "Bonus Kru") {
-                const min = parseInt(item.min) || 0;
-                const max = parseInt(item.max) || 0;
+                // Check if there's an editable value for this item
+                if (_editablePnp[item.id] !== undefined) {
+                    // Use the editable value directly
+                    total.incomeByPercentage += _editablePnp[item.id];
+                } else {
+                    // Calculate based on percentage if no editable value
+                    const min = parseInt(item.min) || 0;
+                    const max = parseInt(item.max) || 0;
 
-                // Check if netIncome is within or above the range
-                if (netIncome >= min) {
-                    let calculableAmount = 0;
+                    // Check if netIncome is within or above the range
+                    if (netIncome >= min) {
+                        let calculableAmount = 0;
 
-                    if (max === 0) {
-                        // No upper limit - calculate from min to netIncome
-                        calculableAmount = netIncome - min;
-                    } else if (netIncome <= max) {
-                        // Within range - calculate from min to netIncome
-                        calculableAmount = netIncome - min;
-                    } else {
-                        // Above range - calculate only the portion within this range
-                        calculableAmount = max - min;
+                        if (max === 0) {
+                            // No upper limit - calculate from min to netIncome
+                            calculableAmount = netIncome - min;
+                        } else if (netIncome <= max) {
+                            // Within range - calculate from min to netIncome
+                            calculableAmount = netIncome - min;
+                        } else {
+                            // Above range - calculate only the portion within this range
+                            calculableAmount = max - min;
+                        }
+
+                        // Apply percentage to the calculable amount
+                        const percentageAmount = (calculableAmount * (parseInt(item.amount) || 0)) / 100;
+                        // Round to nearest thousand
+                        const roundedAmount = Math.floor(percentageAmount / 1000) * 1000;
+
+                        item.percentageAmount = roundedAmount;
+
+                        // On first load, use count property as multiplier if available
+                        if(item?.count){
+                            total.incomeByPercentage += parseInt(item.count)
+                        }else{
+                            total.incomeByPercentage += roundedAmount 
+                        }
+
+                        
                     }
-
-                    // Apply percentage to the calculable amount
-                    const percentageAmount = (calculableAmount * (parseInt(item.amount) || 0)) / 100;
-                    // Round to nearest thousand
-                    const roundedAmount = Math.floor(percentageAmount / 1000) * 1000;
-
-                    item.percentageAmount = roundedAmount;
-                    total.incomeByPercentage += roundedAmount;
                 }
             }
 
@@ -857,7 +870,6 @@ export default function DepositDetail(props) {
             })
         }
 
-        // console.log("tato", total)
         return total;
     }
 
@@ -1006,7 +1018,11 @@ export default function DepositDetail(props) {
                 }
             );
 
-         
+
+            console.log(payload)
+            // return false
+
+
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
             popAlert({
@@ -1015,9 +1031,9 @@ export default function DepositDetail(props) {
             })
 
             // Navigate back to index page to restore filter state
-            setTimeout(() => {
-                window.location.href = "/admin/operation/deposit"
-            }, 1000);
+            // setTimeout(() => {
+            //     window.location.href = "/admin/operation/deposit"
+            // }, 1000);
         } catch (e) {
             popAlert({
                 message: e.message || 'Gagal menerima setoran',
@@ -1288,7 +1304,7 @@ export default function DepositDetail(props) {
                                         })
                                     }
                                 </Row>
- 
+
                                 {/* <Row>
 
                                     <Button
@@ -1775,40 +1791,50 @@ export default function DepositDetail(props) {
                                     {
                                         _setoranData.data.biaya && _setoranData.data.biaya.length > 0 && _setoranData.data.biaya[0].details
                                             ?.filter(item => item.name === "Bonus Kru")
-                                            .map((item, index) => (
+                                            .map((item, index) => {
 
+                                                let amount = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : item.percentageAmount)
 
-                                                <Row
-                                                    key={item.id}
+                                                return (
+                                                    <Row
+                                                        key={item.id}
 
-                                                >
-                                                    <Col
-                                                        withPadding
-                                                        alignEnd
-                                                        justifyCenter
-                                                        column={5}
                                                     >
-                                                        <span>{item.desc} {item.amount}%</span>
-                                                    </Col>
+                                                        <Col
+                                                            withPadding
+                                                            alignEnd
+                                                            justifyCenter
+                                                            column={5}
+                                                        >
+                                                            <span>{item.desc} {item.amount}%</span>
+                                                        </Col>
 
 
-                                                    <Col
-                                                        withPadding
-                                                        column={1}
-                                                    >
-                                                        <Input
-                                                            type="number"
-                                                            value={currency(item?.percentageAmount)}
-                                                            placeholder={`Rp`}
-                                                            style={{
-                                                                textAlign: "right"
-                                                            }}
-                                                        />
-                                                    </Col>
+                                                        <Col
+                                                            withPadding
+                                                            column={1}
+                                                        >
+                                                            <Input
+                                                                type="currency"
+                                                                value={currency(String(amount).replace(/\./g, ''))}
+                                                                placeholder={`Rp`}
+                                                                style={{
+                                                                    textAlign: "right"
+                                                                }}
+                                                                onChange={(value) => {
+                                                                    _setEditablePnp(prev => ({
+                                                                        ...prev,
+                                                                        [item.id]: parseFloat(String(value).replace(/\./g, '')) || 0
+                                                                    }))
+                                                                }}
+                                                            />
+                                                        </Col>
 
-                                                </Row>
+                                                    </Row>
+                                                )
 
-                                            ))
+
+                                            })
                                     }
 
                                     <Row>
