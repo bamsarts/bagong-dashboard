@@ -161,121 +161,6 @@ export default function ChannelExportModal(props = defaultProps) {
         }
     }, [_dataExport])
 
-    function _downloadCsvTicket(data, fileName) {
-        let template = document.createElement('template');
-        let tableExport = "<table>";
-        const header = ["kode_booking", "penyedia_pembayaran", "tanggal_pembelian", "kode_trayek", "segmen",
-            "harga", "total_harga_stl_discount", "total_asuransi", "discount",
-            "biaya_transaksi", "metode_pembayaran",
-            "tanggal_keberangkatan", "jam_keberangkatan", "counter", "nama_cabang",
-            "kode_refrensi_transaksi", "ticket", "nama_promosi", "provider_promosi"];
-
-        data = data.split("\n").filter(line => line.trim() !== "");
-        if (data.length === 0) return;
-
-        const csvHeader = data[0].split(",");
-        const headerSet = new Set(header);
-        const keepIndexes = csvHeader.map((col, idx) => headerSet.has(col) ? idx : -1).filter(idx => idx !== -1);
-
-        // Table header
-        tableExport += "<tr>";
-        header.forEach(h => { tableExport += `<th>${h}</th>`; });
-        tableExport += "</tr>";
-
-        // Column indexes we need
-        const kodeBookingIdx = csvHeader.indexOf("kode_booking");
-        const discountIdx = csvHeader.indexOf("discount")
-        const counterIdx = csvHeader.indexOf("counter")
-        const mdrIdx = csvHeader.indexOf("biaya_transaksi")
-        const afterDiscountIdx = csvHeader.indexOf("total_harga_stl_discount")
-        const priceFareIdx = csvHeader.indexOf("harga")
-        const ticket = csvHeader.indexOf("ticket")
-
-        // 1) Count rows per booking
-        const bookingCounts = {};
-        for (let i = 1; i < data.length; i++) {
-            const row = data[i].split(",");
-            if (row.length < csvHeader.length) continue;
-            const kb = row[kodeBookingIdx];
-            if (!kb) continue;
-            bookingCounts[kb] = (bookingCounts[kb] || 0) + 1;
-        }
-
-        // Track how many rows we've emitted per booking (for remainder distribution)
-        const bookingSeen = {};
-
-        // 2) Emit rows with prorated biaya_transaksi
-        for (let i = 1; i < data.length; i++) {
-            let row = data[i].split(",");
-            if (row.length < csvHeader.length) continue;
-
-            // added single quotes
-            if (ticket !== -1 && row[ticket]) {
-                row[ticket] = "'" + row[ticket]
-            }
-
-            if (counterIdx !== -1) {
-
-                if (row[counterIdx] === "api.damri.bisku.id" || row[counterIdx] === "api.damri.ck.bisku.top" || row[counterIdx] === "null") row[counterIdx] = "DAMRI Apps"
-
-                if (row[counterIdx] === "web.damri.bisku.id") row[counterIdx] = "Web Reservasi"
-
-            }
-
-            const kb = row[kodeBookingIdx];
-
-            // Prorate discount by booking count
-            if (kb) {
-                const totalRows = bookingCounts[kb] || 1;
-                const currentRowIndex = bookingSeen[kb] || 0;
-                let totalDiscount = 0
-
-                if (discountIdx !== -1) {
-                    const original = parseInt(row[discountIdx] || "0", 10);
-                    // Base share + spread remainder to the first `remainder` rows
-                    const base = Math.floor(original / totalRows);
-                    const remainder = original % totalRows;
-                    // Give +1 to the first `remainder` rows
-                    const adjustedValue = currentRowIndex < remainder ? base + 1 : base;
-                    row[discountIdx] = String(adjustedValue);
-                    totalDiscount = adjustedValue
-                }
-
-                if (priceFareIdx !== -1) {
-                    const originalPriceFare = parseInt(row[priceFareIdx] || "0", 10);
-                    const basePriceFare = Math.floor(originalPriceFare - totalDiscount)
-                    row[afterDiscountIdx] = String(basePriceFare)
-                }
-
-                if (mdrIdx !== -1) {
-                    const originalMdr = parseInt(row[mdrIdx] || "0", 10)
-                    const baseMdr = Math.floor(originalMdr / totalRows);
-                    const remainderMdr = originalMdr % totalRows;
-                    // Give +1 to the first `remainder` rows
-                    const adjustedMdr = currentRowIndex < remainderMdr ? baseMdr + 1 : baseMdr;
-                    row[mdrIdx] = String(adjustedMdr)
-                }
-
-                bookingSeen[kb] = (bookingSeen[kb] || 0) + 1;
-
-            }
-
-
-            // Ensure last two optional columns blank if present
-            if (row.length > 1) row[row.length - 2] = "";
-            if (row.length > 0) row[row.length - 1] = "";
-
-            tableExport += "<tr>";
-            keepIndexes.forEach(idx => { tableExport += `<td>${row[idx] ?? ""}</td>`; });
-            tableExport += "</tr>";
-        }
-
-        tableExport += "</table>";
-        template.innerHTML = tableExport;
-
-        const wb = utils.table_to_book(template.content.firstChild);
-        return writeFile(wb, `${fileName.replace(".csv", "")}.xlsx`);
-    }
 
     /**
      * Parse a CSV row, handling quoted values that may contain commas.
@@ -469,6 +354,7 @@ export default function ChannelExportModal(props = defaultProps) {
             const paymentMethodIdx = csvHeader.indexOf("Payment Method");
             const totalAfterDiscountIdx = csvHeader.indexOf("Total Harga Setelah Discount");
             const passengerIdx = csvHeader.indexOf("Passenger Count");
+            const mdrIdx = csvHeader.indexOf("MDR")
 
             // Group transactions by Date + Route
             const groups = {};
@@ -495,19 +381,26 @@ export default function ChannelExportModal(props = defaultProps) {
                         passengerCount: 0,
                         qris: 0,
                         emoney: 0,
-                        trajectMaster: trajectMaster
+                        trajectMaster: trajectMaster,
+                        mdrQris: 0,
+                        mdrEmoney: 0
                     };
                 }
 
                 // Sum passenger count
                 groups[groupKey].passengerCount += parseInt(row[passengerIdx] || "0", 10);
+            
 
                 // Separate by payment method
                 const totalAmount = parseInt(row[totalAfterDiscountIdx] || "0", 10);
+                const mdr = parseInt(row[mdrIdx] || "0", 10);
+
                 if (paymentMethod.toLowerCase() === "qris") {
                     groups[groupKey].qris += totalAmount;
+                    groups[groupKey].mdrQris += mdr
                 } else if (paymentMethod.toLowerCase() === "emoney") {
                     groups[groupKey].emoney += totalAmount;
+                    groups[groupKey].mdrEmoney += mdr
                 }
             }
 
@@ -526,9 +419,9 @@ export default function ChannelExportModal(props = defaultProps) {
                 tableExport += `<td>${group.route}</td>`;
                 tableExport += `<td>${group.passengerCount}</td>`;
                 tableExport += `<td>${group.qris}</td>`;
-                tableExport += `<td>${mdrQris}</td>`;
+                tableExport += `<td>${group.mdrQris}</td>`;
                 tableExport += `<td>${group.emoney}</td>`;
-                tableExport += `<td>${mdrEmoney}</td>`;
+                tableExport += `<td>${group.mdrEmoney}</td>`;
                 tableExport += `<td>${feeBIS}</td>`;
                 tableExport += `<td>${Math.floor(ppn)}</td>`;
                 tableExport += "</tr>";

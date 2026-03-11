@@ -141,7 +141,7 @@ export default function DepositDetail(props) {
                 "disabled": true
             }
         });
-    }, [_form.operan.value, _form.refund.value, _totalGrossAmount, _form])
+    }, [_form.operan.value, _form.refund.value, _totalGrossAmount])
 
 
     useEffect(() => {
@@ -214,8 +214,7 @@ export default function DepositDetail(props) {
             generateTrack()
 
         }
-    }, [_setoranData, _totalGrossAmount, _totalExpenses, _editablePnp])
-
+    }, [_setoranData, _totalGrossAmount, _totalExpenses])
 
     useEffect(() => {
         console.log("mfa")
@@ -323,12 +322,12 @@ export default function DepositDetail(props) {
                 "operan": {
                     "title": _form.operan.title,
                     "value": operan,
-                    "disabled": false
+                    "disabled": true
                 },
                 "refund": {
                     "title": _form.refund.title,
                     "value": refund,
-                    "disabled": false
+                    "disabled": true
                 }
             })
 
@@ -1291,7 +1290,7 @@ export default function DepositDetail(props) {
                                         })
                                     }
                                 </Row>
-
+ 
                                 {/* <Row>
 
                                     <Button
@@ -2586,8 +2585,6 @@ export default function DepositDetail(props) {
                         </Row>
                     </ModalContent>
                 </Modal>
-
-                
             </AdminLayout>
         </Main>
     )
