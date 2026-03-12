@@ -799,13 +799,13 @@ export default function DepositDetail(props) {
                         item.percentageAmount = roundedAmount;
 
                         // On first load, use count property as multiplier if available
-                        if(item?.count){
+                        if (item?.count) {
                             total.incomeByPercentage += parseInt(item.count)
-                        }else{
-                            total.incomeByPercentage += roundedAmount 
+                        } else {
+                            total.incomeByPercentage += roundedAmount
                         }
 
-                        
+
                     }
                 }
             }
@@ -1016,7 +1016,7 @@ export default function DepositDetail(props) {
                     amount: _othersForm,
                     count: 0
                 }
-            );         
+            );
 
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
@@ -1788,8 +1788,12 @@ export default function DepositDetail(props) {
                                             ?.filter(item => item.name === "Bonus Kru")
                                             .map((item, index) => {
 
-                                                let amount = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : item.percentageAmount)
 
+                                                let amount =  item.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : item.percentageAmount)
+
+                                                if(_setoranData?.data.setoran.status == "APPROVED"){
+                                                    amount = (String(item?.count) == "1") ? item.percentageAmount : item.count
+                                                }
                                                 return (
                                                     <Row
                                                         key={item.id}
