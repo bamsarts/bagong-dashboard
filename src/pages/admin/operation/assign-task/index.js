@@ -148,6 +148,8 @@ export default function AssignTask(props) {
             "endDate": dateFilter.basicDate(new Date(_assignEndDate)).normal
         }
 
+        delete params.length
+
         try {
             const lists = await postJSON('/data/penugasan/list', params, props.authData.token)
             _setAssignLists(lists)

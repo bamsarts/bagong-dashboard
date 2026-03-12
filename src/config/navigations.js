@@ -112,7 +112,7 @@ export const FINANCE_DEPOSIT_COMMUTER = {
 export const TICKET_ORDER = {
     title : 'Pesan Tiket',
     href : ADMIN_BASE_URL + '/ticket-order',
-    isHide: false,
+    isHide: true,
     subMenus: [
         {
             title : 'AKAP',
@@ -281,7 +281,7 @@ export const NAVIGATIONS = [
             {
                 title : 'Profil',
                 href : ADMIN_BASE_URL + '/master-data/profile',
-                isHide: false,
+                isHide: true,
             },
             {
                 title : 'Bus',
@@ -335,6 +335,7 @@ export const NAVIGATIONS = [
                     },
                     {
                         title : 'Keanggotaan',
+                        isHide: true,
                         href : ADMIN_BASE_URL + '/master-data/user-and-access-role/membership'
                     }
                 ]
@@ -394,7 +395,8 @@ export const NAVIGATIONS = [
             },
             {
                 title : 'Shortlink',
-                href : ADMIN_BASE_URL + '/master-data/shortlink'
+                href : ADMIN_BASE_URL + '/master-data/shortlink',
+                isHide: true
             },
             {
                 title : 'Penugasan Template',
@@ -424,12 +426,12 @@ export const NAVIGATIONS = [
             {
                 title : 'Manifest Penumpang',
                 href : ADMIN_BASE_URL + '/schedule/manifest',
-                isHide: false,
+                isHide: true,
             },
             {
                 title : 'Rute Koneksi',
                 href : ADMIN_BASE_URL + '/schedule/connection-route',
-                isHide: false,
+                isHide: true,
             },
         ]
     },
@@ -447,12 +449,12 @@ export const NAVIGATIONS = [
             {
                 title : 'Pengembalian Dana',
                 href : ADMIN_BASE_URL + '/finance/refund',
-                isHide: false,
+                isHide: true,
             },
             {
                 title : 'Setoran',
                 href : ADMIN_BASE_URL + '/finance/deposit',
-                isHide: false,
+                isHide: true,
                 subMenus : [
                     // {
                     //     title : 'AKAP',
@@ -468,7 +470,7 @@ export const NAVIGATIONS = [
             {
                 title : 'Transaksi',
                 href : ADMIN_BASE_URL + '/finance/transaction',
-                isHide: false,
+                isHide: true,
                 subMenus : [
                     {
                         title : 'Pemadumoda',
@@ -480,17 +482,17 @@ export const NAVIGATIONS = [
             {
                 title : 'Deposit',
                 href : ADMIN_BASE_URL + '/finance/topup',
-                isHide: false
+                isHide: true
             },
             {
                 title : 'Emoney',
                 href : ADMIN_BASE_URL + '/finance/emoney',
-                isHide: false
+                isHide: true
             },
             {
                 title : 'Bukti Bayar Rpayku',
                 href : ADMIN_BASE_URL + '/finance/evidence-rpayku',
-                isHide: false
+                isHide: true
             }
         ]
     },
@@ -513,7 +515,7 @@ export const NAVIGATIONS = [
                     {
                         title : 'Pemadumoda',
                         href : ADMIN_BASE_URL + '/report/deposit/commuter',
-                        isHide: false
+                        isHide: true
                     },
                     {
                         title : 'AKAP',
@@ -539,18 +541,18 @@ export const NAVIGATIONS = [
                 subMenus : [
                     {
                         title : 'Pemadumoda',
-                        isHide: false,
+                        isHide: true,
                         href : ADMIN_BASE_URL + '/report/transaction/commuter'
                     },
                     {
-                        title : 'Penjualan Loket',
+                        title : 'Penjualan Bis',
                         href : ADMIN_BASE_URL + '/report/transaction/airport',
                         isHide: false,
                     },
                     {
                         title : 'Penjualan Shift',
                         href : ADMIN_BASE_URL + '/report/transaction/shift',
-                        isHide: false,
+                        isHide: true,
                     },
                     {
                         title : 'Penjualan Harian',
@@ -560,7 +562,7 @@ export const NAVIGATIONS = [
                     {
                         title : 'Zonasi',
                         href : ADMIN_BASE_URL + '/report/transaction/zone',
-                        isHide: false,
+                        isHide: true,
                     }
                 ]
             },
@@ -572,12 +574,12 @@ export const NAVIGATIONS = [
             {
                 title : 'Asuransi',
                 href : ADMIN_BASE_URL + '/report/insurance',
-                isHide: false,
+                isHide: true,
             },
             {
                 title : 'Promo',
                 href : ADMIN_BASE_URL + '/report/promo',
-                isHide: false,
+                isHide: true,
             },
             {
                 title : 'Settlement Penyedia',
@@ -595,7 +597,7 @@ export const NAVIGATIONS = [
             {
                 title : 'Marketing Promo',
                 href : ADMIN_BASE_URL + '/marketing-and-support/support/marketing',
-                isHide: false,
+                isHide: true,
                 subMenus : [
                     {
                         title : 'Promo',
@@ -622,7 +624,7 @@ export const NAVIGATIONS = [
             {
                 title : 'Broadcast',
                 href : ADMIN_BASE_URL + '/marketing-and-support/broadcast',
-                isHide: false,
+                isHide: true,
             },
             {
                 title : 'Tema Apps',
@@ -632,7 +634,7 @@ export const NAVIGATIONS = [
             {
                 title : 'Voucher',
                 href : ADMIN_BASE_URL + '/marketing-and-support/voucher-jrc',
-                isHide: false,
+                isHide: true,
             }
         ]
     },
@@ -663,12 +665,12 @@ export const NAVIGATIONS = [
         title : 'Modul WhatsApp',
         href : ADMIN_BASE_URL + '/modul-whatsapp',
         icon : <BsWhatsapp/>,
-        isHide: false,
+        isHide: true,
     },
     {
         title : 'Sandbox Newticket',
         href : ADMIN_BASE_URL + '/sandbox',
         icon : <BsWhatsapp/>,
-        isHide: false,
+        isHide: true,
     },
 ]

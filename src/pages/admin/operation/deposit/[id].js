@@ -1016,12 +1016,7 @@ export default function DepositDetail(props) {
                     amount: _othersForm,
                     count: 0
                 }
-            );
-
-
-            console.log(payload)
-            // return false
-
+            );         
 
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
@@ -1031,9 +1026,9 @@ export default function DepositDetail(props) {
             })
 
             // Navigate back to index page to restore filter state
-            // setTimeout(() => {
-            //     window.location.href = "/admin/operation/deposit"
-            // }, 1000);
+            setTimeout(() => {
+                window.location.href = "/admin/operation/deposit"
+            }, 1000);
         } catch (e) {
             popAlert({
                 message: e.message || 'Gagal menerima setoran',
