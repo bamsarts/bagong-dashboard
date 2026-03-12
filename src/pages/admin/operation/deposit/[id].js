@@ -314,12 +314,13 @@ export default function DepositDetail(props) {
             }
 
 
-            _setTotalGrossAmount(totalGross + refund + refund)
+            _setTotalGrossAmount(totalGross)
 
             _updateQuery({
                 "grossAmount": {
                     "title": _form.grossAmount.title,
-                    "value": totalGross
+                    "value": totalGross,
+                    "disabled": true
                 },
                 "operan": {
                     "title": _form.operan.title,
@@ -1026,6 +1027,8 @@ export default function DepositDetail(props) {
                 }
             );
 
+           
+
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
             popAlert({
@@ -1565,6 +1568,7 @@ export default function DepositDetail(props) {
 
                                                 let pnp = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id, item.desc))
 
+                                                
 
                                                 return (
                                                     <Row
