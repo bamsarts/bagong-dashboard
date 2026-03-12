@@ -141,7 +141,10 @@ export default function DepositDetail(props) {
                 "disabled": true
             }
         });
-    }, [_form.operan.value, _form.refund.value, _totalGrossAmount, _form])
+
+        _setTotalGrossAmount(newGrossAmount)
+
+    }, [_form.operan.value, _form.refund.value ])
 
 
     useEffect(() => {
@@ -310,7 +313,8 @@ export default function DepositDetail(props) {
                 })
             }
 
-            _setTotalGrossAmount(totalGross)
+
+            _setTotalGrossAmount(totalGross + refund + refund)
 
             _updateQuery({
                 "grossAmount": {
@@ -763,7 +767,11 @@ export default function DepositDetail(props) {
 
         if (!_setoranData?.data?.biaya?.[0]?.details) return total;
 
+
+
         const netIncome = _totalGrossAmount - _totalExpenses;
+
+        console.log("netinco", netIncome)
 
         _setoranData.data.biaya[0].details.forEach(item => {
             if (item.format_amount === "PERCENTAGE" && item.name == "Bonus Kru") {
