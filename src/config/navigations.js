@@ -318,6 +318,18 @@ export const NAVIGATIONS = [
                 ]
             },
             {
+                title : 'Counter',
+                href : ADMIN_BASE_URL + '/master-data/counter'
+            },
+            {
+                title : 'Company',
+                href : ADMIN_BASE_URL + '/master-data/company'
+            },
+            {
+                title : 'Config Apps',
+                href : ADMIN_BASE_URL + '/master-data/config-apps'
+            },
+            {
                 title : 'User & Role Akses',
                 href : ADMIN_BASE_URL + '/master-data/user-and-access-role',
                 subMenus : [
@@ -361,14 +373,6 @@ export const NAVIGATIONS = [
                         href : ADMIN_BASE_URL + '/master-data/traject/multi-traject'
                     }
                 ]
-            },
-            {
-                title : 'Counter',
-                href : ADMIN_BASE_URL + '/master-data/counter'
-            },
-            {
-                title : 'Company',
-                href : ADMIN_BASE_URL + '/master-data/company'
             },
             {
                 title : 'Media',

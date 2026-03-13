@@ -1028,7 +1028,6 @@ export default function DepositDetail(props) {
             );
 
            
-
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
             popAlert({

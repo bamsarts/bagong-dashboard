@@ -49,11 +49,20 @@ export default function ConfigAppsModal(props = defaultProps) {
         _setIsProcessing(true)
 
         try {
-            const query = {
+            let query = {
                 category: _form.category,
                 isActive: _form.isActive,
                 params: _form.params,
                 service: _form.service
+            }
+            let typeMethod = "POST"
+            let typeUrl ="add"
+
+            if(props.data?.id){
+                query.id = props.data.id
+
+                typeMethod = "PUT"
+                typeUrl = "update"
             }
 
             const isFilled = query.category && query.service && query.params
@@ -64,7 +73,7 @@ export default function ConfigAppsModal(props = defaultProps) {
                 return false;
             }
 
-            const result = await postJSON('/masterData/service/configApps/add', query, appContext.authData.token)
+            const result = await postJSON('/masterData/service/configApps/'+typeUrl, query, appContext.authData.token, false, typeMethod)
 
             if (result) {
                 props.closeModal()

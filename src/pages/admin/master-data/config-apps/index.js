@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 
-import { objectToParams, get } from '../../../../api/utils'
+import { objectToParams, get, postJSON } from '../../../../api/utils'
 import throttle from '../../../../utils/throttle'
-import { AiFillEdit } from 'react-icons/ai'
+import { AiFillEdit, AiFillDelete } from 'react-icons/ai'
 import Main, { popAlert } from '../../../../components/Main'
 import AdminLayout from '../../../../components/AdminLayout'
 import Card from '../../../../components/Card'
@@ -13,6 +13,7 @@ import Table from '../../../../components/Table'
 import ConfigAppsModal from '../../../../components/ConfigAppsModal'
 import { useRouter } from 'next/router'
 import Label from '../../../../components/Label'
+import ConfirmationModal from '../../../../components/ConfirmationModal'
 
 export default function ConfigApps(props) {
     const router = useRouter()
@@ -70,6 +71,15 @@ export default function ConfigApps(props) {
                                     _setForm(row)
                                 }}
                             />
+
+                            <Button
+                                tooltip={"Hapus"}
+                                icon={<AiFillDelete />}
+                                small
+                                onClick={() => {
+                                    _setFormDelete(row)
+                                }}
+                            />
                         </Col>
                     </Row>
                 )
@@ -88,6 +98,7 @@ export default function ConfigApps(props) {
     const [_searchQuery, _setSearchQuery] = useState(router.query?.refQuery ? router.query.refQuery : '')
     const [_isOpenModal, _setIsOpenModal] = useState(false)
     const [_form, _setForm] = useState({})
+    const [_formDelete, _setFormDelete] = useState({})
     const [_isProcessing, _setIsProcessing] = useState(false)
 
     const [_page, _setPage] = useState({
@@ -135,8 +146,43 @@ export default function ConfigApps(props) {
         }
     }
 
+    async function _deleteConfig() {
+        const params = {
+            "id": _formDelete.id
+        }
+
+        _setIsProcessing(true)
+
+        try {
+            const result = await postJSON('/masterData/service/configApps/delete', params, props.authData.token, false, "DELETE")
+
+            if (result) {
+                _getData(_page)
+                _setFormDelete({})
+            }
+
+        } catch (e) {
+            popAlert({ message: e.message })
+        } finally {
+            _setIsProcessing(false)
+        }
+    }
+
+
     return (
         <Main>
+
+            <ConfirmationModal
+                visible={_formDelete?.id}
+                closeModal={() => {
+                    _setFormDelete({})
+                }}
+                onDelete={() => {
+                    _deleteConfig()
+                }}
+                onLoading={_isProcessing}
+            />
+
             <ConfigAppsModal
                 visible={_isOpenModal}
                 closeModal={
