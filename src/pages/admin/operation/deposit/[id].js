@@ -808,7 +808,7 @@ export default function DepositDetail(props) {
                         item.percentageAmount = roundedAmount;
 
                         // On first load, use count property as multiplier if available
-                        if (item?.count) {
+                        if (item?.count && String(item.count) != "1") {
                             total.incomeByPercentage += parseInt(item.count)
                         } else {
                             total.incomeByPercentage += roundedAmount

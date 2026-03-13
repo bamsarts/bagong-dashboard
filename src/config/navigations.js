@@ -520,7 +520,7 @@ export const NAVIGATIONS = [
                     {
                         title : 'AKAP',
                         href : ADMIN_BASE_URL + '/report/deposit/akap',
-                        isHide: false
+                        isHide: true
                     },
                     {
                         title : 'Harian',
