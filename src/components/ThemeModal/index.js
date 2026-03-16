@@ -38,7 +38,7 @@ export default function ThemeModal(props = defaultProps) {
         "file": "",
         "fileMainScreen": "",
         "isActive": true,
-        "darkMode": 0,
+        "darkMode": true,
         "promo_logo": "",
         "promo_base_color": "",
         "promo_banner": "",
@@ -135,7 +135,7 @@ export default function ThemeModal(props = defaultProps) {
         }
     }
 
-   
+
     async function _submitData() {
 
         _setIsProcessing(true)
@@ -208,6 +208,10 @@ export default function ThemeModal(props = defaultProps) {
                 update.category = "SLIDEPROMO"
             }
 
+            update.promo_banner = props.data?.promoBanner
+            update.promo_logo = props.data?.promoLogo
+            update.promo_base_color = props.data?.promoBaseColor
+
             // update.isActive = update.isActive == 1 ? true : false
             // update.darkMode = update.darkMode == 1 ? true : false
 
@@ -247,7 +251,7 @@ export default function ThemeModal(props = defaultProps) {
                         column={6}
                     >
 
-                        
+
 
                         <Row
                             verticalEnd
@@ -445,6 +449,7 @@ export default function ThemeModal(props = defaultProps) {
                                             "endDate": date
                                         })
                                     }}
+                                    minDate={_form.startDate}
                                     customInput={<EndPeriodPicker />}
                                 />
                             </Col>
@@ -469,20 +474,20 @@ export default function ThemeModal(props = defaultProps) {
                                     {
                                         class: "warning",
                                         title: 'Gelap',
-                                        value: 1,
+                                        value: true,
                                         onClick: () => {
                                             _updateQuery({
-                                                "darkMode": 1,
+                                                "darkMode": true,
                                             })
                                         }
                                     },
                                     {
                                         class: "primary",
                                         title: 'Terang',
-                                        value: 0,
+                                        value: false,
                                         onClick: () => {
                                             _updateQuery({
-                                                "darkMode": 0,
+                                                "darkMode": false,
                                             })
 
                                         }

@@ -82,31 +82,20 @@ export default function SettlementVendor(props) {
             popAlert({ message: e.message })
         }
     }
-
-    
-
     
     function _downloadTransactionsCsv(transactions, fileName) {
         // Transform transactions data into worksheet format
         const worksheetData = transactions.map(transaction => ({
-            'ID': transaction.id,
-            'Transaction Reference': transaction.transaction_reference || '',
-            'Partner Booking Code': transaction.partner_booking_code,
-            'Created At': new Date(transaction.created_at).toLocaleString(),
-            'Departure Date': transaction.departure_date,
-            'Traject Name': transaction.traject_name,
-            'Origin': transaction.origin_name,
-            'Destination': transaction.destination_name,
-            'Quantity': transaction.quantity,
-            'Amount': parseFloat(transaction.amount),
-            'Total Amount': parseFloat(transaction.total_amount),
-            'Discount': transaction.discount ? parseFloat(transaction.discount) : 0,
-            'Insurance': parseFloat(transaction.insurance),
+            'Penyedia Pembayaran': transaction.payment_provider_name,
+            'Pembayaran': transaction.payment_provider_detail_name,
+            'Trayek': transaction.traject_name,
+            'Tanggal Transaksi': dateFilter.basicDate(new Date(transaction.created_at)).normal,
+            'Harga Tiket': parseFloat(transaction.amount),
+            'Penumpang': transaction.quantity,
+            'Diskon': transaction.discount ? parseFloat(transaction.discount) : 0,
+            'Total Harga Tiket Setelah Diskon': parseFloat(transaction.total_amount) - parseFloat(transaction.discount ? transaction.discount : 0),
             'MDR': transaction.mdr,
-            'Payment Status': transaction.payment_status,
-            'Payment Provider': transaction.payment_provider_name,
-            'Payment Method': transaction.payment_provider_detail_name,
-            'Transaction Type': transaction.transaction_type
+            'Total Setelah Biaya MDR': (parseFloat(transaction.total_amount) - transaction.mdr)
         }));
 
         // Create workbook and worksheet

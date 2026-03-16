@@ -113,6 +113,7 @@ export default function ConfigAppsModal(props = defaultProps) {
                 }}
             >
                 <Input
+                    disabled={props.data?.id}
                     withMargin
                     title={"Category"}
                     placeholder={'Masukan category'}
@@ -123,6 +124,7 @@ export default function ConfigAppsModal(props = defaultProps) {
                 />
 
                 <Input
+                    disabled={props.data?.id}
                     withMargin
                     title={"Service"}
                     placeholder={'Masukan service'}
@@ -133,6 +135,7 @@ export default function ConfigAppsModal(props = defaultProps) {
                 />
 
                 <Input
+                    disabled={props.data?.id}
                     withMargin
                     title={"Params"}
                     placeholder={'Masukan params'}

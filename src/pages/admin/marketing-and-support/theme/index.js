@@ -38,13 +38,13 @@ export default function Theme(props) {
                 return (
                     <>
                         <span
-                        style={{
-                            marginBottom: "1rem"
-                        }}
+                            style={{
+                                marginBottom: "1rem"
+                            }}
                         >
                             {value}
                         </span>
-                        
+
                     </>
                 )
             }
@@ -80,7 +80,7 @@ export default function Theme(props) {
             textAlign: 'left',
             customCell: (value, row) => {
 
-                 const isValidUrl = (string) => {
+                const isValidUrl = (string) => {
                     try {
                         new URL(string)
                         return true
@@ -102,36 +102,32 @@ export default function Theme(props) {
         },
         {
             title: 'Logo Promo',
-            field: 'promo_logo',
+            field: 'promoLogo',
             textAlign: 'left',
             customCell: (value, row) => {
-                const isValidUrl = (string) => {
-                    try {
-                        new URL(string)
-                        return true
-                    } catch (_) {
-                        return false
-                    }
+
+                if (value) {
+
+                    return (
+                        <img
+                            src={value}
+                            width={"100"}
+                            height={"auto"}
+                        />
+                    )
+                } else {
+                    return ''
                 }
 
-                const imageResult = isValidUrl(value)
-
-                return (
-                    <img
-                        src={imageResult}
-                        width={"100"}
-                        height={"auto"}
-                    />
-                )
             }
         },
         {
             title: 'Background Promo',
-            field: 'promo_banner',
+            field: 'promoBanner',
             textAlign: 'left',
             customCell: (value, row) => {
 
-                 const isValidUrl = (string) => {
+                const isValidUrl = (string) => {
                     try {
                         new URL(string)
                         return true
@@ -260,7 +256,7 @@ export default function Theme(props) {
         }
 
         try {
-            const result = await get('/masterData/tematik/apps/list?'+objectToParams(params), props.authData.token)
+            const result = await get('/masterData/tematik/apps/list?' + objectToParams(params), props.authData.token)
 
             _setThemeLists(result.data)
 

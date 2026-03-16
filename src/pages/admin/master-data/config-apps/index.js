@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { objectToParams, get, postJSON } from '../../../../api/utils'
 import throttle from '../../../../utils/throttle'
-import { AiFillEdit, AiFillDelete } from 'react-icons/ai'
+import { AiFillDelete, AiFillEye } from 'react-icons/ai'
 import Main, { popAlert } from '../../../../components/Main'
 import AdminLayout from '../../../../components/AdminLayout'
 import Card from '../../../../components/Card'
@@ -12,8 +12,8 @@ import Input from '../../../../components/Input'
 import Table from '../../../../components/Table'
 import ConfigAppsModal from '../../../../components/ConfigAppsModal'
 import { useRouter } from 'next/router'
-import Label from '../../../../components/Label'
 import ConfirmationModal from '../../../../components/ConfirmationModal'
+import SwitchButton from '../../../../components/SwitchButton'
 
 export default function ConfigApps(props) {
     const router = useRouter()
@@ -40,15 +40,31 @@ export default function ConfigApps(props) {
             minWidth: '60px',
             customCell: (value, row) => {
                 return (
-                    <Label
-                        activeIndex={true}
-                        labels={[
-                            {
-                                "class": value ? 'primary' : "warning",
-                                "title": value ? 'Aktif' : "Tidak Aktif",
-                                "value": true
+                    <SwitchButton
+                        checked={value}
+                        onClick={async () => {
+                            try {
+                                const result = await postJSON(
+                                    '/masterData/service/configApps/update',
+                                    {
+                                        id: row.id,
+                                        isActive: !value,
+                                        service: row.service,
+                                        category: row.category,
+                                        params: row.params
+                                    },
+                                    props.authData.token,
+                                    false,
+                                    "PUT"
+                                )
+                                if (result) {
+                                    _getData(_page)
+                                    popAlert({ message: "Status berhasil diubah", type: "success" })
+                                }
+                            } catch (e) {
+                                popAlert({ message: e.message })
                             }
-                        ]}
+                        }}
                     />
                 )
             }
@@ -61,10 +77,12 @@ export default function ConfigApps(props) {
             customCell: (value, row) => {
                 return (
                     <Row>
-                        <Col withPadding>
+                        <Col
+                            withPadding
+                        >
                             <Button
                                 tooltip={"Ubah"}
-                                icon={<AiFillEdit />}
+                                icon={<AiFillEye />}
                                 small
                                 onClick={() => {
                                     _setIsOpenModal(true)
@@ -72,7 +90,13 @@ export default function ConfigApps(props) {
                                 }}
                             />
 
+
+                        </Col>
+                        <Col
+                            withPadding
+                        >
                             <Button
+                                styles={Button.error}
                                 tooltip={"Hapus"}
                                 icon={<AiFillDelete />}
                                 small
@@ -209,7 +233,9 @@ export default function ConfigApps(props) {
                             _setPagination({ ..._page, startFrom: (page - 1) * _page.length })
                         }}
                         headerContent={(
-                            <Row>
+                            <Row
+
+                            >
                                 <Col column={2}>
                                     <Input
                                         placeholder={'Cari'}

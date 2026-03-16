@@ -351,71 +351,79 @@ export default function Table(props = defaultProps) {
                         </thead>
                         <tbody>
                             {
-                                props.records.map((record, key) => {
+                                props.records.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={props.columns.filter(col => !col.hide).length} style={{ textAlign: 'center', padding: '2rem' }}>
+                                            Pencarian / Data tidak tersedia
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    props.records.map((record, key) => {
 
-                                    if (props.customRow) {
-                                        return props.customRow(record, key)
-                                    } else {
-                                        return (
-                                            <tr
-                                                key={key}
-                                                onClick={() => props.onRowClick ? props.onRowClick(record) : false}
-                                            >
-                                                {
-                                                    props.columns.map((column, key2) => {
-                                                        if (!column.hide) {
-                                                            const value = record[column.field]
-                                                            // if(value != null){
-                                                            return (
-                                                                <td
-                                                                    key={key2}
-                                                                    className={column.className}
-                                                                    style={{
-                                                                        ...column.style,
-                                                                        ...(column?.minWidth && { "min-width": column.minWidth })
-                                                                    }}
-                                                                >
-                                                                    {
-                                                                        column.checkbox
-                                                                            ? (
-                                                                                <div
-                                                                                    className={styles.checkbox}
-                                                                                >
-                                                                                    <input
-                                                                                        type={'checkbox'}
-                                                                                        checked={_checked.includes(value || key) || column.disabled(record)}
-                                                                                        onChange={() => {
-                                                                                            _check(value || key)
-                                                                                        }}
-                                                                                        disabled={column.disabled(record)}
-                                                                                    />
-                                                                                </div>
-                                                                            )
-                                                                            : (
-                                                                                <div
-                                                                                    className={generateClasses([
-                                                                                        column.textAlign == "left" && styles.text_left,
-                                                                                        column.textAlign == "right" && styles.text_right
-                                                                                    ])}
-                                                                                >
-                                                                                    {
-                                                                                        column.customCell ? column.customCell(value, record, key) : value
-                                                                                    }
-                                                                                </div>
-                                                                            )
-                                                                    }
-                                                                </td>
-                                                            )
+                                        if (props.customRow) {
+                                            return props.customRow(record, key)
+                                        } else {
+                                            return (
+                                                <tr
+                                                    key={key}
+                                                    onClick={() => props.onRowClick ? props.onRowClick(record) : false}
+                                                >
+                                                    {
+                                                        props.columns.map((column, key2) => {
+                                                            if (!column.hide) {
+                                                                const value = record[column.field]
+                                                                // if(value != null){
+                                                                return (
+                                                                    <td
+                                                                        key={key2}
+                                                                        className={column.className}
+                                                                        style={{
+                                                                            ...column.style,
+                                                                            ...(column?.minWidth && { "min-width": column.minWidth })
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            column.checkbox
+                                                                                ? (
+                                                                                    <div
+                                                                                        className={styles.checkbox}
+                                                                                    >
+                                                                                        <input
+                                                                                            type={'checkbox'}
+                                                                                            checked={_checked.includes(value || key) || column.disabled(record)}
+                                                                                            onChange={() => {
+                                                                                                _check(value || key)
+                                                                                            }}
+                                                                                            disabled={column.disabled(record)}
+                                                                                        />
+                                                                                    </div>
+                                                                                )
+                                                                                : (
+                                                                                    <div
+                                                                                        className={generateClasses([
+                                                                                            column.textAlign == "left" && styles.text_left,
+                                                                                            column.textAlign == "right" && styles.text_right
+                                                                                        ])}
+                                                                                    >
+                                                                                        {
+                                                                                            column.customCell ? column.customCell(value, record, key) : value
+                                                                                        }
+                                                                                    </div>
+                                                                                )
+                                                                        }
+                                                                    </td>
+                                                                )
 
-                                                            // }
-                                                        }
-                                                    })
-                                                }
-                                            </tr>
-                                        )
-                                    }
+                                                                // }
+                                                            }
+                                                        })
+                                                    }
+                                                </tr>
+                                            )
+                                        }
 
-                                })
+                                    })
+                                )
                             }
                             {
                                 props.insertColumns && (
