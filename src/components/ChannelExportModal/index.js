@@ -451,7 +451,14 @@ export default function ChannelExportModal(props = defaultProps) {
                 }
 
                 if (dateDeparture !== -1) {
-                    row[dateDeparture] = "'" + row[dateDeparture]
+                    // Convert date from YYYY-MM-DD to DD/MM/YYYY format
+                    const dateValue = row[dateDeparture];
+                    if (dateValue && dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                        const [year, month, day] = dateValue.split('-');
+                        row[dateDeparture] = "'" + `${day}/${month}/${year}`;
+                    } else {
+                        row[dateDeparture] = "'" + row[dateDeparture];
+                    }
                 }
 
                 if (accAcount !== -1) {
