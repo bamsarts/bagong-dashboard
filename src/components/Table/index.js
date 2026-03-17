@@ -21,7 +21,7 @@ const defaultProps = {
     onRecordsPerPageChange: null,
     onPageChange: null,
     defaultLength: 10,
-    recordsPerPageValues: [10, 25, 50, 2000, 5000, 10000],
+    recordsPerPageValues: [10, 25, 50, 200, 5000, 10000],
     config: {
         recordLength: null,
         recordsPerPage: 10,
@@ -521,13 +521,11 @@ export default function Table(props = defaultProps) {
                                 </div>
                             )}
 
-                        {
-                            props.config?.recordLength && (
+                       
                                 <span>
                                     Total Records {props.config.recordLength || props.records.length}
                                 </span>
-                            )
-                        }
+                            
 
                         <div
                             className={styles.pagination_container}>

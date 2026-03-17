@@ -90,7 +90,7 @@ export default function ChannelExportModal(props = defaultProps) {
     // Fetch traject bank data on component mount
     useEffect(() => {
         const fetchTrajektBankData = async () => {
-            let params ={
+            let params = {
                 startFrom: 0,
                 length: 360
             }
@@ -338,7 +338,7 @@ export default function ChannelExportModal(props = defaultProps) {
 
                 tableExport += "<tr>";
                 tableExport += `<td>'${group.date}</td>`;
-                 tableExport += `<td>${group.trajectMaster}</td>`;
+                tableExport += `<td>${group.trajectMaster}</td>`;
                 tableExport += `<td>${group.route}</td>`;
                 tableExport += `<td>${group.passengerCount}</td>`;
                 tableExport += `<td>${group.totalTunai}</td>`;
@@ -389,7 +389,7 @@ export default function ChannelExportModal(props = defaultProps) {
 
                 // Sum passenger count
                 groups[groupKey].passengerCount += parseInt(row[passengerIdx] || "0", 10);
-            
+
 
                 // Separate by payment method
                 const totalAmount = parseInt(row[totalAfterDiscountIdx] || "0", 10);
@@ -430,12 +430,22 @@ export default function ChannelExportModal(props = defaultProps) {
         } else {
             // Original logic for transaction and setoran types
             for (let i = 1; i < data.length; i++) {
+
+
                 let row = parseCSVRow(data[i]);
                 if (row.length < csvHeader.length) continue;
                 let tempAccNumber = row[accNumber]
 
                 if (dateDeposit !== -1 && type == "setoran") {
                     if (row[dateDeposit] == "-") {
+                        continue;
+                    }
+                }
+
+                // Filter data by dateDeparture between _date.start and _date.end
+                if (dateDeparture !== -1) {
+                    const rowDate = row[dateDeparture];
+                    if (rowDate && (rowDate < _date.start || rowDate > _date.end)) {
                         continue;
                     }
                 }

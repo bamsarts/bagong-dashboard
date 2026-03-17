@@ -13,6 +13,30 @@ import Datepicker from '../../../../../components/Datepicker'
 import { BsChevronRight } from 'react-icons/bs'
 import ReportAirportModal from '../../../../../components/ReportAirportModal'
 
+function groupTransactionsByBusName(data) {
+    const grouped = {}
+
+    data.forEach(item => {
+        if (!grouped[item.bus_name]) {
+            grouped[item.bus_name] = {
+                ...item,
+                ritase: [item.ritase],
+                total_passengers: parseInt(item.total_passengers),
+                amount: parseInt(item.amount)
+            }
+        } else {
+            grouped[item.bus_name].ritase.push(item.ritase)
+            grouped[item.bus_name].total_passengers += parseInt(item.total_passengers)
+            grouped[item.bus_name].amount += parseInt(item.amount)
+        }
+    })
+
+    return Object.values(grouped).map(item => ({
+        ...item,
+        ritase: item.ritase.join(', ')
+    }))
+}
+
 export default function Sales(props) {
     const [_date, _setDate] = useState({
         start: dateFilter.basicDate(new Date()).normal,
@@ -82,7 +106,7 @@ export default function Sales(props) {
         try {
             const res = await get(`/data/laporan/monitoring/transactions/by-bus?${params}`, props.authData.token)
 
-            _setSalesReport(res.data || [])
+            _setSalesReport(groupTransactionsByBusName(res.data || []))
             _setSummary(res.summary || {
                 total_buses: 0,
                 total_penugasan: 0,

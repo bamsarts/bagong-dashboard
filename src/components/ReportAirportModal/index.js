@@ -40,7 +40,7 @@ export default function ReportAirportModal(props = ReportAirportModal.defaultPro
             props.transactions.forEach(transaction => {
                 let date = transaction.tanggal_transaksi.split("T")
 
-                if((parseInt(transaction.ritase) == parseInt(props.busInfo.ritase)) && (date[0] == props.busInfo.date || transaction.tanggal_keberangkatan == props.busInfo.date)){
+                if((date[0] == props.busInfo.date || transaction.tanggal_keberangkatan == props.busInfo.date)){
                     const amount = parseInt(transaction.harga_akhir) || 0
                     totalAmount += amount
                     

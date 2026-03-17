@@ -772,8 +772,6 @@ export default function DepositDetail(props) {
 
         const netIncome = _totalGrossAmount - _totalExpenses;
 
-        console.log("netinco", netIncome)
-
         _setoranData.data.biaya[0].details.forEach(item => {
             if (item.format_amount === "PERCENTAGE" && item.name == "Bonus Kru") {
                 // Check if there's an editable value for this item

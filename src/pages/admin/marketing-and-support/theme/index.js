@@ -180,7 +180,7 @@ export default function Theme(props) {
             field: 'updatedAt',
             minWidth: '60px',
             customCell: (value, row) => {
-                return dateFilter.getMonthDate(new Date(value)) + value.split(" ")[1]
+                return dateFilter.getMonthDate(new Date(value)) + " "+ value.split(" ")[1]
             }
         },
         {

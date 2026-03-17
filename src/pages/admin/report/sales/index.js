@@ -14,6 +14,9 @@ import { currency, dateFilter, role } from '../../../../utils/filters'
 import { utils } from 'xlsx'
 import { getSessionStorage, setSessionStorage } from '../../../../utils/session-storage'
 import { getLocalStorage, setLocalStorage } from '../../../../utils/local-storage'
+import RevenueReportDisplay from '../../../../components/RevenueReportDisplay'
+
+import { objectToParams } from '../../../../api/utils'
 
 export default function Sales(props) {
 
@@ -51,6 +54,8 @@ export default function Sales(props) {
     const [_rowInfo, _setRowInfo] = useState({})
     const [_isLoaded, _setIsLoaded] = useState(false)
     const [_accessMenu, _setAccessMenu] = useState([])
+    const [csvData, setCsvData] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -70,250 +75,355 @@ export default function Sales(props) {
         }
     }, [])
 
-    const __INSERT_COLUMNS = [
-        [
-            { value : 'Total', colSpan : 2},
-            { value : _summary.pnp },
-            { value : currency(_summary.cash), textAlign: 'right' },
-            { value : currency(_summary.debit), textAlign: 'right' },
-            { value : currency(_summary.kredit), textAlign: 'right' },
-            { value : currency(_summary.emoney), textAlign: 'right' },
-            { value : currency(_summary.qris), textAlign: 'right' },
-            { value : currency(_summary.edcBri), textAlign: 'right' },
-            { value : currency(_summary.edcMandiri), textAlign: 'right' },
-            { value : currency(_summary.edcBni), textAlign: 'right' },
-            { value : currency(_summary.edcBca), textAlign: 'right' },
-            { value : currency(_summary.edcBtn), textAlign: 'right' },
-            { value : currency(_summary.qrisTap), textAlign: 'right' },
-            { value : currency(_summary.totalNominal), textAlign: 'right' },
-            { value : currency(_summary.mdr), textAlign: 'right', hide: !_getRole() },
-            { value : "", colSpan: 2 },
-        ],
-    ]
 
-    let __COLUMNS = [
-        {
-            title: 'Counter',
-            field : 'counterName',
-            textAlign: 'left'
-        },
-        {   
-            title: 'Tanggal',
-            field : 'dateTransaction',
-            customCell : (value) => dateFilter.getMonthDate(new Date(value))
-        },
-        {
-            title: 'Pnp',
-            minWidth: '110px',
-            field : 'totalPnp',
-        },
-        {
-            title: 'Tunai (Rp)',
-            field : 'cash',
-            textAlign: 'right',
-            customCell : (value) => currency(value)
-        },
-        {
-            title: 'Debit (Rp)',
-            field : 'debit',
-            textAlign: 'right',
-            customCell : (value) => currency(value)
-        },
-        {
-            title: 'Kredit (Rp)',
-            field : 'kredit',
-            textAlign: 'right',
-            customCell : (value) => currency(value)
-        },
-        {
-            title: 'Emoney (Rp)',
-            field : 'emoney',
-            textAlign: 'right',
-            minWidth: '150px',
-            customCell : (value) => currency(value)
-        },
-        {
-            title: 'QRIS (Rp)',
-            field : 'qris',
-            textAlign: 'right',
-            minWidth: '150px',
-            customCell : (value) => currency(value)
-        },
-        {
-            title: 'EDC BRI',
-            field : 'edcBankBri',
-            textAlign: 'right',
-            minWidth: "70px",
-            customCell : (value) => currency(value)
-        },
-        {
-            title: 'EDC Mandiri',
-            field : 'edcBankMandiri',
-            textAlign: 'right',
-            minWidth: '150px',
-            customCell : (value) => currency(value)
-        },       
-        {
-            title: 'EDC BNI',
-            field : 'edcBankBni',
-            textAlign: 'right',
-            minWidth: '130px',
-            customCell : (value) => currency(value)
-        },        
-        {
-            title: 'EDC BCA',
-            field : 'edcBankBca',
-            textAlign: 'right',
-            minWidth: '130px',
-            customCell : (value) => currency(value)
-        },       
-        {
-            title: 'EDC BTN',
-            field : 'edcBankBtn',
-            textAlign: 'right',
-            minWidth: "70px",
-            customCell : (value) => currency(value)
-        },       
-        {
-            title: 'QRIS Tap',
-            field : 'qrisTap',
-            textAlign: 'right',
-            minWidth: "70px",
-            customCell : (value) => currency(value)
-        },       
-        {
-            title: 'Total Nominal (Rp)',
-            field : 'totalAmount',
-            textAlign: 'right',
-            customCell : (value) => currency(value)
-        },
-        {
-            title: 'Fee (Rp)',
-            field : 'mdrValue',
-            textAlign: 'right',
-            customCell : (value) => currency(value),
-            hide: !_getRole()
-        },
-        {
-            title: 'Status',
-            field : 'status',
-            customCell : (value) => {
-                return value ? 'Selesai' : 'Belum Selesai'
-            }
-        },
-        {
-            field : 'counterId',
-            customCell : (value, record) => {
-                return (
-                    <Button
-                    title={'Rincian'}
-                    styles={Button.warning}
-                    onProcess={_isProcessingDetail}
-                    onClick={(value) => {
-                        _getSalesReportDetail(record)
-                        _setRowInfo(record)
-                    }}
-                    small
-                    />
-                )
-            }
-        }
-    ]
     
 
     useEffect(() => {
        
     },[])
 
-    function summary(row){
-        let cash, emoney, qris, debit, kredit, totalNominal, pnp, mdr, edcBtn, edcMandiri, edcBni, edcBri, edcBca, qrisTap
+ 
 
-        cash = emoney = qris = debit = kredit = totalNominal = pnp = mdr = edcBtn = edcMandiri = edcBca = edcBni = edcBri = qrisTap = 0
-              
-        if (row.length > 0) {
-            row.forEach(item => {
-                let mdrValue = item.mdrValue == null ? 0 : item.mdrValue
+    async function _getAllChannelReport() {
 
-                pnp += item.totalPnp
-                cash += item.cash
-                emoney += item.emoney
-                qris += item.qris
-                debit += item.debit
-                kredit += item.kredit
-                totalNominal += item.totalAmount
-                mdr += mdrValue
-                edcBca += item.edcBankBca
-                edcBri += item.edcBankBri
-                edcBtn += item.edcBankBtn
-                edcMandiri += item.edcBankMandiri
-                edcBni += item.edcBankBni
-                qrisTap += item.qrisTap
-            })
-
-            _setSummary({
-                pnp, cash, emoney, qris, debit, kredit, totalNominal, mdr, edcBca, edcBri, edcBtn, edcMandiri, edcBni, qrisTap
-            })
-        }
-    }
-
-    async function _getSalesReportDetail(row) {
-        _setIsProcessingDetail(true)
-
-        let params = {
-            counterId : row.counterId,
-            date : row.dateTransaction,
-            length: 1460,
-            startFrom: 0,
-        }
-
-        try {
-            const res = await postJSON(`/laporan/pendapatan/commuter/detail`, params, props.authData.token)
-            _setSalesReportDetail(res)
-            _setIsProcessingDetail(false)
-            _setOpenModalDetail(true)
-        } catch (e) {
-            popAlert({ message : e.message })
-            _setIsProcessingDetail(false)
-        }
-    }
-
-    async function _getSalesReport() {
-
-        let params = {
-            companyId : props.authData.companyId,
-            startFrom : 0,
-            length: 1370,
-            orderBy: "created_at",
-            sortMode: 'desc',
-            startDate: _date.start,
-            endDate: _date.end
-        }
-
-        if(!_compareDate(params.startDate, params.endDate)){
-            popAlert({ message : 'Rentang tanggal maksimal 7 hari', type : 'info' })
+        if (!_compareDate(_date.start, _date.end)) {
+            popAlert({ message: 'Rentang tanggal maksimal 31 hari', type: 'info' })
             return false
         }
 
-        if(props.branch?.branchId) params.branchId = props.branch?.branchId
-        if(_counter.value != "") params.counterId = _counter.value
-
         _setIsProcessing(true)
 
+        let params = {
+            companyId: appContext.authData.companyId,
+            startDate: _date.start,
+            endDate: _date.end,
+            dateBy: _selectedType.value
+        }
+
+        if (_selectedGroup.title == "Tiket") params.formatReport = "CSV"
+        if (appContext.branch?.branchId) params.branchId = appContext.branch.branchId
+
         try {
-            const res = await postJSON(`/laporan/pendapatan/commuter/list`, params, props.authData.token)
-            _setSalesReport(res.data)
-            _setIsProcessing(false)
-            summary(res.data)
-            if (res.data.length === 0) {
-                popAlert({ message : 'Tidak ada pendapatan', type : 'info' })
+            // Since the API returns a file with proper headers, we'll handle it as a blob
+            const res = await get(`/laporan/penjualan/harian/export` + _selectedGroup.value + `?${objectToParams(params)}`, appContext.authData.token, true);
+
+            if (_selectedType.title == "Transaksi") {
+                _downloadCsv(res, `Transaksi-${_date.start}-s.d-${_date.end}.csv`);
+
+            } else if (_selectedType.title == "Pendapatan Tunai") {
+                _downloadCsv(res, `Pendapatan-Tunai-${_date.start}-s.d-${_date.end}.csv`, "cashRevenue")
+            } else if (_selectedType.title == "Pendapatan Non Tunai") {
+                _downloadCsv(res, `Pendapatan-Non-Tunai-${_date.start}-s.d-${_date.end}.csv`, "cashlessRevenue")
+            } else {
+                _downloadCsv(res, `Setoran-${_date.start}-s.d-${_date.end}.csv`, "setoran");
             }
+
+            _setIsProcessing(false)
         } catch (e) {
-            if(e.message?.name){
-                popAlert({ message : e.message.name })
-            }else{
-                popAlert({ message : e.message })
-            }
+            popAlert({ message: e.message })
             _setIsProcessing(false)
+        }
+    }
+    
+
+     function _downloadCsv(data, fileName, type = "transaction") {
+        let template = document.createElement('template')
+        let tableExport = "<table>"
+
+        // Define desired columns in the order we want them in the export
+        const headerTransaction = ["Transaction ID", "Penyedia Pembayaran", "Date", "Kode Trayek", "Trayek (Master)", "Route", "Origin",
+            "Destination", "Bus Name", "Cabang Trayek", "Booking Code", "Departure Date", "Passenger Count",
+            "Base Fare", "Total Harga Tiket", "Diskon", "Total Harga Setelah Discount", "MDR", "Payment Method",
+            "Channel", "Payment Status", "Status Setoran", "Nomor Rekening", "Nama Rekening"];
+
+
+        const headerDeposit = ["Transaction ID", "Penyedia Pembayaran", "Date", "Kode Trayek", "Trayek (Master)", "Route", "Origin",
+            "Destination", "Bus Name", "Cabang Trayek", "Booking Code", "Tanggal Setoran", "Passenger Count",
+            "Base Fare", "Total Harga Tiket", "Diskon", "Total Harga Setelah Discount", "MDR", "Payment Method",
+            "Channel"];
+
+        const headerDepositCash = ["Date", "Trayek (Master)", "Route", "Passenger Count", "Tunai", "Fee BIS", "PPN"]
+
+        const headerDepositCashless = ["Date", "Trayek (Master)", "Route", "Passenger Count", "QRIS", "MDR Qris", "Emoney", "MDR Emoney", "Fee BIS", "PPN"]
+
+        let header = headerTransaction
+
+        if (type == "setoran") {
+            header = headerDeposit
+        } else if (type == "cashRevenue") {
+            header = headerDepositCash
+        } else if (type == "cashlessRevenue") {
+            header = headerDepositCashless
+        }
+
+        let translate = {
+            "Base Fare": "Harga Tiket",
+            "Passenger Count": "Jumlah Penumpang",
+            "Cabang Trayek": "Cabang",
+            "Origin": "Asal",
+            "Destination": "Tujuan",
+            "Transaction ID": "Kode Transaksi",
+            "Date": "Tanggal Pembelian Tiket",
+            "Route": "Rute",
+            "Bus Name": "Nopol",
+            "Payment Method": "Metode Pembayaran",
+            "Booking Code": "Kode Booking",
+            "Departure Date": "Tanggal Keberangkatan"
+        }
+
+
+        data = data.split("\n").filter(line => line.trim() !== "");
+
+        if (data.length === 0) return;
+
+        const csvHeader = parseCSVRow(data[0]);
+
+        // Map each desired header to its index in the CSV
+        const columnMapping = header.map(h => csvHeader.indexOf(h));
+
+        // Table header
+        tableExport += "<tr>";
+        header.forEach(h => { tableExport += `<th>${translate[h] || h}</th>`; });
+        tableExport += "</tr>";
+
+        // Column indexes we need
+        const dateDeparture = csvHeader.indexOf("Date")
+        const accAcount = csvHeader.indexOf("Nomor Rekening")
+        const dateDeposit = csvHeader.indexOf("Tanggal Setoran")
+        const baseFare = csvHeader.indexOf("Base Fare")
+        const passenger = csvHeader.indexOf("Passenger Count")
+        const paymentMethod = csvHeader.indexOf("Payment Method")
+        const depositStatus = csvHeader.indexOf("Status Setoran")
+        const accNumber = csvHeader.indexOf("Nomor Rekening")
+        const accName = csvHeader.indexOf("Nama Rekening")
+
+        // Handle cashRevenue grouping
+        if (type == "cashRevenue") {
+            const routeIdx = csvHeader.indexOf("Route");
+            const dateIdx = csvHeader.indexOf("Date");
+            const paymentTypeIdx = csvHeader.indexOf("Payment Type");
+            const totalAfterDiscountIdx = csvHeader.indexOf("Total Harga Setelah Discount");
+            const passengerIdx = csvHeader.indexOf("Passenger Count");
+
+            // Group transactions by Date + Route
+            const groups = {};
+
+            for (let i = 1; i < data.length; i++) {
+                let row = parseCSVRow(data[i]);
+                if (row.length < csvHeader.length) continue;
+
+                // Only include "Tunai" payment type
+                if (paymentTypeIdx !== -1 && row[paymentTypeIdx] !== "Tunai") {
+                    continue;
+                }
+
+                const date = row[dateIdx] || "";
+                const route = row[routeIdx] || "";
+                const groupKey = `${date}|${route}`;
+                const trajectMaster = getTrajektNameByAccountNumber(row[accNumber])
+
+                if (!groups[groupKey]) {
+                    groups[groupKey] = {
+                        date: date,
+                        route: route,
+                        passengerCount: 0,
+                        totalTunai: 0,
+                        trajectMaster: trajectMaster
+                    };
+                }
+
+                // Sum passenger count and total after discount
+                groups[groupKey].passengerCount += parseInt(row[passengerIdx] || "0", 10);
+                groups[groupKey].totalTunai += parseInt(row[totalAfterDiscountIdx] || "0", 10);
+            }
+
+            // Output grouped rows
+            Object.values(groups).forEach(group => {
+                const feeBIS = group.totalTunai * 0.012;
+                const ppn = feeBIS * (11 / 111);
+
+                tableExport += "<tr>";
+                tableExport += `<td>'${group.date}</td>`;
+                 tableExport += `<td>${group.trajectMaster}</td>`;
+                tableExport += `<td>${group.route}</td>`;
+                tableExport += `<td>${group.passengerCount}</td>`;
+                tableExport += `<td>${group.totalTunai}</td>`;
+                tableExport += `<td>${feeBIS}</td>`;
+                tableExport += `<td>${Math.floor(ppn)}</td>`;
+                tableExport += "</tr>";
+            });
+
+        } else if (type == "cashlessRevenue") {
+            const routeIdx = csvHeader.indexOf("Route");
+            const dateIdx = csvHeader.indexOf("Date");
+            const paymentTypeIdx = csvHeader.indexOf("Payment Type");
+            const paymentMethodIdx = csvHeader.indexOf("Payment Method");
+            const totalAfterDiscountIdx = csvHeader.indexOf("Total Harga Setelah Discount");
+            const passengerIdx = csvHeader.indexOf("Passenger Count");
+            const mdrIdx = csvHeader.indexOf("MDR")
+
+            // Group transactions by Date + Route
+            const groups = {};
+
+            for (let i = 1; i < data.length; i++) {
+                let row = parseCSVRow(data[i]);
+                if (row.length < csvHeader.length) continue;
+
+                // Only include "Non-Tunai" payment type
+                if (paymentTypeIdx !== -1 && row[paymentTypeIdx] !== "Non-Tunai") {
+                    continue;
+                }
+
+                const date = row[dateIdx] || "";
+                const route = row[routeIdx] || "";
+                const paymentMethod = row[paymentMethodIdx] || "";
+                const groupKey = `${date}|${route}`;
+                const trajectMaster = getTrajektNameByAccountNumber(row[accNumber])
+
+                if (!groups[groupKey]) {
+                    groups[groupKey] = {
+                        date: date,
+                        route: route,
+                        passengerCount: 0,
+                        qris: 0,
+                        emoney: 0,
+                        trajectMaster: trajectMaster,
+                        mdrQris: 0,
+                        mdrEmoney: 0
+                    };
+                }
+
+                // Sum passenger count
+                groups[groupKey].passengerCount += parseInt(row[passengerIdx] || "0", 10);
+            
+
+                // Separate by payment method
+                const totalAmount = parseInt(row[totalAfterDiscountIdx] || "0", 10);
+                const mdr = parseInt(row[mdrIdx] || "0", 10);
+
+                if (paymentMethod.toLowerCase() === "qris") {
+                    groups[groupKey].qris += totalAmount;
+                    groups[groupKey].mdrQris += mdr
+                } else if (paymentMethod.toLowerCase() === "emoney") {
+                    groups[groupKey].emoney += totalAmount;
+                    groups[groupKey].mdrEmoney += mdr
+                }
+            }
+
+            // Output grouped rows
+            Object.values(groups).forEach(group => {
+                const totalCashless = group.qris + group.emoney;
+                const feeBIS = totalCashless * 0.012;
+                const ppn = feeBIS * (11 / 111);
+                const mdrQris = group.qris * 0.007
+                const mdrEmoney = group.emoney * 0.02
+
+
+                tableExport += "<tr>";
+                tableExport += `<td>'${group.date}</td>`;
+                tableExport += `<td>${group.trajectMaster}</td>`;
+                tableExport += `<td>${group.route}</td>`;
+                tableExport += `<td>${group.passengerCount}</td>`;
+                tableExport += `<td>${group.qris}</td>`;
+                tableExport += `<td>${group.mdrQris}</td>`;
+                tableExport += `<td>${group.emoney}</td>`;
+                tableExport += `<td>${group.mdrEmoney}</td>`;
+                tableExport += `<td>${feeBIS}</td>`;
+                tableExport += `<td>${Math.floor(ppn)}</td>`;
+                tableExport += "</tr>";
+            });
+
+        } else {
+            // Original logic for transaction and setoran types
+            for (let i = 1; i < data.length; i++) {
+                let row = parseCSVRow(data[i]);
+                if (row.length < csvHeader.length) continue;
+                let tempAccNumber = row[accNumber]
+
+                if (dateDeposit !== -1 && type == "setoran") {
+                    if (row[dateDeposit] == "-") {
+                        continue;
+                    }
+                }
+
+                if (dateDeparture !== -1) {
+                    row[dateDeparture] = "'" + row[dateDeparture]
+                }
+
+                if (accAcount !== -1) {
+                    row[accAcount] = "'" + row[accAcount]
+                }
+
+                row[paymentMethod] = row[paymentMethod] == "qris" ? "QRIS" : capitalizeFirstLetter(row[paymentMethod])
+
+                if (row[paymentMethod] == "Cash") {
+                    row[accNumber] = ""
+                    row[accName] = ""
+                }
+
+
+                if (depositStatus !== -1) {
+                    row[depositStatus] = row[depositStatus] == "Sudah Setoran" ? 'Done' : "Pending"
+                }
+
+                // Calculate Total Harga Tiket (Passenger Count * Base Fare)
+                let calculatedTotalFare = "";
+                if (passenger !== -1 && baseFare !== -1) {
+                    const passengerCount = parseInt(row[passenger] || "0", 10);
+                    const baseFareValue = parseInt(row[baseFare] || "0", 10);
+                    calculatedTotalFare = String(passengerCount * baseFareValue);
+                }
+
+                tableExport += "<tr>";
+                columnMapping.forEach((idx, colIndex) => {
+                    if (header[colIndex] === "Total Harga Tiket") {
+                        // This is the "Total Harga Tiket" column that doesn't exist in CSV
+                        tableExport += `<td>${calculatedTotalFare}</td>`;
+                    } else if (header[colIndex] === "Trayek (Master)") {
+                        // This is the "Trayek (Master)" column - get from bank data
+                        const trajektName = getTrajektNameByAccountNumber(tempAccNumber);
+                        tableExport += `<td>${trajektName}</td>`;
+                    } else {
+                        tableExport += `<td>${row[idx] ?? ""}</td>`;
+                    }
+                });
+                tableExport += "</tr>";
+            }
+        }
+
+
+        tableExport += "</table>"
+        template.innerHTML = tableExport
+
+        const wb = utils.table_to_book(template.content.firstChild)
+        return writeFile(wb, `${fileName.replace(".csv", "")}.xlsx`)
+    }
+
+   
+
+    async function _getSalesReport() {
+
+        setIsLoading(true)
+        
+         let params = {
+            companyId: props.authData.companyId,
+            startDate: _date.start,
+            endDate: _date.end,
+            dateBy: "transaction"
+        }
+
+        try {
+            const res = await get(
+                `/laporan/penjualan/harian/export/csv?${objectToParams(params)}`,
+                props.authData.token,
+                true
+            )
+            
+            setCsvData(res) // res should be the CSV text
+            setIsLoading(false)
+        } catch (e) {
+            popAlert({ message: e.message })
+            setIsLoading(false)
         }
     }
 
@@ -392,15 +502,7 @@ export default function Sales(props) {
 
     return (
         <Main>
-            <ReportSalesModal
-            visible={_openModalDetail}
-            closeModal={() => {
-                _setOpenModalDetail(false)
-            }}
-            report={_salesReportDetail}
-            rowInfo={_rowInfo}
-            >
-            </ReportSalesModal>
+           
             
             <AdminLayout>
                 <Card>
@@ -456,29 +558,7 @@ export default function Sales(props) {
                                 </Col>
                             </Row>
                         </Col>
-                        <Col
-                        column={2}
-                        withPadding
-                        mobileFullWidth
-                        >
-                            <Row
-                            verticalEnd
-                            >
-                                <Col
-                                column={6}
-                                >
-                                    <Input
-                                    title={'Counter'}
-                                    placeholder={'Semua Counter'}
-                                    value={_counter.title}
-                                    suggestions={_counterRange}
-                                    onSuggestionSelect={counter => {
-                                        _setCounter(counter)
-                                    }}
-                                    />
-                                </Col>
-                            </Row>
-                        </Col>
+                       
                         <Col
                         column={1}
                         withPadding
@@ -492,97 +572,15 @@ export default function Sales(props) {
                         </Col>
                     </Row>
                 </Card>
-                {
-                    _salesReport && (
-                        <Card
-                        noPadding
-                        >
+             
+                <Card
+                noPadding
+                >
                     
-                            <Table
-                                fileName={"Laporan-pendapatan-"+_counter.title+"-"+dateFilter.basicDate(new Date(_date.start)).normal+"-s.d-"+dateFilter.basicDate(new Date(_date.end)).normal}
-                                headExport={[
-                                {
-                                    title: 'Counter',
-                                    value: 'counterName'
-                                },
-                                {
-                                    title: 'Tanggal',
-                                    value: 'dateTransaction',
-                                },
-                                {
-                                    title: 'Penumpang',
-                                    value: 'totalPnp'
-                                },
-                                {
-                                    title: 'Tunai',
-                                    value: 'cash',
-                                },
-                                {
-                                    title: 'Debit',
-                                    value: 'debit'
-                                },
-                                {
-                                    title: 'Kredit',
-                                    value: 'kredit',
-                                },
-                                {
-                                    title: 'Emoney',
-                                    value: 'emoney',
-                                },
-                                {
-                                    title: 'QRIS',
-                                    value: 'qris'
-                                },
-                                {
-                                    title: 'EDC Bank BRI',
-                                    value: 'edcBankBri'
-                                },
-                                {
-                                    title: 'EDC Bank Mandiri',
-                                    value: 'edcBankMandiri'
-                                },
-                                {
-                                    title: 'EDC Bank BNI',
-                                    value: 'edcBankBni'
-                                },
-                                {
-                                    title: 'EDC Bank BCA',
-                                    value: 'edcBankBca'
-                                },
-                                {
-                                    title: 'EDC Bank BTN',
-                                    value: 'edcBankBtn'
-                                },
-                                {
-                                    title: 'QRIS Tap',
-                                    value: 'qrisTap'
-                                },
-                                {
-                                    title: 'Total Nominal',
-                                    value: 'totalAmount'
-                                },
-                                {
-                                    title: 'Fee',
-                                    value: 'mdrValue',
-                                    hide: !_getRole()
-                                },
-                                {
-                                    title: 'Status',
-                                    value: 'status',
-                                    enum: ["Selesai","Belum Selesai"]
-                                }
-                            ]}
-                            columns={__COLUMNS}
-                            records={_salesReport}
-                            insertColumns={__INSERT_COLUMNS}
-                            noPadding
-                            extraLarge
-                            isLoading={_isProcessing}
-                            />
-                                
-                        </Card>
-                    )
-                }
+                    <RevenueReportDisplay csvData={csvData} isLoading={isLoading} />
+                        
+                </Card>
+                    
             </AdminLayout>
         </Main>
     )

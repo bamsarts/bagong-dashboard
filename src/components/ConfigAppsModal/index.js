@@ -145,44 +145,52 @@ export default function ConfigAppsModal(props = defaultProps) {
                     }}
                 />
 
-                <Col withPadding>
-                    <p style={{ marginBottom: "1rem" }}>
-                        Status
-                    </p>
+                {
+                    !props.data?.id && (
+                        <>
+                            <Col withPadding>
+                                <p style={{ marginBottom: "1rem" }}>
+                                    Status
+                                </p>
 
-                    <Label
-                        activeIndex={_form.isActive}
-                        labels={[
-                            {
-                                class: "primary",
-                                title: 'Aktif',
-                                value: true,
-                                isHide: false,
-                                onClick: () => {
-                                    _updateQuery({ isActive: true })
-                                }
-                            },
-                            {
-                                class: "warning",
-                                title: 'Tidak Aktif',
-                                value: false,
-                                isHide: false,
-                                onClick: () => {
-                                    _updateQuery({ isActive: false })
-                                }
-                            }
-                        ]}
-                    />
-                </Col>
+                                <Label
+                                    activeIndex={_form.isActive}
+                                    labels={[
+                                        {
+                                            class: "primary",
+                                            title: 'Aktif',
+                                            value: true,
+                                            isHide: false,
+                                            onClick: () => {
+                                                _updateQuery({ isActive: true })
+                                            }
+                                        },
+                                        {
+                                            class: "warning",
+                                            title: 'Tidak Aktif',
+                                            value: false,
+                                            isHide: false,
+                                            onClick: () => {
+                                                _updateQuery({ isActive: false })
+                                            }
+                                        }
+                                    ]}
+                                />
+                            </Col>
 
-                <Col withPadding style={{ marginTop: "1rem" }}>
-                    <Button
-                        title={'Simpan'}
-                        styles={Button.secondary}
-                        onClick={_submitData}
-                        onProcess={_isProcessing}
-                    />
-                </Col>
+                            <Col withPadding style={{ marginTop: "1rem" }}>
+                                <Button
+                                    title={'Simpan'}
+                                    styles={Button.secondary}
+                                    onClick={_submitData}
+                                    onProcess={_isProcessing}
+                                />
+                            </Col>
+                        </>
+                    )
+                }
+
+                
 
             </ModalContent>
 
