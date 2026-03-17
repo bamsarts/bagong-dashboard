@@ -129,22 +129,22 @@ export default function DepositDetail(props) {
         }
     }, [id])
 
-    useEffect(() => {
-        const operanValue = parseFloat(String(_form.operan.value).replace(/\./g, "")) || 0;
-        const refundValue = parseFloat(String(_form.refund.value).replace(/\./g, "")) || 0;
-        const newGrossAmount = _totalGrossAmount + operanValue + refundValue;
+    // useEffect(() => {
+    //     const operanValue = parseFloat(String(_form.operan.value).replace(/\./g, "")) || 0;
+    //     const refundValue = parseFloat(String(_form.refund.value).replace(/\./g, "")) || 0;
+    //     const newGrossAmount = _totalGrossAmount + operanValue + refundValue;
 
-        _updateQuery({
-            "grossAmount": {
-                "title": _form.grossAmount.title,
-                "value": newGrossAmount,
-                "disabled": true
-            }
-        });
+    //     _updateQuery({
+    //         "grossAmount": {
+    //             "title": _form.grossAmount.title,
+    //             "value": newGrossAmount,
+    //             "disabled": true
+    //         }
+    //     });
 
-        _setTotalGrossAmount(newGrossAmount)
+    //     _setTotalGrossAmount(newGrossAmount)
 
-    }, [_form.operan.value, _form.refund.value ])
+    // }, [_form.operan.value, _form.refund.value])
 
 
     useEffect(() => {
@@ -251,6 +251,8 @@ export default function DepositDetail(props) {
 
         try {
             const data = await postJSON(`/data/setoran/setoranById/list`, query, props.authData.token)
+
+
             let totalGross = 0
             let startKm = data.data.setoran.km_awal
             let endKm = data.data.setoran.km_akhir
@@ -297,6 +299,14 @@ export default function DepositDetail(props) {
                     }
 
                     totalGross += (ritase.cash_payment_amount + ritase.non_cash_payment_amount)
+
+                    // Debug: Log each ritase calculation
+                    console.log(`Ritase ${ritase.traject_id}:`, {
+                        cash_payment_amount: ritase.cash_payment_amount,
+                        non_cash_payment_amount: ritase.non_cash_payment_amount,
+                        subtotal: ritase.cash_payment_amount + ritase.non_cash_payment_amount,
+                        running_total: totalGross
+                    });
                 }
 
 
@@ -314,12 +324,12 @@ export default function DepositDetail(props) {
             }
 
 
-            _setTotalGrossAmount(totalGross)
+            _setTotalGrossAmount(totalGross + operan + refund)
 
             _updateQuery({
                 "grossAmount": {
                     "title": _form.grossAmount.title,
-                    "value": totalGross,
+                    "value": totalGross + operan + refund,
                     "disabled": true
                 },
                 "operan": {
@@ -1025,7 +1035,7 @@ export default function DepositDetail(props) {
                 }
             );
 
-           
+
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
             popAlert({
@@ -1565,7 +1575,7 @@ export default function DepositDetail(props) {
 
                                                 let pnp = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id, item.desc))
 
-                                                
+
 
                                                 return (
                                                     <Row
@@ -1798,9 +1808,9 @@ export default function DepositDetail(props) {
                                             .map((item, index) => {
 
 
-                                                let amount =  item.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : item.percentageAmount)
+                                                let amount = item.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : item.percentageAmount)
 
-                                                if(_setoranData?.data.setoran.status == "APPROVED"){
+                                                if (_setoranData?.data.setoran.status == "APPROVED") {
                                                     amount = (String(item?.count) == "1") ? item.percentageAmount : item.count
                                                 }
                                                 return (
