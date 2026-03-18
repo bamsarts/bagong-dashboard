@@ -209,7 +209,9 @@ export default function DepositDetail(props) {
     }, [_editablePnp])
 
     useEffect(() => {
-        if (_setoranData?.data?.biaya && _totalGrossAmount > 0 && _totalExpenses >= 0) {
+
+        //Before: manifestCost changed total gross > 0
+        if (_setoranData?.data?.biaya && _totalExpenses >= 0) {
             let data = _calculateIncomeByPercentage()
             _setTotalIncomeByPercentage(data.incomeByPercentage)
             _setManifestCost({
@@ -892,6 +894,7 @@ export default function DepositDetail(props) {
             })
         }
 
+        console.log("notes", total)
         return total;
     }
 
