@@ -149,10 +149,17 @@ export default function DepositDetail(props) {
 
     useEffect(() => {
         const storedData = localStorage.getItem('operasional_deposit');
-        if (storedData) {
-            setDepositData(JSON.parse(storedData));
-            _assignedBus(JSON.parse(storedData))
+
+        if(router.query?.assign_date){
+            _assignedBus(router.query)
+        }else{
+            if(storedData){
+                // setDepositData(JSON.parse(storedData));
+                _assignedBus(JSON.parse(storedData))
+            }
         }
+
+
     }, []);
 
     useEffect(() => {
@@ -218,9 +225,7 @@ export default function DepositDetail(props) {
     }, [_setoranData, _totalGrossAmount, _totalExpenses, _editablePnp])
 
     useEffect(() => {
-        console.log("mfa")
-        console.log(_manifestCost)
-        console.log("setoran detail")
+       
     }, [_manifestCost.tol, _manifestCost.others])
 
     function _getPaymentAmountTotal() {

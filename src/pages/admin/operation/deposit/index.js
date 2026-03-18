@@ -129,7 +129,7 @@ export default function Deposit(props) {
                         onClick={() => {
                             _saveFilterState()
                             localStorage.setItem("operasional_deposit", JSON.stringify(row))
-                            router.push(`/admin/operation/deposit/${value.id}`)
+                            router.push(`/admin/operation/deposit/${value.id}?assign_date=`+row.assign_date+"&traject_master_id="+row.traject_master_id+"&bus_id="+row.bus_id)
                         }}
                         small
                     />
