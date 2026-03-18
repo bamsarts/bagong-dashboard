@@ -307,13 +307,7 @@ export default function DepositDetail(props) {
 
                     totalGross += (ritase.cash_payment_amount + ritase.non_cash_payment_amount)
 
-                    // Debug: Log each ritase calculation
-                    console.log(`Ritase ${ritase.traject_id}:`, {
-                        cash_payment_amount: ritase.cash_payment_amount,
-                        non_cash_payment_amount: ritase.non_cash_payment_amount,
-                        subtotal: ritase.cash_payment_amount + ritase.non_cash_payment_amount,
-                        running_total: totalGross
-                    });
+                   
                 }
 
 
