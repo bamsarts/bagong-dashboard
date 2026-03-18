@@ -150,10 +150,10 @@ export default function DepositDetail(props) {
     useEffect(() => {
         const storedData = localStorage.getItem('operasional_deposit');
 
-        if(router.query?.assign_date){
+        if (router.query?.assign_date) {
             _assignedBus(router.query)
-        }else{
-            if(storedData){
+        } else {
+            if (storedData) {
                 // setDepositData(JSON.parse(storedData));
                 _assignedBus(JSON.parse(storedData))
             }
@@ -211,7 +211,7 @@ export default function DepositDetail(props) {
     useEffect(() => {
 
         //Before: manifestCost changed total gross > 0
-        if (_setoranData?.data?.biaya && _totalGrossAmount > 0 && _totalExpenses >= 0) {
+        if (_setoranData?.data?.biaya && _totalExpenses >= 0 && Object.keys(_trajectTracks).length > 0) {
             let data = _calculateIncomeByPercentage()
             _setTotalIncomeByPercentage(data.incomeByPercentage)
             _setManifestCost({
@@ -224,10 +224,10 @@ export default function DepositDetail(props) {
             generateTrack()
 
         }
-    }, [_setoranData, _totalGrossAmount, _totalExpenses, _editablePnp])
+    }, [_setoranData, _totalGrossAmount, _totalExpenses, _editablePnp, _trajectTracks])
 
     useEffect(() => {
-       
+
     }, [_manifestCost.tol, _manifestCost.others])
 
     function _getPaymentAmountTotal() {
@@ -307,7 +307,7 @@ export default function DepositDetail(props) {
 
                     totalGross += (ritase.cash_payment_amount + ritase.non_cash_payment_amount)
 
-                   
+
                 }
 
 
@@ -537,6 +537,11 @@ export default function DepositDetail(props) {
             let turun = {}
             const points = _trajectTracks[setoranData.traject_id]
 
+            // Check if points exists and has data before proceeding
+            if (!points || !Array.isArray(points) || points.length === 0) {
+                console.warn(`No trajectory points found for traject_id: ${setoranData.traject_id}`)
+                return
+            }
 
             for (let i = 0; i < (points.length - 1); i++) {
                 let currentPointIndex = i
@@ -568,8 +573,6 @@ export default function DepositDetail(props) {
                             }
                         }
 
-                        console.log("naik passenger", naik)
-
                         if (turun[destination.pointName]) {
                             turun[destination.pointName].pnp = turun[destination.pointName].pnp + parseInt(p.pnp_count)
                             turun[destination.pointName].amount = turun[destination.pointName].amount + parseInt(p.payment_amount)
@@ -580,9 +583,6 @@ export default function DepositDetail(props) {
                             }
                         }
                     })
-
-                    // console.log("naik", naik)
-
 
                     track.destinations.push(destination)
                 }
@@ -1037,6 +1037,7 @@ export default function DepositDetail(props) {
                 }
             );
 
+          
 
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
