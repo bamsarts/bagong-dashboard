@@ -258,6 +258,32 @@ export default function User(props) {
     ])
     const [_showQRModal, _setShowQRModal] = useState(false)
     const [_userData, _setUserData] = useState({})
+    const ROLE_RANGE_BRANCH = [
+        {
+            "title": "ROLE_CHECKER",
+            "value": "15"
+        },
+        {
+            "title": "ROLE_DRIVER",
+            "value": "17"
+        },
+        {
+            "title": "ROLE_KERNET",
+            "value": "18"
+        },
+        {
+            "title": "ROLE_KONDEKTUR",
+            "value": "19"
+        },
+         {
+            "title": "ROLE_OWNER",
+            "value": "4"
+        },
+        {
+            "title": "ROLE_ADMIN_SETORAN",
+            "value": "2"
+        }
+    ]
 
     useEffect(() => {
         console.log(props)
@@ -266,9 +292,11 @@ export default function User(props) {
     }, [])
 
     useEffect(() => {
-        if (!props.branch?.branchId) {
-            _getData(_page)
-        }
+        // if (!props.branch?.branchId) {
+        //     _getData(_page)
+        // }
+
+         _getData(_page)
     }, [_roleSelected])
 
     useEffect(() => {
@@ -279,6 +307,8 @@ export default function User(props) {
             _setActiveIndex("userBranch")
             _getUsers()
             _getUserBranch(_pageUserBranch)
+            _setRoleSelected(ROLE_RANGE_BRANCH[0])
+
         } else {
             _getData(_page)
         }
@@ -331,7 +361,9 @@ export default function User(props) {
         }
 
         if (query) params.query = query
-        if (_roleSelected.value != "") params.role_id = _roleSelected.value
+        if (_roleSelected.value != "") {
+            params.role_id = _roleSelected.value
+        }
 
         try {
             const users = await postJSON('/masterData/userRoleAkses/user/list', params, props.authData.token)
@@ -371,8 +403,13 @@ export default function User(props) {
                 }
 
             })
+            
+            if(props.branch?.branchId){
+                _setRoleRange(ROLE_RANGE_BRANCH)
+            }else{
+                _setRoleRange(role)
+            }
 
-            _setRoleRange(role)
         } catch (e) {
             popAlert({ message: e.message })
         }

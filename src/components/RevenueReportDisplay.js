@@ -1,16 +1,17 @@
 import { useState, useMemo } from 'react'
 import Table from './Table'
 import { Row, Col } from './Layout'
-import Button from './Button'
 import { currency } from '../utils/filters'
 import { parseCSVRow, groupCashRevenue, groupCashlessRevenue, getRevenueColumns } from '../utils/revenueReportUtils'
+import Label from './Label'
 
 /**
  * Revenue Report Display Component
  * Displays CSV data in a filterable table for Tunai and Non-Tunai transactions
  */
-export default function RevenueReportDisplay({ csvData, isLoading = false }) {
+export default function RevenueReportDisplay({ csvData, isLoading = false, trajectBank = [], date = {} }) {
     const [filterType, setFilterType] = useState('cashRevenue') // 'all', 'cashRevenue', 'cashlessRevenue'
+    const [fileName, setFileName] = useState("Laporan-Pendapatan-Tunai-" + date.start + "-s.d-" + date.end)
 
     // Parse CSV data
     const { csvHeader, rows } = useMemo(() => {
@@ -21,22 +22,35 @@ export default function RevenueReportDisplay({ csvData, isLoading = false }) {
 
         const header = parseCSVRow(csvRows[0])
         const parsedRows = []
+        const dateIdx = header.indexOf('Date')
+        const startDate = date.start ? new Date(date.start) : null
+        const endDate = date.end ? new Date(date.end) : null
 
         for (let i = 1; i < csvRows.length; i++) {
-            parsedRows.push(parseCSVRow(csvRows[i]))
+            const row = parseCSVRow(csvRows[i])
+
+            // Filter by date range if date indices exist and date range is provided
+            if (dateIdx !== -1 && startDate && endDate) {
+                const rowDate = new Date(row[dateIdx])
+                if (rowDate < startDate || rowDate > endDate) {
+                    continue
+                }
+            }
+
+            parsedRows.push(row)
         }
 
         return { csvHeader: header, rows: parsedRows }
-    }, [csvData])
+    }, [csvData, date])
 
     // Group and filter data based on selected type
     const displayData = useMemo(() => {
         if (rows.length === 0) return []
 
         if (filterType === 'cashRevenue') {
-            return groupCashRevenue(rows, csvHeader)
+            return groupCashRevenue(rows, csvHeader, trajectBank)
         } else if (filterType === 'cashlessRevenue') {
-            return groupCashlessRevenue(rows, csvHeader)
+            return groupCashlessRevenue(rows, csvHeader, trajectBank)
         }
 
         return rows
@@ -46,7 +60,7 @@ export default function RevenueReportDisplay({ csvData, isLoading = false }) {
 
     return (
         <div>
-            
+
 
             {/* Data Table */}
             <Table
@@ -54,18 +68,29 @@ export default function RevenueReportDisplay({ csvData, isLoading = false }) {
                     <Row>
                         <Col column={6}>
                             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                            
-                                <Button
-                                    title="Tunai"
-                                    styles={filterType === 'cashRevenue' ? Button.primary : Button.secondary}
-                                    onClick={() => setFilterType('cashRevenue')}
-                                    small
-                                />
-                                <Button
-                                    title="Non-Tunai"
-                                    styles={filterType === 'cashlessRevenue' ? Button.primary : Button.secondary}
-                                    onClick={() => setFilterType('cashlessRevenue')}
-                                    small
+
+                                <Label
+                                    labels={[
+                                        {
+                                            title: "Tunai",
+                                            value: 'cashRevenue',
+                                            class: filterType === 'cashRevenue' ? 'primary' : 'warning',
+                                            onClick: () => {
+                                                setFilterType('cashRevenue')
+                                                setFileName("Laporan-Pendapatan-Tunai-" + date.start + "s.d" + date.end)
+                                            }
+                                        },
+                                        {
+                                            title: "Non-Tunai",
+                                            value: 'cashlessRevenue',
+                                            class: filterType === 'cashlessRevenue' ? 'primary' : 'warning',
+                                            onClick: () => {
+                                                setFilterType('cashlessRevenue')
+                                                setFileName("Laporan-Pendapatan-Non-Tunai-" + date.start + "s.d" + date.end)
+                                            }
+                                        }
+                                    ]}
+                                    activeIndex={filterType}
                                 />
                             </div>
                         </Col>
@@ -74,7 +99,7 @@ export default function RevenueReportDisplay({ csvData, isLoading = false }) {
                 columns={columns}
                 records={displayData}
                 isLoading={isLoading}
-                fileName={`Laporan-Pendapatan-${filterType}`}
+                fileName={fileName}
             />
         </div>
     )

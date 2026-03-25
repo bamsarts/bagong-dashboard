@@ -207,18 +207,18 @@ export default function Dashboard(props) {
             title: 'Semua',
             value: ''
         },
-        {
-            title: 'User Apps',
-            value: '0'
-        },
-        {
-            title: 'Counter',
-            value: '00'
-        },
-        {
-            title: 'Web Reservasi',
-            value: '000'
-        }
+        // {
+        //     title: 'User Apps',
+        //     value: '0'
+        // },
+        // {
+        //     title: 'Counter',
+        //     value: '00'
+        // },
+        // {
+        //     title: 'Web Reservasi',
+        //     value: '000'
+        // }
     ])
 
     const [_counter, _setCounter] = useState({
@@ -1824,7 +1824,7 @@ export default function Dashboard(props) {
                                     </Card>
                                 </Col>
 
-                                {
+                                {/* {
                                     !_accessMenu.Divre2 && (
                                         <Col
                                             column={2}
@@ -1833,7 +1833,6 @@ export default function Dashboard(props) {
                                             <Card
                                                 title={"Aktifitas Rute"}
                                             >
-
                                                 <Row>
                                                     <Col
                                                         withPadding
@@ -2062,13 +2061,397 @@ export default function Dashboard(props) {
 
 
                                                 </Row>
+                                            </Card>
+                                        </Col>
+                                    )
+                                } */}
+
+                                {
+                                    !props.branch?.branchId && (
+                                        <Col
+                                            column={2}
+                                            style={{
+                                                display: "none"
+                                            }}
+                                        >
+                                            <Card
+                                                title={'Penyedia Pembayaran'}
+                                            >
+
+                                                <Row
+                                                    spaceBetween
+                                                    className={styles.summary_user_registered}
+                                                >
+                                                    <Col
+                                                        justifyStart
+                                                        withPadding
+                                                    >
+                                                        <div>
+                                                            <aside
+                                                                style={{
+                                                                    backgroundColor: "#033D82",
+                                                                }}
+                                                            >
+                                                            </aside>
+
+                                                            <div
+                                                                style={{
+                                                                    display: "grid"
+                                                                }}
+                                                            >
+                                                                <small>Internal PO</small>
+                                                                <strong>{currency(_paymentVendor.totalAmountDamri, "Rp")}</strong>
+                                                            </div>
+                                                        </div>
+
+                                                    </Col>
+
+                                                    <Col
+                                                        justifyStart
+                                                        withPadding
+                                                    >
+                                                        <div>
+                                                            <aside
+                                                                style={{
+                                                                    backgroundColor: "#5180F0",
+                                                                }}
+                                                            >
+                                                            </aside>
+
+                                                            <div
+                                                                style={{
+                                                                    display: "grid"
+                                                                }}
+                                                            >
+                                                                <small>Midtrans</small>
+                                                                <strong>{currency(_paymentVendor.totalAmountMIDTRANS, "Rp")}</strong>
+                                                            </div>
+                                                        </div>
+
+                                                    </Col>
+
+                                                    <Col
+                                                        justifyStart
+                                                        withPadding
+                                                    >
+                                                        <div>
+                                                            <aside
+                                                                style={{
+                                                                    backgroundColor: "#E19E00",
+                                                                }}
+                                                            >
+                                                            </aside>
+
+                                                            <div
+                                                                style={{
+                                                                    display: "grid"
+                                                                }}
+                                                            >
+                                                                <small>TSM</small>
+                                                                <strong><strong>{currency(_paymentVendor.totalAmountTsm, "Rp")}</strong> </strong>
+                                                            </div>
+                                                        </div>
+
+                                                    </Col>
 
 
+                                                </Row>
+
+                                                <Row
+                                                    marginBottom
+                                                    spaceBetween
+                                                    className={styles.summary_user_registered}
+                                                >
+                                                    <Col
+                                                        justifyStart
+                                                        withPadding
+                                                    >
+                                                        <div>
+                                                            <aside
+                                                                style={{
+                                                                    backgroundColor: "#F4EA22",
+                                                                }}
+                                                            >
+                                                            </aside>
+
+                                                            <div
+                                                                style={{
+                                                                    display: "grid"
+                                                                }}
+                                                            >
+                                                                <small>FASPAY</small>
+                                                                <strong><strong>{currency(_paymentVendor.totalAmountFASPAY, "Rp")}</strong> </strong>
+                                                            </div>
+                                                        </div>
+
+                                                    </Col>
+
+                                                    {
+                                                        _paymentVendor.totalAmountWINPAY > 0 && (
+                                                            <Col
+                                                                justifyStart
+                                                                withPadding
+                                                            >
+                                                                <div>
+                                                                    <aside
+                                                                        style={{
+                                                                            backgroundColor: "#39b666",
+                                                                        }}
+                                                                    >
+                                                                    </aside>
+
+                                                                    <div
+                                                                        style={{
+                                                                            display: "grid"
+                                                                        }}
+                                                                    >
+                                                                        <small>WINPAY</small>
+                                                                        <strong><strong>{currency(_paymentVendor.totalAmountWINPAY, "Rp")}</strong> </strong>
+                                                                    </div>
+                                                                </div>
+
+                                                            </Col>
+                                                        )
+                                                    }
+
+                                                    {
+                                                        _paymentVendor.totalAmountBANK_MANDIRI > 0 && (
+                                                            <Col
+                                                                justifyStart
+                                                                withPadding
+                                                            >
+                                                                <div>
+                                                                    <aside
+                                                                        style={{
+                                                                            backgroundColor: "#f32b5e",
+                                                                        }}
+                                                                    >
+                                                                    </aside>
+
+                                                                    <div
+                                                                        style={{
+                                                                            display: "grid"
+                                                                        }}
+                                                                    >
+                                                                        <small>Bank Mandiri (QRIS Tap)</small>
+                                                                        <strong><strong>{currency(_paymentVendor.totalAmountBANK_MANDIRI, "Rp")}</strong> </strong>
+                                                                    </div>
+                                                                </div>
+
+                                                            </Col>
+                                                        )
+                                                    }
+                                                </Row>
+
+                                                <div
+                                                    style={{
+                                                        marginBottom: "1rem"
+                                                    }}
+                                                >
+                                                    <Button
+                                                        title={'Xlsx'}
+                                                        styles={Button.success}
+                                                        small
+                                                        headExport={[
+                                                            {
+                                                                title: 'Tanggal',
+                                                                value: 'dateTransaction'
+                                                            },
+                                                            {
+                                                                title: 'Penyedia',
+                                                                value: 'vendorPayment'
+                                                            },
+                                                            {
+                                                                title: 'Total Diskon',
+                                                                value: 'totalDiscount'
+                                                            },
+                                                            {
+                                                                title: 'Total Pembayaran',
+                                                                value: 'totalAmountWithoutInsurance'
+                                                            }
+                                                        ]}
+                                                        dataExport={_dataExportVendor}
+                                                        titleExport={"Penyedia-Pembayaran" + _chartParams.startDate.value + "-sd-" + _chartParams.endDate.value + ".xlsx"}
+                                                    />
+                                                </div>
+
+
+                                                <Bar
+                                                    datasetIdKey='id'
+                                                    options={{
+                                                        plugins: {
+                                                            legend: {
+                                                                display: false
+                                                            }
+                                                        },
+                                                        scales: {
+                                                            x: {
+                                                                grid: {
+                                                                    display: false
+                                                                }
+                                                            }
+                                                        }
+                                                    }}
+                                                    data={{
+                                                        labels: _paymentVendor.dateTransaction,
+                                                        datasets: [
+                                                            {
+                                                                id: 1,
+                                                                label: 'Damri',
+                                                                data: _paymentVendor.Damri,
+                                                                fill: 'start',
+                                                                borderCapStyle: 'round',
+                                                                tension: 0.4,
+                                                                backgroundColor: '#033D82',
+                                                            },
+                                                            {
+                                                                id: 2,
+                                                                label: 'Midtrans',
+                                                                data: _paymentVendor.MIDTRANS,
+                                                                fill: 'start',
+                                                                borderCapStyle: 'round',
+                                                                tension: 0.4,
+                                                                backgroundColor: '#5180F0',
+                                                            },
+                                                            {
+                                                                id: 3,
+                                                                label: 'TSM',
+                                                                data: _paymentVendor.Tsm,
+                                                                fill: 'start',
+                                                                borderCapStyle: 'round',
+                                                                tension: 0.4,
+                                                                backgroundColor: '#E19E00',
+                                                            },
+                                                            {
+                                                                id: 4,
+                                                                label: 'FASPAY',
+                                                                data: _paymentVendor.FASPAY,
+                                                                fill: 'start',
+                                                                borderCapStyle: 'round',
+                                                                tension: 0.4,
+                                                                backgroundColor: '#F4EA22',
+                                                            },
+                                                            {
+                                                                id: 5,
+                                                                label: 'WINPAY',
+                                                                data: _paymentVendor.WINPAY,
+                                                                fill: 'start',
+                                                                borderCapStyle: 'round',
+                                                                tension: 0.4,
+                                                                backgroundColor: '#39b666',
+                                                            }
+                                                        ],
+                                                    }}
+                                                />
 
                                             </Card>
                                         </Col>
                                     )
                                 }
+
+                                <Col
+                                    column={2}
+                                    mobileFullWidth
+                                >
+
+                                    <Card
+                                        title={'Pembayaran'}
+                                        fluidHeight
+                                    >
+                                        <Row
+                                            marginBottom
+                                        >
+                                            <Col
+                                                column={5}
+                                                withPadding
+                                            >
+                                                <Input
+                                                    value={_selectedDataCategoryPayment.title}
+                                                    suggestions={__DATA_SELECT_CHART}
+                                                    onSuggestionSelect={value => {
+                                                        _setSelectedDataCategoryPayment(value)
+                                                        _setSelectPayment(value.value)
+                                                    }}
+                                                    suggestionSearch={false}
+                                                />
+                                            </Col>
+
+                                            <Col
+                                                column={1}
+                                                withPadding
+                                            >
+                                                <Button
+                                                    title={'Xlsx'}
+                                                    styles={Button.success}
+                                                    small
+                                                    headExport={[
+                                                        {
+                                                            title: 'Pembayaran',
+                                                            value: 'pembayaran'
+                                                        },
+                                                        {
+                                                            title: 'Penyedia',
+                                                            value: 'vendorPayment'
+                                                        },
+                                                        {
+                                                            title: 'Total Penumpang',
+                                                            value: 'totalPnp'
+                                                        },
+                                                        {
+                                                            title: 'Total Nominal',
+                                                            value: 'totalAmountWithoutInsurance',
+                                                            customCell: (value, row) => {
+                                                                return value + row.totalDiscount
+                                                            }
+                                                        }
+                                                    ]}
+                                                    dataExport={_dataExportPayment}
+                                                    titleExport={"Laporan-Pembayaran-" + _chartParams.startDate.value + "-sd-" + _chartParams.endDate.value + ".xlsx"}
+                                                />
+                                            </Col>
+                                        </Row>
+
+                                        <Doughnut
+                                            datasetIdKey='id'
+                                            data={{
+                                                labels: _lineChartData.labelPayment,
+                                                position: 'bottom',
+                                                datasets: [
+                                                    {
+                                                        // id: 1,
+                                                        label: '',
+                                                        data: _lineChartData.dataPayment,
+                                                        backgroundColor: _lineChartData.backgroundColor,
+                                                        // maxBarThickness : 10,
+                                                        // borderColor : props.company.bgcolor,
+                                                        // stack : true,
+                                                    }
+                                                ],
+                                            }}
+                                        />
+
+                                        {
+                                            _selectedDataCategoryPayment.value == "amount" && (
+                                                <div
+                                                    style={{
+                                                        textAlign: "center"
+                                                    }}
+                                                >
+                                                    <small
+                                                        style={{
+                                                            color: "gray",
+                                                        }}
+                                                    >
+                                                        Berdasarkan harga tiket
+                                                    </small>
+                                                </div>
+                                            )
+                                        }
+
+                                    </Card>
+
+                                </Col>
+
 
                             </Row>
 
@@ -2078,393 +2461,6 @@ export default function Dashboard(props) {
                                         <Row
                                         
                                         >
-
-                                            {
-                                                !props.branch?.branchId && (
-                                                    <Col
-                                                        column={4}
-                                                        style={{
-                                                            display: "none"
-                                                        }}
-                                                    >
-                                                        <Card
-                                                            title={'Penyedia Pembayaran'}
-                                                        >
-
-                                                            <Row
-                                                                spaceBetween
-                                                                className={styles.summary_user_registered}
-                                                            >
-                                                                <Col
-                                                                    justifyStart
-                                                                    withPadding
-                                                                >
-                                                                    <div>
-                                                                        <aside
-                                                                            style={{
-                                                                                backgroundColor: "#033D82",
-                                                                            }}
-                                                                        >
-                                                                        </aside>
-
-                                                                        <div
-                                                                            style={{
-                                                                                display: "grid"
-                                                                            }}
-                                                                        >
-                                                                            <small>Internal PO</small>
-                                                                            <strong>{currency(_paymentVendor.totalAmountDamri, "Rp")}</strong>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </Col>
-
-                                                                <Col
-                                                                    justifyStart
-                                                                    withPadding
-                                                                >
-                                                                    <div>
-                                                                        <aside
-                                                                            style={{
-                                                                                backgroundColor: "#5180F0",
-                                                                            }}
-                                                                        >
-                                                                        </aside>
-
-                                                                        <div
-                                                                            style={{
-                                                                                display: "grid"
-                                                                            }}
-                                                                        >
-                                                                            <small>Midtrans</small>
-                                                                            <strong>{currency(_paymentVendor.totalAmountMIDTRANS, "Rp")}</strong>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </Col>
-
-                                                                <Col
-                                                                    justifyStart
-                                                                    withPadding
-                                                                >
-                                                                    <div>
-                                                                        <aside
-                                                                            style={{
-                                                                                backgroundColor: "#E19E00",
-                                                                            }}
-                                                                        >
-                                                                        </aside>
-
-                                                                        <div
-                                                                            style={{
-                                                                                display: "grid"
-                                                                            }}
-                                                                        >
-                                                                            <small>TSM</small>
-                                                                            <strong><strong>{currency(_paymentVendor.totalAmountTsm, "Rp")}</strong> </strong>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </Col>
-
-
-                                                            </Row>
-
-                                                            <Row
-                                                                marginBottom
-                                                                spaceBetween
-                                                                className={styles.summary_user_registered}
-                                                            >
-                                                                <Col
-                                                                    justifyStart
-                                                                    withPadding
-                                                                >
-                                                                    <div>
-                                                                        <aside
-                                                                            style={{
-                                                                                backgroundColor: "#F4EA22",
-                                                                            }}
-                                                                        >
-                                                                        </aside>
-
-                                                                        <div
-                                                                            style={{
-                                                                                display: "grid"
-                                                                            }}
-                                                                        >
-                                                                            <small>FASPAY</small>
-                                                                            <strong><strong>{currency(_paymentVendor.totalAmountFASPAY, "Rp")}</strong> </strong>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </Col>
-
-                                                                {
-                                                                    _paymentVendor.totalAmountWINPAY > 0 && (
-                                                                        <Col
-                                                                            justifyStart
-                                                                            withPadding
-                                                                        >
-                                                                            <div>
-                                                                                <aside
-                                                                                    style={{
-                                                                                        backgroundColor: "#39b666",
-                                                                                    }}
-                                                                                >
-                                                                                </aside>
-
-                                                                                <div
-                                                                                    style={{
-                                                                                        display: "grid"
-                                                                                    }}
-                                                                                >
-                                                                                    <small>WINPAY</small>
-                                                                                    <strong><strong>{currency(_paymentVendor.totalAmountWINPAY, "Rp")}</strong> </strong>
-                                                                                </div>
-                                                                            </div>
-
-                                                                        </Col>
-                                                                    )
-                                                                }
-
-                                                                {
-                                                                    _paymentVendor.totalAmountBANK_MANDIRI > 0 && (
-                                                                        <Col
-                                                                            justifyStart
-                                                                            withPadding
-                                                                        >
-                                                                            <div>
-                                                                                <aside
-                                                                                    style={{
-                                                                                        backgroundColor: "#f32b5e",
-                                                                                    }}
-                                                                                >
-                                                                                </aside>
-
-                                                                                <div
-                                                                                    style={{
-                                                                                        display: "grid"
-                                                                                    }}
-                                                                                >
-                                                                                    <small>Bank Mandiri (QRIS Tap)</small>
-                                                                                    <strong><strong>{currency(_paymentVendor.totalAmountBANK_MANDIRI, "Rp")}</strong> </strong>
-                                                                                </div>
-                                                                            </div>
-
-                                                                        </Col>
-                                                                    )
-                                                                }
-                                                            </Row>
-
-                                                            <div
-                                                                style={{
-                                                                    marginBottom: "1rem"
-                                                                }}
-                                                            >
-                                                                <Button
-                                                                    title={'Xlsx'}
-                                                                    styles={Button.success}
-                                                                    small
-                                                                    headExport={[
-                                                                        {
-                                                                            title: 'Tanggal',
-                                                                            value: 'dateTransaction'
-                                                                        },
-                                                                        {
-                                                                            title: 'Penyedia',
-                                                                            value: 'vendorPayment'
-                                                                        },
-                                                                        {
-                                                                            title: 'Total Diskon',
-                                                                            value: 'totalDiscount'
-                                                                        },
-                                                                        {
-                                                                            title: 'Total Pembayaran',
-                                                                            value: 'totalAmountWithoutInsurance'
-                                                                        }
-                                                                    ]}
-                                                                    dataExport={_dataExportVendor}
-                                                                    titleExport={"Penyedia-Pembayaran" + _chartParams.startDate.value + "-sd-" + _chartParams.endDate.value + ".xlsx"}
-                                                                />
-                                                            </div>
-
-
-                                                            <Bar
-                                                                datasetIdKey='id'
-                                                                options={{
-                                                                    plugins: {
-                                                                        legend: {
-                                                                            display: false
-                                                                        }
-                                                                    },
-                                                                    scales: {
-                                                                        x: {
-                                                                            grid: {
-                                                                                display: false
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }}
-                                                                data={{
-                                                                    labels: _paymentVendor.dateTransaction,
-                                                                    datasets: [
-                                                                        {
-                                                                            id: 1,
-                                                                            label: 'Damri',
-                                                                            data: _paymentVendor.Damri,
-                                                                            fill: 'start',
-                                                                            borderCapStyle: 'round',
-                                                                            tension: 0.4,
-                                                                            backgroundColor: '#033D82',
-                                                                        },
-                                                                        {
-                                                                            id: 2,
-                                                                            label: 'Midtrans',
-                                                                            data: _paymentVendor.MIDTRANS,
-                                                                            fill: 'start',
-                                                                            borderCapStyle: 'round',
-                                                                            tension: 0.4,
-                                                                            backgroundColor: '#5180F0',
-                                                                        },
-                                                                        {
-                                                                            id: 3,
-                                                                            label: 'TSM',
-                                                                            data: _paymentVendor.Tsm,
-                                                                            fill: 'start',
-                                                                            borderCapStyle: 'round',
-                                                                            tension: 0.4,
-                                                                            backgroundColor: '#E19E00',
-                                                                        },
-                                                                        {
-                                                                            id: 4,
-                                                                            label: 'FASPAY',
-                                                                            data: _paymentVendor.FASPAY,
-                                                                            fill: 'start',
-                                                                            borderCapStyle: 'round',
-                                                                            tension: 0.4,
-                                                                            backgroundColor: '#F4EA22',
-                                                                        },
-                                                                        {
-                                                                            id: 5,
-                                                                            label: 'WINPAY',
-                                                                            data: _paymentVendor.WINPAY,
-                                                                            fill: 'start',
-                                                                            borderCapStyle: 'round',
-                                                                            tension: 0.4,
-                                                                            backgroundColor: '#39b666',
-                                                                        }
-                                                                    ],
-                                                                }}
-                                                            />
-
-                                                        </Card>
-                                                    </Col>
-                                                )
-                                            }
-
-                                            <Col
-                                                column={2}
-                                                mobileFullWidth
-                                            >
-
-                                                <Card
-                                                    title={'Pembayaran'}
-                                                    fluidHeight
-                                                >
-                                                    <Row
-                                                        marginBottom
-                                                    >
-                                                        <Col
-                                                            column={5}
-                                                            withPadding
-                                                        >
-                                                            <Input
-                                                                value={_selectedDataCategoryPayment.title}
-                                                                suggestions={__DATA_SELECT_CHART}
-                                                                onSuggestionSelect={value => {
-                                                                    _setSelectedDataCategoryPayment(value)
-                                                                    _setSelectPayment(value.value)
-                                                                }}
-                                                                suggestionSearch={false}
-                                                            />
-                                                        </Col>
-
-                                                        <Col
-                                                            column={1}
-                                                            withPadding
-                                                        >
-                                                            <Button
-                                                                title={'Xlsx'}
-                                                                styles={Button.success}
-                                                                small
-                                                                headExport={[
-                                                                    {
-                                                                        title: 'Pembayaran',
-                                                                        value: 'pembayaran'
-                                                                    },
-                                                                    {
-                                                                        title: 'Penyedia',
-                                                                        value: 'vendorPayment'
-                                                                    },
-                                                                    {
-                                                                        title: 'Total Penumpang',
-                                                                        value: 'totalPnp'
-                                                                    },
-                                                                    {
-                                                                        title: 'Total Nominal',
-                                                                        value: 'totalAmountWithoutInsurance',
-                                                                        customCell: (value, row) => {
-                                                                            return value + row.totalDiscount
-                                                                        }
-                                                                    }
-                                                                ]}
-                                                                dataExport={_dataExportPayment}
-                                                                titleExport={"Laporan-Pembayaran-" + _chartParams.startDate.value + "-sd-" + _chartParams.endDate.value + ".xlsx"}
-                                                            />
-                                                        </Col>
-                                                    </Row>
-
-                                                    <Doughnut
-                                                        datasetIdKey='id'
-                                                        data={{
-                                                            labels: _lineChartData.labelPayment,
-                                                            position: 'bottom',
-                                                            datasets: [
-                                                                {
-                                                                    // id: 1,
-                                                                    label: '',
-                                                                    data: _lineChartData.dataPayment,
-                                                                    backgroundColor: _lineChartData.backgroundColor,
-                                                                    // maxBarThickness : 10,
-                                                                    // borderColor : props.company.bgcolor,
-                                                                    // stack : true,
-                                                                }
-                                                            ],
-                                                        }}
-                                                    />
-
-                                                    {
-                                                        _selectedDataCategoryPayment.value == "amount" && (
-                                                            <div
-                                                                style={{
-                                                                    textAlign: "center"
-                                                                }}
-                                                            >
-                                                                <small
-                                                                    style={{
-                                                                        color: "gray",
-                                                                    }}
-                                                                >
-                                                                    Berdasarkan harga tiket
-                                                                </small>
-                                                            </div>
-                                                        )
-                                                    }
-
-                                                </Card>
-
-                                            </Col>
-
                                             {
                                                 !props.branch?.branchId && (
                                                     <Col

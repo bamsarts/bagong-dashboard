@@ -115,6 +115,20 @@ export default function DepositDetail(props) {
     })
     const [_busRange, _setBusRange] = useState([])
     const [_movementTableData, _setMovementTableData] = useState([])
+    const POOL_SETORAN = [
+        "Malang - Surabaya",
+        "Tulungagung - Surabaya (patas)",
+        "Tulungagung - Surabaya",
+        "Trenggalek - Surabaya",
+        "Trenggalek - Surabaya (Patas)",
+        "Malang - Ponorogo",
+        "Malang - Magetan",
+        "Malang - Blitar",
+        "Malang - Blitar (PATAS)",
+        "Blitar - Surabaya",
+        "Surabaya - Ambulu",
+        "Surabaya - Jember"
+    ]
 
     const cellStyle = {
         padding: '8px',
@@ -298,8 +312,18 @@ export default function DepositDetail(props) {
 
             // Iterate through ritase and fetch trajectory tracks
             if (data.data.ritase && data.data.ritase.length > 0) {
+                // Sort ritase so POOL_SETORAN items come first
+                const sortedRitase = data.data.ritase.sort((a, b) => {
+                    const aIsPoolSetoran = POOL_SETORAN.includes(a.traject_name)
+                    const bIsPoolSetoran = POOL_SETORAN.includes(b.traject_name)
+
+                    if (aIsPoolSetoran && !bIsPoolSetoran) return -1
+                    if (!aIsPoolSetoran && bIsPoolSetoran) return 1
+                    return 0
+                })
+
                 const tracks = {}
-                for (const ritase of data.data.ritase) {
+                for (const ritase of sortedRitase) {
                     if (ritase.traject_id) {
                         const trackData = await _getTrackTraject(ritase.traject_id)
                         tracks[ritase.traject_id] = trackData
@@ -330,17 +354,17 @@ export default function DepositDetail(props) {
             _updateQuery({
                 "grossAmount": {
                     "title": _form.grossAmount.title,
-                    "value": totalGross + operan + refund,
+                    "value": currency(totalGross + operan + refund),
                     "disabled": true
                 },
                 "operan": {
                     "title": _form.operan.title,
-                    "value": operan,
+                    "value": currency(operan),
                     "disabled": true
                 },
                 "refund": {
                     "title": _form.refund.title,
-                    "value": refund,
+                    "value": currency(refund),
                     "disabled": true
                 }
             })
@@ -656,6 +680,20 @@ export default function DepositDetail(props) {
         return totalPnpCount;
     }
 
+    function _findCrewKarcisSingle(trajectName) {
+        let totalPnpCount = 0;
+
+        if (!_setoranData?.data?.ritase) return totalPnpCount;
+
+        _setoranData.data.ritase.forEach(ritase => {
+            if (ritase.traject_name === trajectName.desc) {
+                totalPnpCount = trajectName?.count || 0
+            }
+        });
+
+        return totalPnpCount;
+    }
+
     function _calculateTotalExpenses(costData) {
         let total = 0;
 
@@ -888,7 +926,6 @@ export default function DepositDetail(props) {
             })
         }
 
-        console.log("notes", total)
         return total;
     }
 
@@ -1037,7 +1074,7 @@ export default function DepositDetail(props) {
                 }
             );
 
-          
+            console.log(payload)
 
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
@@ -1047,9 +1084,9 @@ export default function DepositDetail(props) {
             })
 
             // Navigate back to index page to restore filter state
-            setTimeout(() => {
-                window.location.href = "/admin/operation/deposit"
-            }, 1000);
+            // setTimeout(() => {
+            //     window.location.href = "/admin/operation/deposit"
+            // }, 1000);
         } catch (e) {
             popAlert({
                 message: e.message || 'Gagal menerima setoran',
@@ -1498,6 +1535,10 @@ export default function DepositDetail(props) {
 
                                                 let pnp = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findCrewKarcis(item.traject_id))
 
+                                                if (_setoranData?.data.setoran.status == "APPROVED" && _setoranData.data.ritase.length == 1) {
+                                                    pnp = _findCrewKarcisSingle(item)
+                                                }
+
                                                 return (
                                                     <Row
                                                         key={item.id}
@@ -1574,6 +1615,7 @@ export default function DepositDetail(props) {
                                     {
                                         _setoranData.data.biaya && _setoranData.data.biaya.length > 0 && _setoranData.data.biaya[0].details
                                             ?.filter(item => item.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)")
+                                            .sort((a, b) => (a.sequence || 0) + (b.sequence || 0))
                                             .map((item, index) => {
 
                                                 let pnp = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id, item.desc))

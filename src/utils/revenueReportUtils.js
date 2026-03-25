@@ -1,3 +1,5 @@
+import { currency, dateFilter } from "./filters"
+
 /**
  * Parse CSV row handling quoted values
  */
@@ -24,7 +26,7 @@ export function parseCSVRow(row) {
 /**
  * Group cash revenue data (Tunai)
  */
-export function groupCashRevenue(data, csvHeader) {
+export function groupCashRevenue(data, csvHeader, trajectBank) {
     const groups = {}
     const routeIdx = csvHeader.indexOf('Route')
     const dateIdx = csvHeader.indexOf('Date')
@@ -42,7 +44,7 @@ export function groupCashRevenue(data, csvHeader) {
         const date = row[dateIdx] || ''
         const route = row[routeIdx] || ''
         const groupKey = `${date}|${route}`
-        const trajectMaster = getTrajektNameByAccountNumber(row[accNumber])
+        const trajectMaster = getTrajektNameByAccountNumber(row[accNumber], trajectBank)
 
         if (!groups[groupKey]) {
             groups[groupKey] = {
@@ -61,14 +63,14 @@ export function groupCashRevenue(data, csvHeader) {
     return Object.values(groups).map(group => ({
         ...group,
         feeBIS: group.totalTunai * 0.012,
-        ppn: Math.floor((group.totalTunai * 0.012) * (11 / 111)),
+        ppn: Math.ceil((group.totalTunai * 0.012) * (11 / 111)),
     }))
 }
 
 /**
  * Group cashless revenue data (Non-Tunai)
  */
-export function groupCashlessRevenue(data, csvHeader) {
+export function groupCashlessRevenue(data, csvHeader, trajectBank) {
     const groups = {}
     const routeIdx = csvHeader.indexOf('Route')
     const dateIdx = csvHeader.indexOf('Date')
@@ -89,7 +91,7 @@ export function groupCashlessRevenue(data, csvHeader) {
         const route = row[routeIdx] || ''
         const paymentMethod = row[paymentMethodIdx] || ''
         const groupKey = `${date}|${route}`
-        const trajectMaster = getTrajektNameByAccountNumber(row[accNumber])
+        const trajectMaster = getTrajektNameByAccountNumber(row[accNumber], trajectBank)
 
         if (!groups[groupKey]) {
             groups[groupKey] = {
@@ -123,18 +125,24 @@ export function groupCashlessRevenue(data, csvHeader) {
         return {
             ...group,
             feeBIS: totalCashless * 0.012,
-            ppn: Math.floor((totalCashless * 0.012) * (11 / 111)),
+            ppn: Math.ceil((totalCashless * 0.012) * (11 / 111)),
         }
     })
 }
 
 /**
- * Get traject name by account number
- * Replace with your actual bank data mapping
+ * Get traject name alias by account number from trajectBank data
+ * @param {string} accNumber - Bank account number to search for
+ * @param {Array} trajectBank - Array of traject bank records
+ * @returns {string} traject_name_alias or '-' if not found
  */
-export function getTrajektNameByAccountNumber(accNumber) {
-    // TODO: Implement based on your bank data mapping
-    return accNumber || '-'
+export function getTrajektNameByAccountNumber(accNumber, trajectBank) {
+    if (!accNumber || !trajectBank || !Array.isArray(trajectBank)) {
+        return '-'
+    }
+
+    const record = trajectBank.find(item => item.bank_account_number === accNumber)
+    return record?.traject_name_alias || '-'
 }
 
 /**
@@ -146,6 +154,9 @@ export function getRevenueColumns(type) {
             title: 'Tanggal',
             field: 'date',
             textAlign: 'left',
+            customCell: (value) => {
+                return dateFilter.basicDate(new Date(value)).normalId
+            }
         },
         {
             title: 'Trayek (Master)',
@@ -168,62 +179,62 @@ export function getRevenueColumns(type) {
         return [
             ...baseColumns,
             {
-                title: 'Tunai (Rp)',
+                title: 'Tunai',
                 field: 'totalTunai',
                 textAlign: 'right',
-                customCell: (value) => formatCurrency(value),
+                customCell: (value) => currency(value),
             },
             {
-                title: 'Fee BIS (Rp)',
+                title: 'Fee BIS',
                 field: 'feeBIS',
                 textAlign: 'right',
-                customCell: (value) => formatCurrency(value),
+                customCell: (value) => currency(value),
             },
             {
-                title: 'PPN (Rp)',
+                title: 'PPn',
                 field: 'ppn',
                 textAlign: 'right',
-                customCell: (value) => formatCurrency(value),
+                customCell: (value) => currency(value),
             },
         ]
     } else if (type === 'cashlessRevenue') {
         return [
             ...baseColumns,
             {
-                title: 'QRIS (Rp)',
+                title: 'QRIS',
                 field: 'qris',
                 textAlign: 'right',
-                customCell: (value) => formatCurrency(value),
+                customCell: (value) => currency(value),
             },
             {
-                title: 'MDR QRIS (Rp)',
+                title: 'MDR QRIS',
                 field: 'mdrQris',
                 textAlign: 'right',
-                customCell: (value) => formatCurrency(value),
+                customCell: (value) => currency(value),
             },
             {
-                title: 'E-Money (Rp)',
+                title: 'E-Money',
                 field: 'emoney',
                 textAlign: 'right',
-                customCell: (value) => formatCurrency(value),
+                customCell: (value) => currency(value),
             },
             {
-                title: 'MDR E-Money (Rp)',
+                title: 'MDR E-Money',
                 field: 'mdrEmoney',
                 textAlign: 'right',
-                customCell: (value) => formatCurrency(value),
+                customCell: (value) => currency(value),
             },
             {
-                title: 'Fee BIS (Rp)',
+                title: 'Fee BIS',
                 field: 'feeBIS',
                 textAlign: 'right',
-                customCell: (value) => formatCurrency(value),
+                customCell: (value) => currency(value),
             },
             {
-                title: 'PPN (Rp)',
+                title: 'PPn',
                 field: 'ppn',
                 textAlign: 'right',
-                customCell: (value) => formatCurrency(value),
+                customCell: (value) => currency(value),
             },
         ]
     }

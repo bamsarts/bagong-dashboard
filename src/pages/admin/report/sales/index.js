@@ -56,6 +56,7 @@ export default function Sales(props) {
     const [_accessMenu, _setAccessMenu] = useState([])
     const [csvData, setCsvData] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [_trajectBankData, _setTrajektBankData] = useState([])
     
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -71,19 +72,11 @@ export default function Sales(props) {
             }
 
             _getCounter()
-            _getSalesReport()
+            fetchTrajektBankData()
         }
     }, [])
 
-
     
-
-    useEffect(() => {
-       
-    },[])
-
- 
-
     async function _getAllChannelReport() {
 
         if (!_compareDate(_date.start, _date.end)) {
@@ -126,7 +119,24 @@ export default function Sales(props) {
     }
     
 
-     function _downloadCsv(data, fileName, type = "transaction") {
+    const fetchTrajektBankData = async () => {
+        let params = {
+            startFrom: 0,
+            length: 360
+        }
+
+        try {
+            const res = await postJSON(`/masterData/trajectBank/list`, params, props.authData.token);
+            if (res && res.data) {
+                _setTrajektBankData(res.data);
+                _getSalesReport()
+            }
+        } catch (e) {
+            console.error("Failed to fetch traject bank data:", e);
+        }
+    };
+
+    function _downloadCsv(data, fileName, type = "transaction") {
         let template = document.createElement('template')
         let tableExport = "<table>"
 
@@ -399,8 +409,6 @@ export default function Sales(props) {
         return writeFile(wb, `${fileName.replace(".csv", "")}.xlsx`)
     }
 
-   
-
     async function _getSalesReport() {
 
         setIsLoading(true)
@@ -577,7 +585,12 @@ export default function Sales(props) {
                 noPadding
                 >
                     
-                    <RevenueReportDisplay csvData={csvData} isLoading={isLoading} />
+                    <RevenueReportDisplay
+                    date={_date}
+                    csvData={csvData} 
+                    isLoading={isLoading} 
+                    trajectBank={_trajectBankData}
+                    />
                         
                 </Card>
                     
