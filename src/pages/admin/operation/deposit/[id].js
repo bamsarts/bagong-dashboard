@@ -933,14 +933,14 @@ export default function DepositDetail(props) {
         let finalAmount = _setoranData?.data?.setoran?.payment_amount
 
         if (_setoranData?.data?.setoran?.status == "CREATED") {
-            finalAmount = _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit) - _typePaymentAmount.nonCash
+            finalAmount = _totalGrossAmount - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit) - _typePaymentAmount.nonCash
         }
 
         return finalAmount
     }
 
     function _getAmountNetIncome() {
-        return _form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit)
+        return _totalGrossAmount - _totalExpenses - _totalIncomeByPercentage - (_manifestCost.notesDeposit)
     }
 
     function _openUpdateModal(image) {
@@ -1074,8 +1074,6 @@ export default function DepositDetail(props) {
                 }
             );
 
-            console.log(payload)
-
             const response = await postJSON('/data/setoran/update', payload, props.authData.token)
 
             popAlert({
@@ -1084,9 +1082,9 @@ export default function DepositDetail(props) {
             })
 
             // Navigate back to index page to restore filter state
-            // setTimeout(() => {
-            //     window.location.href = "/admin/operation/deposit"
-            // }, 1000);
+            setTimeout(() => {
+                window.location.href = "/admin/operation/deposit"
+            }, 1000);
         } catch (e) {
             popAlert({
                 message: e.message || 'Gagal menerima setoran',
@@ -1835,7 +1833,7 @@ export default function DepositDetail(props) {
                                         >
                                             <Input
                                                 type="number"
-                                                value={currency(_form['grossAmount'].value - _totalExpenses)}
+                                                value={currency(_totalGrossAmount - _totalExpenses)}
                                                 placeholder={`Rp`}
                                                 style={{
                                                     textAlign: "right"
@@ -1917,7 +1915,7 @@ export default function DepositDetail(props) {
                                         >
                                             <Input
                                                 type="number"
-                                                value={currency(_form['grossAmount'].value - _totalExpenses - _totalIncomeByPercentage)}
+                                                value={currency(_totalGrossAmount - _totalExpenses - _totalIncomeByPercentage)}
                                                 placeholder={`Rp`}
                                                 style={{
                                                     textAlign: "right",
