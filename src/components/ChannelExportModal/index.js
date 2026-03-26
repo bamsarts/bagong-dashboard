@@ -440,6 +440,8 @@ export default function ChannelExportModal(props = defaultProps) {
                 if (dateDeposit !== -1 && type == "setoran") {
                     if (row[dateDeposit] == "-") {
                         continue;
+                    }else{
+                        row[dateDeposit] = dateFilter.basicDate(new Date(row[dateDeposit])).normalId
                     }
                 }
 
