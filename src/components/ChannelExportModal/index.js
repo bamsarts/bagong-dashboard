@@ -50,14 +50,14 @@ export default function ChannelExportModal(props = defaultProps) {
             title: "Setoran",
             value: "transaction"
         },
-        {
-            title: "Pendapatan Tunai",
-            value: "transaction"
-        },
-        {
-            title: "Pendapatan Non Tunai",
-            value: "transaction"
-        },
+        // {
+        //     title: "Pendapatan Tunai",
+        //     value: "transaction"
+        // },
+        // {
+        //     title: "Pendapatan Non Tunai",
+        //     value: "transaction"
+        // },
     ])
 
     const [_groupTransaction, _setGroupTransaction] = useState([
@@ -281,7 +281,7 @@ export default function ChannelExportModal(props = defaultProps) {
         tableExport += "</tr>";
 
         // Column indexes we need
-        const dateDeparture = csvHeader.indexOf("Date")
+        const dateTransaction = csvHeader.indexOf("Date")
         const accAcount = csvHeader.indexOf("Nomor Rekening")
         const dateDeposit = csvHeader.indexOf("Tanggal Setoran")
         const baseFare = csvHeader.indexOf("Base Fare")
@@ -290,6 +290,7 @@ export default function ChannelExportModal(props = defaultProps) {
         const depositStatus = csvHeader.indexOf("Status Setoran")
         const accNumber = csvHeader.indexOf("Nomor Rekening")
         const accName = csvHeader.indexOf("Nama Rekening")
+        const dateDeparture = csvHeader.indexOf("Departure Date")
 
         // Handle cashRevenue grouping
         if (type == "cashRevenue") {
@@ -334,7 +335,7 @@ export default function ChannelExportModal(props = defaultProps) {
             // Output grouped rows
             Object.values(groups).forEach(group => {
                 const feeBIS = group.totalTunai * 0.012;
-                const ppn = feeBIS * (11 / 111);
+                const ppn = Math.ceil(feeBIS * (11 / 111));
 
                 tableExport += "<tr>";
                 tableExport += `<td>'${group.date}</td>`;
@@ -443,22 +444,27 @@ export default function ChannelExportModal(props = defaultProps) {
                 }
 
                 // Filter data by dateDeparture between _date.start and _date.end
-                if (dateDeparture !== -1) {
-                    const rowDate = row[dateDeparture];
+                if (dateTransaction !== -1) {
+                    const rowDate = row[dateTransaction];
                     if (rowDate && (rowDate < _date.start || rowDate > _date.end)) {
                         continue;
                     }
                 }
 
-                if (dateDeparture !== -1) {
+                if (dateTransaction !== -1) {
                     // Convert date from YYYY-MM-DD to DD/MM/YYYY format
-                    const dateValue = row[dateDeparture];
+                    const dateValue = row[dateTransaction];
                     if (dateValue && dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
                         const [year, month, day] = dateValue.split('-');
-                        row[dateDeparture] = "'" + `${day}/${month}/${year}`;
+                        row[dateTransaction] = "'" + `${day}/${month}/${year}`;
                     } else {
-                        row[dateDeparture] = "'" + row[dateDeparture];
+                        row[dateTransaction] = "'" + row[dateTransaction];
                     }
+                }
+
+                if (dateDeparture !== -1) {
+                    // Convert date from YYYY-MM-DD to DD/MM/YYYY format
+                    row[dateDeparture] = dateFilter.basicDate(new Date(row[dateDeparture])).normalId
                 }
 
                 if (accAcount !== -1) {

@@ -21,6 +21,9 @@ export default function SettlementVendor(props) {
         {
             title: 'Pembayaran',
             field: 'payment_provider_detail_name',
+            customCell: (value, row) => {
+                return value == "emoney" ? "Emoney" : value.toUpperCase() 
+            }
         },
         {
             title: 'Jumlah Transaksi',
@@ -87,9 +90,9 @@ export default function SettlementVendor(props) {
         // Transform transactions data into worksheet format
         const worksheetData = transactions.map(transaction => ({
             'Penyedia Pembayaran': transaction.payment_provider_name,
-            'Pembayaran': transaction.payment_provider_detail_name,
-            'Trayek': transaction.traject_name,
-            'Tanggal Transaksi': dateFilter.basicDate(new Date(transaction.created_at)).normal,
+            'Pembayaran': transaction.payment_provider_detail_name == "emoney" ? "Emoney" : value.toUpperCase(),
+            'Master Trayek': transaction.traject_bank_name_alias,
+            'Tanggal Transaksi': dateFilter.basicDate(new Date(transaction.created_at)).normalId,
             'Harga Tiket': parseFloat(transaction.amount),
             'Penumpang': transaction.quantity,
             'Diskon': transaction.discount ? parseFloat(transaction.discount) : 0,
