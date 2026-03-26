@@ -706,6 +706,11 @@ export default function DepositDetail(props) {
             if (item.name === "PER KARCIS UNTUK KRU") {
                 // Use editable pnp if available, otherwise use calculated value
                 passengerCount = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findCrewKarcis(item.traject_id));
+
+                if (_setoranData?.data.setoran.status == "APPROVED" && _setoranData.data.ritase.length == 1) {
+                    passengerCount = _findCrewKarcisSingle(item)
+                }
+
             } else if (item.name === "PER KEPALA UNTUK MANDORAN (HANYA DALAM TERMINAL)") {
                 passengerCount = item?.count || (_editablePnp[item.id] !== undefined ? _editablePnp[item.id] : _findMandoran(item.traject_id, item.desc));
             }

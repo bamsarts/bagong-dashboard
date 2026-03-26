@@ -207,18 +207,18 @@ export default function Dashboard(props) {
             title: 'Semua',
             value: ''
         },
-        // {
-        //     title: 'User Apps',
-        //     value: '0'
-        // },
+        {
+            title: 'Kondektur',
+            value: '0'
+        },
         // {
         //     title: 'Counter',
         //     value: '00'
         // },
-        // {
-        //     title: 'Web Reservasi',
-        //     value: '000'
-        // }
+        {
+            title: 'Apps',
+            value: '000'
+        }
     ])
 
     const [_counter, _setCounter] = useState({

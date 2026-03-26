@@ -656,7 +656,7 @@ export default function Transaction(props) {
         },
         {
             "id": 2,
-            "label": "Damri"
+            "label": "Cash"
         },
         {
             "id": 3,

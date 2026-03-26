@@ -579,7 +579,7 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
                 crew2Name: false
             })
             _getLmb()
-            console.log("propstrac", props.data.trajectTracks)
+
             _setFareTrajectRanges(validateTrajectRanges(props.data?.trajectTracks, true))
     
             _updateQuery({
@@ -607,7 +607,10 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
             }
             
             _setSelectedSeats(dataSeat)
-            _mappingLayout(props.data?.busCategorySeatLayout)
+
+            if(props.data?.busCategorySeatLayout){
+                _mappingLayout(props.data?.busCategorySeatLayout)
+            }
            
         }
        

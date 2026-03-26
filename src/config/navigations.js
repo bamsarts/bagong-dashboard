@@ -653,13 +653,13 @@ export const NAVIGATIONS = [
                 href : ADMIN_BASE_URL + '/operation/deposit',
                 isHide: false,
             },
+            // {
+            //     title : 'Penugasan',
+            //     href : ADMIN_BASE_URL + '/operation/assign-task',
+            //     isHide: false,
+            // },
             {
                 title : 'Penugasan',
-                href : ADMIN_BASE_URL + '/operation/assign-task',
-                isHide: false,
-            },
-            {
-                title : 'New Penugasan',
                 href : ADMIN_BASE_URL + '/operation/assignment',
                 isHide: false,
             }
