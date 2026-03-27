@@ -225,14 +225,14 @@ export default function ChannelExportModal(props = defaultProps) {
         let tableExport = "<table>"
 
         // Define desired columns in the order we want them in the export
-        const headerTransaction = ["Transaction ID", "Penyedia Pembayaran", "Date", "Kode Trayek", "Trayek (Master)", "Route", "Origin",
-            "Destination", "Bus Name", "Cabang Trayek", "Booking Code", "Departure Date", "Passenger Count",
+        const headerTransaction = ["Booking Code", "Penyedia Pembayaran", "Date", "Kode Trayek", "Trayek (Master)", "Route", "Origin",
+            "Destination", "Bus Name", "Cabang Trayek", "Transaction ID", "Departure Date", "Passenger Count",
             "Base Fare", "Total Harga Tiket", "Diskon", "Total Harga Setelah Discount", "MDR", "Payment Method",
             "Channel", "Payment Status", "Status Setoran", "Nomor Rekening", "Nama Rekening"];
 
 
-        const headerDeposit = ["Transaction ID", "Penyedia Pembayaran", "Date", "Kode Trayek", "Trayek (Master)", "Route", "Origin",
-            "Destination", "Bus Name", "Cabang Trayek", "Booking Code", "Tanggal Setoran", "Passenger Count",
+        const headerDeposit = ["Booking Code", "Penyedia Pembayaran", "Date", "Kode Trayek", "Trayek (Master)", "Route", "Origin",
+            "Destination", "Bus Name", "Cabang Trayek",  "Transaction ID", "Tanggal Setoran", "Passenger Count",
             "Base Fare", "Total Harga Tiket", "Diskon", "Total Harga Setelah Discount", "MDR", "Payment Method",
             "Channel"];
 
