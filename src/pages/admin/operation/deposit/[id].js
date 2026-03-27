@@ -467,6 +467,13 @@ export default function DepositDetail(props) {
 
             let assignment = null
 
+            let ritase = deposit?.ritase?.split(",")
+            let ritaseCount = 0
+
+            ritase.forEach(function(val, key){
+                ritaseCount += parseInt(val)
+            })
+
             /**
              * RESPONSE BARU:
              * data = [ GROUP ]
@@ -475,13 +482,31 @@ export default function DepositDetail(props) {
             res.data.forEach(group => {
                 group.penugasan.forEach(val => {
 
-                    const isMatch =
+                    let ritaseGroup = val.group_ritase.split("&")
+                    let ritaseGroupCount = 0
+
+                    ritaseGroup.forEach(function(val, key){
+                        ritaseGroupCount += parseInt(val)
+                    })
+
+
+                    let isMatch =
                         val.assign_date === deposit.assign_date &&
                         String(val.traject_master_id) === String(deposit.traject_master_id) &&
                         String(val.bus_id) === String(deposit.bus_id)
 
                     if (isMatch) {
-                        assignment = val
+
+                        if(ritase.length > 1){
+                            if(ritaseCount == ritaseGroupCount){
+                                assignment = val
+                            }
+                        }else{
+                            if(ritase[0] == val.ritase){
+                                assignment = val
+                            }
+                        }
+
                     }
                 })
             })

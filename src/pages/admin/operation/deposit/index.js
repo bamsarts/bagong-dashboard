@@ -63,12 +63,13 @@ export default function Deposit(props) {
             title: 'Kondektur',
             textAlign: 'left',
             customCell: (value, row) => {
-                const kondektur = _userCrew.find(c => c.idUser == row.bus_crew1_id)
-
+                const crewIds = String(row.bus_crew1_id).split(',').map(id => id.trim())
+                const kondekturs = _userCrew.filter(c => crewIds.includes(String(c.idUser)))
+                const names = kondekturs.map(k => k.name).join(', ')
 
                 return (
                     <div>
-                        <div>{kondektur?.name || '-'}</div>
+                        <div>{names || '-'}</div>
                     </div>
                 )
             }
@@ -129,7 +130,7 @@ export default function Deposit(props) {
                         onClick={() => {
                             _saveFilterState()
                             localStorage.setItem("operasional_deposit", JSON.stringify(row))
-                            router.push(`/admin/operation/deposit/${value.id}?assign_date=`+row.assign_date+"&traject_master_id="+row.traject_master_id+"&bus_id="+row.bus_id)
+                            router.push(`/admin/operation/deposit/${value.id}?assign_date=` + row.assign_date + "&traject_master_id=" + row.traject_master_id + "&bus_id=" + row.bus_id + "&ritase=" + row.ritase)
                         }}
                         small
                     />
