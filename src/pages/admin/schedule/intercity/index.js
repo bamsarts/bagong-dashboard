@@ -36,14 +36,28 @@ export default function ScheduleIntercity(props) {
                 )
             }
         },
-        {
-            title : 'Kode Trayek',
-            field : 'trajectMasterCode',
-            textAlign: 'center'
-        },
+        
         {
             title : 'Kode Jadwal',
             field : 'code',
+            textAlign: 'left'
+        },
+        {
+            title : 'Kode Trayek',
+            field : 'trajectMasterCode',
+            textAlign: 'left',
+            customCell: (value, row) => {
+                return (
+                    <Col>
+                        <strong>{value}</strong>
+                        <span>{row.trajectMasterName}</span>
+                    </Col>
+                )
+            }
+        },
+        {
+            title : 'Cabang',
+            field : 'branchName',
             textAlign: 'left'
         },
         {
@@ -68,7 +82,7 @@ export default function ScheduleIntercity(props) {
                         }
                         
                         {
-                            row.MPOS && (
+                            row.isMPOS && (
                                 <span
                                 className={generateClasses([
                                 styles.label,
@@ -389,12 +403,10 @@ export default function ScheduleIntercity(props) {
                     })
                 }
 
-                // if(val.category == "INTERCITY"){
-                //     segmentRange.push({
-                //         "title": val.code,
-                //         "value": val.id
-                //     })
-                // }
+                segmentRange.push({
+                    "title": val.code,
+                    "value": val.id
+                })
             })
             _setSegmentRanges(segmentRange)
         } catch (e) {

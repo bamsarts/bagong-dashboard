@@ -3,7 +3,7 @@ export default function paymentProvider(id){
     //2. Damri
     //3. TSM
     //4. Faspay
-    const providers = ["","Midtrans","Damri","TSM","Faspay","Winpay","Bank Mandiri"]
+    const providers = ["","Midtrans","PO","TSM","Faspay","Winpay","Bank Mandiri","Indomaret"]
     
     if (!Number.isInteger(id)) {
         return ''

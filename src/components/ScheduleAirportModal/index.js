@@ -324,7 +324,7 @@ export default function ScheduleAirportModal(props = defaultProps){
                     labels={[
                         {
                             class: "primary",
-                            title: 'DAMRI Apps',
+                            title: 'Apps',
                             value: "DAMRI_APPS",
                             onClick : () => {
                                 _updateQuery({

@@ -349,7 +349,7 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
         const params = {
             "startFrom": 0,
             "length": 1900,
-            "role_id": 3
+            "role_id": 17
         }
         
         try {
@@ -659,15 +659,38 @@ export default function ScheduleLmbModal(props = ScheduleTemplateModal.defaultPr
                             display: "grid"
                         }}
                         >
-                            <small>Trip</small>
-                            <small
-                            className={generateClasses([
-                                styles.label,
-                                props.data?.direction == "PERGI" ? styles.primary : styles.warning
-                            ])}
-                            >
-                                {props.data?.direction}
-                            </small>
+                            <small>Channel</small>                           
+
+                            <Row>
+
+                                {
+                                    props.data?.isApps && (
+                                        <span
+                                        className={generateClasses([
+                                            styles.label,
+                                            styles.primary
+                                        ])}
+                                        >
+                                            Apps
+                                        </span>
+                                    )
+                                }
+                                
+                                {
+                                    props.data?.isMPOS && (
+                                        <span
+                                        className={generateClasses([
+                                        styles.label,
+                                        styles.warning
+                                        ])}
+                                        >
+                                            MPOS
+                                        </span>
+                                    )
+                                }
+
+                    
+                            </Row>
                         </Col>
 
                         <Col

@@ -87,15 +87,12 @@
 }
 
 .header_content{
-    color: #fff;
+    color: #363636;
     margin-left: .5rem;
     display: flex;
     align-items: center;
+    gap: .5rem;
+    cursor: pointer;
 
-
-    a{
-        margin-right: .5rem;
-        display: grid;
-    }
     
 }
